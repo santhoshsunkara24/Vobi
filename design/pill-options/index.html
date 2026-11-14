@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Pill Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet" />
+<style>
+:root { --font: "Instrument Sans", -apple-system, "Segoe UI", system-ui, sans-serif; --ease: cubic-bezier(.22,1,.36,1); --text: #0E1620; --text-2: #5A6675; --text-3: #97A2AF; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 14.5px/1.5 var(--font); color: var(--text); -webkit-font-smoothing: antialiased; background: #F4F7FA; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.025em; }
+.sub { color: var(--text-2); margin: 6px 0 22px; max-width: 640px; }
+.bar { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.seg { position: relative; display: inline-flex; padding: 4px; gap: 2px; background: #fff; border-radius: 999px; box-shadow: 0 1px 2px rgba(18,38,58,.05), 0 8px 24px -10px rgba(18,38,58,.15); }
+.seg button { font: inherit; border: 0; background: none; cursor: pointer; position: relative; z-index: 1; height: 34px; padding: 0 15px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--text-2); }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg .thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: #0E1620; transition: transform .45s var(--ease), width .45s var(--ease); }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.card { background: #fff; border-radius: 26px; overflow: hidden; box-shadow: 0 1px 2px rgba(18,38,58,.04), 0 14px 36px -12px rgba(18,38,58,.12); }
+.scene { position: relative; height: 300px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; padding-bottom: 18px; }
+/* a busy "desktop" behind the pills, so transparency reads */
+.scene.light { background: radial-gradient(300px 200px at 15% 20%, #FFD6A5, transparent 70%), radial-gradient(320px 220px at 85% 30%, #C3B5FF, transparent 70%), radial-gradient(360px 240px at 50% 100%, #9FE3FF, transparent 70%), #F3F1EC; }
+.scene.dark { background: radial-gradient(300px 200px at 15% 20%, #6B3FA0, transparent 70%), radial-gradient(320px 220px at 85% 30%, #0F6B8F, transparent 70%), radial-gradient(360px 240px at 50% 100%, #2A2F7A, transparent 70%), #12131A; }
+.doc { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); width: 82%; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,.82); color: #2A2F38; font-size: 13px; line-height: 1.55; box-shadow: 0 8px 24px -10px rgba(0,0,0,.2); }
+.scene.dark .doc { background: rgba(30,32,40,.85); color: #D6DAE2; }
+.doc b { color: #0E1620; } .scene.dark .doc b { color: #fff; }
+.doc .stripe { display: inline-block; height: 9px; border-radius: 5px; background: linear-gradient(90deg, #FF8A65, #FFB74D); vertical-align: middle; }
+.body { padding: 16px 18px 18px; }
+.title { display: flex; align-items: baseline; gap: 8px; }
+.title b { font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.title span { font-size: 13px; color: var(--text-3); }
+.desc { color: var(--text-2); font-size: 13.5px; margin: 6px 0 0; }
+
+/* ---------- pill base ---------- */
+.pill { position: relative; height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 16px 0 5px; border-radius: 999px; isolation: isolate; overflow: hidden; white-space: nowrap; }
+.pill .slot { width: 46px; height: 46px; display: grid; place-items: center; flex: none; }
+.wave { display: flex; gap: 3px; align-items: center; height: 26px; }
+.wave i { width: 3px; height: 24px; border-radius: 2px; transform: scaleY(.15); }
+.lbl { font-size: 14px; font-weight: 600; }
+.muted { font-size: 13px; font-weight: 500; }
+.check { width: 20px; height: 20px; flex: none; }
+.shimmer { font-size: 14px; font-weight: 600; background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 1.8s linear infinite; }
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -80% 0; } }
+.sheen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 45%); mix-blend-mode: soft-light; z-index: -1; }
+
+/* A · Liquid Glass */
+.v-glass { background: rgba(255,255,255,.22); backdrop-filter: blur(26px) saturate(190%); -webkit-backdrop-filter: blur(26px) saturate(190%); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 0 0 1px rgba(255,255,255,.35), 0 14px 34px -10px rgba(30,80,160,.35); color: #0E2238; }
+.v-glass .muted { color: rgba(14,34,56,.6); } .v-glass .wave i { background: linear-gradient(#3DB8F4, #2B6FEF); } .v-glass .check { color: #1A9EEA; }
+.v-glass .shimmer { background-image: linear-gradient(90deg, rgba(14,34,56,.45) 0%, #1A6FE0 40%, rgba(14,34,56,.45) 80%); }
+.scene.dark .v-glass { background: rgba(255,255,255,.12); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px rgba(255,255,255,.18), 0 14px 34px -10px rgba(0,0,0,.5); }
+.scene.dark .v-glass .muted { color: rgba(255,255,255,.65); } .scene.dark .v-glass .shimmer { background-image: linear-gradient(90deg, rgba(255,255,255,.5) 0%, #fff 40%, rgba(255,255,255,.5) 80%); } .scene.dark .v-glass .check { color: #7FDBFA; }
+
+/* B · Deep Ocean */
+.v-ocean { background: linear-gradient(135deg, rgba(10,30,70,.62), rgba(24,88,200,.5)); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 0 0 1px rgba(140,200,255,.22), 0 16px 36px -10px rgba(20,70,180,.55); color: #fff; }
+.v-ocean .muted { color: rgba(220,236,255,.7); } .v-ocean .wave i { background: linear-gradient(#9FE9FF, #4F9BFF); } .v-ocean .check { color: #8FE6FC; }
+.v-ocean .shimmer { background-image: linear-gradient(90deg, rgba(200,225,255,.55) 0%, #fff 40%, rgba(200,225,255,.55) 80%); }
+
+/* C · Sky Gradient */
+.v-sky { background: linear-gradient(120deg, rgba(106,213,249,.78) 0%, rgba(47,177,244,.78) 45%, rgba(58,123,245,.82) 100%); backdrop-filter: blur(18px) saturate(170%); -webkit-backdrop-filter: blur(18px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,.28), 0 16px 34px -10px rgba(47,140,240,.6); color: #fff; }
+.v-sky .muted { color: rgba(255,255,255,.82); } .v-sky .wave i { background: rgba(255,255,255,.95); } .v-sky .check { color: #fff; }
+.v-sky .shimmer { background-image: linear-gradient(90deg, rgba(255,255,255,.6) 0%, #fff 40%, rgba(255,255,255,.6) 80%); }
+
+/* D · Aurora */
+.v-aurora { background: rgba(8,14,30,.55); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 16px 36px -12px rgba(0,0,0,.55); color: #fff; }
+.v-aurora .aur { position: absolute; inset: -40%; z-index: -1; filter: blur(18px); opacity: .9; background: radial-gradient(30% 60% at 20% 50%, rgba(47,177,244,.85), transparent 70%), radial-gradient(30% 60% at 60% 40%, rgba(58,123,245,.8), transparent 70%), radial-gradient(25% 50% at 85% 60%, rgba(106,213,249,.7), transparent 70%); animation: aur 7s ease-in-out infinite alternate; }
+@keyframes aur { 0% { transform: translateX(-12%) rotate(0deg); } 100% { transform: translateX(12%) rotate(8deg); } }
+.v-aurora .muted { color: rgba(255,255,255,.72); } .v-aurora .wave i { background: #fff; } .v-aurora .check { color: #fff; }
+.v-aurora .shimmer { background-image: linear-gradient(90deg, rgba(255,255,255,.55) 0%, #fff 40%, rgba(255,255,255,.55) 80%); }
+
+/* E · Halo Ring */
+.v-halo { background: rgba(10,16,28,.58); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); color: #fff; box-shadow: 0 16px 36px -10px rgba(30,110,240,.45); }
+.v-halo::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; background: conic-gradient(from var(--a, 0deg), #6AD5F9, #2FB1F4, #3A7BF5, rgba(58,123,245,.1), #6AD5F9); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; z-index: -1; animation: spin 4s linear infinite; }
+@property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes spin { to { --a: 360deg; } }
+.v-halo .muted { color: rgba(255,255,255,.65); } .v-halo .wave i { background: linear-gradient(#9FE9FF, #3A86F5); } .v-halo .check { color: #7FDBFA; }
+.v-halo .shimmer { background-image: linear-gradient(90deg, rgba(255,255,255,.5) 0%, #fff 40%, rgba(255,255,255,.5) 80%); }
+
+/* F · Frost Blue */
+.v-frost { background: linear-gradient(180deg, rgba(232,245,255,.62), rgba(196,226,255,.52)); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(120,180,240,.35), 0 14px 32px -10px rgba(40,110,200,.35); color: #0B3A6E; }
+.v-frost .muted { color: rgba(11,58,110,.6); } .v-frost .wave i { background: linear-gradient(#2FB1F4, #2B6FEF); } .v-frost .check { color: #1A8FE0; }
+.v-frost .shimmer { background-image: linear-gradient(90deg, rgba(11,58,110,.45) 0%, #1A6FE0 40%, rgba(11,58,110,.45) 80%); }
+.scene.dark .v-frost { background: linear-gradient(180deg, rgba(200,230,255,.28), rgba(150,200,255,.2)); color: #fff; } .scene.dark .v-frost .muted { color: rgba(255,255,255,.7); }
+
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .v-aurora .aur, .v-halo::before, .shimmer { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Vobi pill · premium options</h1>
+  <p class="sub">Six see-through blue styles for the recording pill. Each is shown listening, refining and done, floating over a busy desktop so you can judge the transparency. Switch the backdrop between a light and a dark desktop.</p>
+  <div class="bar"><div class="seg" id="bg"><span class="thumb"></span><button data-v="light" aria-pressed="true">Light desktop</button><button data-v="dark" aria-pressed="false">Dark desktop</button></div></div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* ---------- VOBI: the Ocean Marshmallow cloud ---------- */
+const NAVY = "#14304C";
+const CLOUD = { puffs: [[-21, -2, 17], [-2, -14, 22], [21, -6, 18], [33, 8, 11]], base: [-42, 4, 84, 34], o: [0, 10] };
+function cloudPoints(puffs, base, ox, oy, smooth, N) {
+  const circles = puffs.slice(), [bx, by, bw, bh] = base, br = bh / 2;
+  for (let x = bx + br; x <= bx + bw - br + .01; x += Math.max(4, (bw - bh) / 6)) circles.push([x, by + br, br]);
+  const R = new Array(N);
+  for (let i = 0; i < N; i++) {
+    const a = i / N * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a); let best = 0;
+    for (const [cx, cy, r] of circles) { const px = cx - ox, py = cy - oy, b = dx * px + dy * py, c = px * px + py * py - r * r, disc = b * b - c; if (disc >= 0) { const t = b + Math.sqrt(disc); if (t > best) best = t; } }
+    R[i] = best;
+  }
+  for (let k = 0; k < smooth; k++) { const c = R.slice(); for (let i = 0; i < N; i++) R[i] = (c[(i - 1 + N) % N] + 2 * c[i] + c[(i + 1) % N]) / 4; }
+  return "M" + R.map((r, i) => { const a = i / N * Math.PI * 2; return (ox + Math.cos(a) * r).toFixed(2) + "," + (oy + Math.sin(a) * r).toFixed(2); }).join("L") + "Z";
+}
+let blobN = 0;
+class VobiBlob {
+  constructor(mount, size = 40, o = {}) {
+    this.id = "v" + (++blobN); this.mono = !!o.mono; this.small = size < 70; this.state = "idle"; this.level = 0; this.targetLevel = 0; this.t = Math.random() * 10;
+    const S = (x = 1) => ({ x, v: 0, to: x });
+    this.sy = S(); this.sx = S(); this.ty = S(0); this.open = S(); this.happy = S(0); this.err = S(0); this.lx = S(0); this.ly = S(0); this.big = S(1);
+    this.nextBlink = performance.now() + 900 + Math.random() * 3000;
+    const G = this.id, sm = this.small;
+    const body = this.mono
+      ? `<path class="body" fill="currentColor"/>`
+      : `<path class="body" fill="url(#${G}f)" filter="url(#${G}soft)"/>
+         <g clip-path="url(#${G}clip)"><ellipse cx="0" cy="46" rx="60" ry="24" fill="url(#${G}ao)"/><ellipse cx="0" cy="30" rx="30" ry="9" fill="url(#${G}glow)"/><ellipse cx="-12" cy="-22" rx="34" ry="18" fill="url(#${G}hi)" opacity=".9"/></g>
+         <path class="rim" fill="none" stroke="url(#${G}rim)" stroke-width="2"/>
+         <ellipse cx="-14" cy="-18" rx="6" ry="3.4" fill="#fff" opacity=".9" transform="rotate(-25 -14 -18)"/>`;
+    const eyeC = this.mono ? "var(--eye,#fff)" : NAVY;
+    mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">
+      <defs>
+        <linearGradient id="${G}f" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#DDF7FF"/><stop offset=".55" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></linearGradient>
+        <radialGradient id="${G}hi"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${G}ao"><stop offset="0" stop-color="#1B44C9" stop-opacity=".55"/><stop offset="1" stop-color="#1B44C9" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${G}glow"><stop offset="0" stop-color="#9EEBFF" stop-opacity=".85"/><stop offset="1" stop-color="#9EEBFF" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${G}bl"><stop offset="0" stop-color="#FF7EAA" stop-opacity=".75"/><stop offset="1" stop-color="#FF7EAA" stop-opacity="0"/></radialGradient>
+        <linearGradient id="${G}rim" x1="0" y1="-40" x2="0" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <filter id="${G}soft" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="${sm ? 1 : 5}" stdDeviation="${sm ? 1.4 : 5}" flood-color="#1B44C9" flood-opacity=".32"/></filter>
+        <clipPath id="${G}clip"><path class="clipP"/></clipPath>
+      </defs>
+      ${o.shadow ? `<ellipse class="sh" cx="0" cy="52" rx="34" ry="4" fill="#0B2A4A" opacity=".12"/>` : ""}
+      <g class="b">${body}
+        <g class="face">
+          ${this.mono ? "" : `<ellipse class="bl" rx="6" ry="3.4" fill="url(#${G}bl)"/><ellipse class="br" rx="6" ry="3.4" fill="url(#${G}bl)"/>`}
+          <ellipse class="el" fill="${eyeC}"/><ellipse class="er" fill="${eyeC}"/>
+          ${this.mono || sm ? "" : `<circle class="g1" r="1.7" fill="#fff"/><circle class="g2" r="1.7" fill="#fff"/><circle class="g3" r=".8" fill="#fff"/><circle class="g4" r=".8" fill="#fff"/>`}
+          <path class="al" fill="none" stroke="${eyeC}" stroke-width="${this.mono ? 4.5 : 3}" stroke-linecap="round"/><path class="ar" fill="none" stroke="${eyeC}" stroke-width="${this.mono ? 4.5 : 3}" stroke-linecap="round"/>
+          ${this.mono ? "" : `<path class="sm" fill="none" stroke="${NAVY}" stroke-width="2.2" stroke-linecap="round"/><ellipse class="mo" fill="#0E2238"/>`}
+        </g></g></svg>`;
+    const q = s => mount.querySelector(s);
+    this.r = { b: q(".b"), body: q(".body"), clipP: q(".clipP"), rim: q(".rim"), sh: q(".sh"), el: q(".el"), er: q(".er"), al: q(".al"), ar: q(".ar"),
+      g: [...mount.querySelectorAll(".g1,.g2,.g3,.g4")], sm: q(".sm"), mo: q(".mo"), bl: q(".bl"), br: q(".br") };
+    requestAnimationFrame(n => this.frame(n));
+  }
+  setState(s) {
+    if (s === this.state) return; const p = this.state; this.state = s;
+    this.happy.to = s === "done" ? 1 : 0; this.err.to = s === "error" ? 1 : 0; this.big.to = s === "listening" ? 1.12 : 1;
+    if (s === "done") { this.sy.v -= 2.8; this.sx.v += 1.8; this.ty.v -= 200; }
+    if (s === "listening" && p !== "listening") { this.sy.v += 1.5; this.sx.v -= .8; this.ty.v -= 60; }
+    if (s === "error") { this.sy.v += 1.2; }
+  }
+  st(s, k, c, dt) { s.v += (-k * (s.x - s.to) - c * s.v) * dt; s.x += s.v * dt; }
+  frame(now) {
+    const dt = Math.min(.033, (now - (this.last || now)) / 1000 || .016); this.last = now; this.t += dt;
+    const r = this.r, st = this.state, t = reduceMotion ? 0 : this.t;
+    const tl = st === "listening" ? this.targetLevel : 0; this.level += (tl - this.level) * (tl > this.level ? .45 : .12); const L = this.level;
+    if (now > this.nextBlink && st !== "done" && st !== "error") { this.open.x = .08; this.open.v = 0; this.nextBlink = now + 2400 + Math.random() * 3400; }
+    this.lx.to = st === "thinking" ? 3.5 * Math.sign(Math.sin(this.t * 1.3)) : 0; this.ly.to = st === "thinking" ? -2.5 : st === "listening" ? -1 : st === "error" ? 1.5 : 0;
+    const br = reduceMotion ? 0 : Math.sin(this.t * (st === "idle" ? 1.3 : 2.4)) * (st === "idle" ? .022 : .015);
+    this.sy.to = 1 + br + L * .1 - this.err.x * .04; this.sx.to = 1 - br * .5 + L * .05;
+    for (const [s, k, c] of [[this.sy, 260, 13], [this.sx, 260, 13], [this.ty, 220, 16], [this.open, 300, 22], [this.happy, 240, 22], [this.err, 240, 22], [this.lx, 140, 16], [this.ly, 140, 16], [this.big, 220, 18]]) this.st(s, k, c, dt);
+    const hap = Math.max(0, Math.min(1, this.happy.x)), er = Math.max(0, Math.min(1, this.err.x)), ty = Math.min(0, this.ty.x);
+    const puffs = CLOUD.puffs.map(([cx, cy, rr], i) => {
+      const ph = i * 1.9; let d = Math.sin(t * (1.1 + i * .17) + ph) * .9;
+      if (st === "listening") d += Math.max(0, Math.sin(t * 9 + ph * 1.4)) * L * 5.5;
+      if (st === "thinking") d += Math.max(0, Math.sin(t * 4.2 - i * .9)) * 2.6;
+      return [cx, cy, rr + d - er * 1.2];
+    });
+    const d = cloudPoints(puffs, CLOUD.base, CLOUD.o[0], CLOUD.o[1], 3, this.small ? 80 : 140);
+    r.body.setAttribute("d", d); if (r.clipP) r.clipP.setAttribute("d", d); if (r.rim) r.rim.setAttribute("d", d);
+    const baseY = 42;
+    r.b.setAttribute("transform", `translate(0 ${ty.toFixed(2)}) translate(0 ${baseY}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-baseY})`);
+    if (r.sh) r.sh.setAttribute("opacity", (.12 * (1 + ty / 45)).toFixed(3));
+    // face
+    const gap = this.mono ? 13 : 12, rx = this.mono ? 5.5 : 4.6, ry = this.mono ? 7.5 : 6.2, y0 = this.mono ? 15 : 16;
+    const lx = this.lx.x, ly = this.ly.x, big = this.big.x, ey = y0 + ly;
+    const eyeOpen = Math.max(.06, this.open.x) * (1 - hap) * (1 - er * .7);
+    [[r.el, -1], [r.er, 1]].forEach(([e, s]) => { e.setAttribute("cx", (s * gap + lx).toFixed(2)); e.setAttribute("cy", ey.toFixed(2)); e.setAttribute("rx", (rx * big * (1 + er * .25)).toFixed(2)); e.setAttribute("ry", Math.max(.6, ry * big * eyeOpen).toFixed(2)); e.setAttribute("opacity", hap > .85 ? 0 : 1); });
+    [[r.al, -1], [r.ar, 1]].forEach(([p, s]) => { const cx = s * gap + lx, w = rx * 1.25; p.setAttribute("d", `M${(cx - w).toFixed(2)},${(ey + 1.5).toFixed(2)} Q${cx.toFixed(2)},${(ey - 4.2).toFixed(2)} ${(cx + w).toFixed(2)},${(ey + 1.5).toFixed(2)}`); p.setAttribute("opacity", (hap > .5 ? Math.min(1, (hap - .5) * 3) : 0).toFixed(2)); });
+    if (r.g.length) { const vis = eyeOpen > .55 ? 1 : 0; r.g.forEach((g, i) => { const s = i % 2 ? 1 : -1, sm = i > 1; g.setAttribute("cx", (s * gap + lx + (sm ? -1.6 : 1.5) * big).toFixed(2)); g.setAttribute("cy", (ey + (sm ? 2.4 : -2.2) * big).toFixed(2)); g.setAttribute("opacity", vis); }); }
+    if (r.bl) { r.bl.setAttribute("cx", (-gap - 9 + lx * .5).toFixed(2)); r.br.setAttribute("cx", (gap + 9 + lx * .5).toFixed(2)); [r.bl, r.br].forEach(b => { b.setAttribute("cy", (ey + 6).toFixed(2)); b.setAttribute("opacity", ((.7 + hap * .3) * (1 - er * .6)).toFixed(2)); }); }
+    if (r.sm) {
+      const talk = st === "listening" ? L : 0, my = ey + 7.5, mx = lx * .6;
+      r.mo.setAttribute("cx", mx.toFixed(2)); r.mo.setAttribute("cy", (my + 1).toFixed(2)); r.mo.setAttribute("rx", (2.6 + talk * .8).toFixed(2)); r.mo.setAttribute("ry", (.5 + talk * 3.6).toFixed(2)); r.mo.setAttribute("opacity", talk > .06 ? 1 : 0);
+      const w = 2.6 + hap * 2.2, dp = 1.8 + hap * 2.6 - er * 4.2;
+      r.sm.setAttribute("d", `M${(mx - w).toFixed(2)},${(my + er * 1.5).toFixed(2)} Q${mx.toFixed(2)},${(my + dp + er * 1.5).toFixed(2)} ${(mx + w).toFixed(2)},${(my + er * 1.5).toFixed(2)}`); r.sm.setAttribute("opacity", talk > .06 ? 0 : 1);
+    }
+    if (document.hidden) setTimeout(() => requestAnimationFrame(n => this.frame(n)), 400); else requestAnimationFrame(n => this.frame(n));
+  }
+}
+
+const V = [
+  ["glass", "Liquid Glass", "frosted & clear", "Clear frosted glass that picks up whatever is behind it, with a bright glass edge. Light, calm, very Apple."],
+  ["ocean", "Deep Ocean", "translucent navy → blue", "A deep, see-through ocean gradient with a soft blue glow. Rich and premium on any background."],
+  ["sky", "Sky Gradient", "the brand gradient, translucent", "Vobi’s sky-to-blue gradient as tinted glass with white text. Bold and unmistakably Vobi."],
+  ["aurora", "Aurora", "living blue light", "Dark glass with slow-moving blue light flowing inside. Feels alive and a bit magical while it works."],
+  ["halo", "Halo Ring", "glass with a glowing edge", "Smoky glass with a blue gradient ring that slowly circles the edge, a premium ‘AI at work’ feel."],
+  ["frost", "Frost Blue", "icy pale blue glass", "Pale icy-blue glass with deep blue text. Soft, airy and very light on your screen."],
+];
+const doc = `<div class="doc"><b>Launch plan</b><br>For the launch we need three things: the landing page, the emails and the social posts. <span class="stripe" style="width:90px"></span> <span class="stripe" style="width:60px;background:linear-gradient(90deg,#7C4DFF,#B388FF)"></span><br>Also a short demo video, and a review on Friday with the whole team before we go live.</div>`;
+const grid = document.getElementById("grid");
+const listeners = [];
+V.forEach(([k, name, tag, desc]) => {
+  const c = document.createElement("article"); c.className = "card";
+  const extra = k === "aurora" ? '<span class="aur"></span>' : "";
+  const check = '<svg class="check" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11.5l4 4 8-9"/></svg>';
+  c.innerHTML = `<div class="scene light">${doc}
+      <div class="pill v-${k} sheen">${extra}<div class="slot s1"></div><div class="wave">${"<i></i>".repeat(16)}</div><span class="muted">0:04</span></div>
+      <div class="pill v-${k} sheen">${extra}<div class="slot s2"></div><span class="shimmer">Refining…</span></div>
+      <div class="pill v-${k} sheen">${extra}<div class="slot s3"></div>${check}<span class="lbl">Refined</span><span class="muted">· 42 words · ⌘Z to undo</span></div>
+    </div>
+    <div class="body"><div class="title"><b>${name}</b><span>${tag}</span></div><p class="desc">${desc}</p></div>`;
+  grid.append(c);
+  const b1 = new VobiBlob(c.querySelector(".s1"), 46); b1.setState("listening");
+  const b2 = new VobiBlob(c.querySelector(".s2"), 46); b2.setState("thinking");
+  const b3 = new VobiBlob(c.querySelector(".s3"), 46); b3.setState("done");
+  listeners.push({ blob: b1, bars: [...c.querySelectorAll(".wave i")] });
+  setInterval(() => { b3.setState("idle"); setTimeout(() => b3.setState("done"), 400); }, 3200);
+});
+function synth(t) { const a = Math.max(0, Math.sin(t * 13.5) * .6 + Math.sin(t * 7.1 + 1) * .4), b = Math.max(0, Math.sin(t * 1.3) * .5 + .55); return Math.min(1, a * b * (.75 + Math.random() * .35)); }
+const hist = new Array(16).fill(0); let last = 0;
+function loop(now) {
+  const L = synth(now / 1000);
+  listeners.forEach(l => l.blob.targetLevel = L);
+  if (now - last > 60) { last = now; hist.shift(); hist.push(L); listeners.forEach(l => l.bars.forEach((b, i) => b.style.transform = `scaleY(${(.15 + hist[i] * .85).toFixed(3)})`)); }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+const seg = document.getElementById("bg"), th = seg.querySelector(".thumb"), bs = [...seg.querySelectorAll("button")];
+const place = () => { const on = bs.find(b => b.getAttribute("aria-pressed") === "true"); th.style.width = on.offsetWidth + "px"; th.style.transform = `translateX(${on.offsetLeft - 4}px)`; };
+bs.forEach(b => b.addEventListener("click", () => { bs.forEach(x => x.setAttribute("aria-pressed", x === b)); place(); document.querySelectorAll(".scene").forEach(s => { s.classList.toggle("dark", b.dataset.v === "dark"); s.classList.toggle("light", b.dataset.v !== "dark"); }); }));
+document.fonts && document.fonts.ready.then(place); place();
+</script>
+</body>
+</html>
