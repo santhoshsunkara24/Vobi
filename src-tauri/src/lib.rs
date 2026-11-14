@@ -297,7 +297,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
 
     let tray = tray_builder
         .on_menu_event(|app, event| match event.id.as_ref() {
-            "settings" => {
+            "open" | "settings" => {
                 show_main_window(app);
             }
             "secure_input_warning" => {

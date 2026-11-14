@@ -668,6 +668,7 @@ fn build_menu(app: &AppHandle, inputs: &MenuInputs) -> tauri::Result<(Menu<tauri
     // Create common menu items
     let version_label = version_label();
     let version_i = MenuItem::with_id(app, "version", &version_label, false, None::<&str>)?;
+    let open_i = MenuItem::with_id(app, "open", &strings.open_vobi, true, None::<&str>)?;
     let settings_i = MenuItem::with_id(
         app,
         "settings",
@@ -699,6 +700,7 @@ fn build_menu(app: &AppHandle, inputs: &MenuInputs) -> tauri::Result<(Menu<tauri
             &[
                 &version_i,
                 &separator()?,
+                &open_i,
                 &cancel_i,
                 &separator()?,
                 &copy_last_transcript_i,
@@ -740,6 +742,7 @@ fn build_menu(app: &AppHandle, inputs: &MenuInputs) -> tauri::Result<(Menu<tauri
             &[
                 &version_i,
                 &separator()?,
+                &open_i,
                 &copy_last_transcript_i,
                 &separator()?,
                 &model_submenu,
@@ -751,9 +754,9 @@ fn build_menu(app: &AppHandle, inputs: &MenuInputs) -> tauri::Result<(Menu<tauri
                 &quit_i,
             ],
         )?;
-        // Right below the model submenu: version, separator, copy, separator, model.
+        // Right below the model submenu: version, separator, open, copy, separator, model.
         if let Some(language) = &inputs.language {
-            menu.insert(&language_submenu(app, &strings, language)?, 5)?;
+            menu.insert(&language_submenu(app, &strings, language)?, 6)?;
         }
         menu
     };

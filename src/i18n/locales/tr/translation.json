@@ -1,5 +1,6 @@
 {
   "tray": {
+    "openVobi": "Open Vobi",
     "settings": "Ayarlar...",
     "checkUpdates": "Güncellemeleri Kontrol Et...",
     "copyLastTranscript": "Son Transkripti Kopyala",

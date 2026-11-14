@@ -1,5 +1,6 @@
 {
   "tray": {
+    "openVobi": "Open Vobi",
     "settings": "Indstillinger...",
     "checkUpdates": "Tjek for opdateringer...",
     "copyLastTranscript": "Kopiér seneste transskription",
