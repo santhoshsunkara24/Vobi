@@ -982,7 +982,11 @@
   "overlay": {
     "transcribing": "Transkrypcja...",
     "processing": "Przetwarzanie...",
-    "loadingModel": "Wczytywanie modelu..."
+    "loadingModel": "Wczytywanie modelu...",
+    "pasted": "Pasted",
+    "words_one": "· {{count}} word",
+    "words_other": "· {{count}} words",
+    "cancel": "Cancel"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} może blokować 1 skrót",

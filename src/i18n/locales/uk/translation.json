@@ -982,7 +982,11 @@
   "overlay": {
     "transcribing": "Обробка...",
     "processing": "Постобробка...",
-    "loadingModel": "Завантаження моделі..."
+    "loadingModel": "Завантаження моделі...",
+    "pasted": "Pasted",
+    "words_one": "· {{count}} word",
+    "words_other": "· {{count}} words",
+    "cancel": "Cancel"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} може блокувати 1 комбінацію клавіш",

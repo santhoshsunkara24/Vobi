@@ -982,7 +982,11 @@
   "overlay": {
     "transcribing": "S'està transcrivint...",
     "processing": "S'està processant...",
-    "loadingModel": "S'està carregant el model..."
+    "loadingModel": "S'està carregant el model...",
+    "pasted": "Pasted",
+    "words_one": "· {{count}} word",
+    "words_other": "· {{count}} words",
+    "cancel": "Cancel"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} pot estar blocant 1 drecera",

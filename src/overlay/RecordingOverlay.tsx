@@ -1,6 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import "@fontsource-variable/instrument-sans";
 import "./RecordingOverlay.css";
 import { commands, events } from "@/bindings";
 import type {
@@ -10,7 +11,7 @@ import type {
   StreamTextEvent,
   StreamWorkKind,
 } from "@/bindings";
-import { NoticeBadgeIcon } from "@/components/icons/NoticeBadgeIcon";
+import { VobiCloud, type CloudState } from "@/components/vobi/VobiCloud";
 import i18n, { syncLanguageFromSettings } from "@/i18n";
 import { noticeDisplay } from "@/lib/notices";
 import type { ModelStateEvent } from "@/lib/types/events";
@@ -21,46 +22,37 @@ type OverlayState =
   | "streaming"
   | "transcribing"
   | "processing"
+  | "done"
   | "notice"
   | "live_notice";
 
 const isNoticeState = (state: OverlayState) =>
   state === "notice" || state === "live_notice";
 
-// Number of reactive bars in the waveform (the simple, smoothed style shared by
-// every overlay form). Mic levels arrive as 16 FFT buckets; we take the first N.
-const WAVE_BARS = 9;
+// Mic levels arrive as 16 FFT buckets; the pill shows the lower ones (speech).
+const WAVE_BARS = 14;
 
 // Only call out a model load in the Live preview once it has run this long.
-// Warm loads finish in well under this (~0.2s on Apple Silicon, ~1.5s on a
-// Windows CPU backend), so the common case never flashes a loading notice while
-// the user is speaking; cold loads can take 40s+.
 const SLOW_MODEL_LOAD_MS = 2000;
 
-// Matches the delay in `hide_recording_overlay`, so a notice can fade out.
+// Matches the delay in `hide_recording_overlay`, so the pill can fade out.
 const OVERLAY_FADE_MS = 300;
 
-// 13px padding on each side, the 16px badge and its 7px gap.
-const NOTICE_PILL_CHROME = 49;
+// Cloud slot (52) + gaps + right padding around a notice title.
+const NOTICE_PILL_CHROME = 78;
+
+const CLOUD_SIZE = 46;
 
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [state, setState] = useState<OverlayState>("recording");
-  // `Stream::play()` returning does not mean hardware callbacks are flowing.
-  // Stay visually in an arming state until the backend processes the first
-  // actual microphone sample chunk.
+  // `Stream::play()` returning does not mean hardware callbacks are flowing:
+  // stay in an arming state until the first microphone samples arrive.
   const [captureReady, setCaptureReady] = useState(false);
-  // Recording starts while the model loads in the background. Say so, otherwise
-  // a cold start looks like an empty Live preview that ignores speech, then a
-  // hung "Transcribing..." spinner. Once recording stops, any in-flight load is
-  // the wait, so the working label reflects it immediately; the Live notice
-  // waits for the load to be slow so fast loads don't flash it mid-speech.
   const [modelLoading, setModelLoading] = useState(false);
   const [modelLoadSlow, setModelLoadSlow] = useState(false);
   const modelLoadTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  // Latched per Live session: once the loading notice has opened the panel, keep
-  // it open after the load so it doesn't collapse and reopen when text arrives.
   const [loadNoticeShown, setLoadNoticeShown] = useState(false);
   const [levels, setLevels] = useState<number[]>(Array(WAVE_BARS).fill(0));
   const [streamText, setStreamText] = useState<StreamTextEvent>({
@@ -70,29 +62,21 @@ const RecordingOverlay: React.FC = () => {
   const [phase, setPhase] = useState<StreamPhase>("listening");
   const [workKind, setWorkKind] = useState<StreamWorkKind>("transcribing");
   const [elapsed, setElapsed] = useState(0);
-  // Bumped on each new streaming session so the Live card remounts fresh (replays
-  // the pop-in, and never animates in from the previous panel's open size).
+  const [doneWords, setDoneWords] = useState(0);
   const [session, setSession] = useState(0);
-  // Overlay placement (top vs bottom of the screen). The Live panel grows downward
-  // from a top overlay (oldest line under the pill) and upward from a bottom one.
   const [position, setPosition] = useState<"top" | "bottom">("bottom");
-  // True once live text overflows the cap. A top overlay fades its top edge only
-  // while overflowing, so the resting first line stays crisp flush under the pill.
   const [overflowing, setOverflowing] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [noticeWidth, setNoticeWidth] = useState<number>();
   const noticeProbeRef = useRef<HTMLSpanElement>(null);
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
-
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
-  // Live-text scroll-back: the text region "sticks" to the newest line while the
-  // user is at the bottom; if they scroll up to read history, auto-follow pauses
-  // until they scroll back down.
   const capRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef(true);
   const direction = getLanguageDirection(i18n.language);
 
   useEffect(() => {
+    let cleanup: (() => void) | undefined;
     const setupEventListeners = async () => {
       const unlistenNotice = await listen<Notice>("overlay-notice", (event) => {
         clearTimeout(fadeTimerRef.current);
@@ -103,19 +87,17 @@ const RecordingOverlay: React.FC = () => {
         const overlayState = event.payload as OverlayState;
         clearTimeout(fadeTimerRef.current);
         if (!isNoticeState(overlayState)) setNotice(null);
-        // Reset synchronously before settings I/O. A fast microphone can emit
-        // recording-ready while the awaits below are in flight; resetting after
-        // them would overwrite that event and leave the overlay stuck arming.
+        // Reset synchronously before settings I/O: a fast microphone can emit
+        // recording-ready while the awaits below are in flight.
         if (overlayState === "recording" || overlayState === "streaming") {
           setCaptureReady(false);
+          setElapsed(0);
           smoothedLevelsRef.current = Array(16).fill(0);
           setLevels(Array(WAVE_BARS).fill(0));
           setStreamText({ committed: "", tentative: "" });
         }
 
         await syncLanguageFromSettings();
-        // The Live panel flows downward from a top overlay and upward from a
-        // bottom one; read the placement so the layout can flip to match.
         try {
           const settings = await commands.getAppSettings();
           if (settings.status === "ok") {
@@ -124,24 +106,30 @@ const RecordingOverlay: React.FC = () => {
             );
           }
         } catch {
-          // Keep the previous/default placement if settings can't be read.
+          // Keep the previous placement if settings can't be read.
         }
         setState(overlayState);
         if (overlayState === "streaming") {
           setPhase("listening");
           setWorkKind("transcribing");
-          setElapsed(0);
           setLoadNoticeShown(false);
-          setSession((s) => s + 1); // remount the card fresh for this session
+          setSession((s) => s + 1);
         }
+        setIsVisible(true);
+      });
+
+      // Text landed: a short happy beat before the backend hides the pill.
+      const unlistenDone = await listen<number>("overlay-done", (event) => {
+        clearTimeout(fadeTimerRef.current);
+        setDoneWords(event.payload ?? 0);
+        setNotice(null);
+        setState("done");
         setIsVisible(true);
       });
 
       const unlistenHide = await listen("hide-overlay", () => {
         setIsVisible(false);
         setCaptureReady(false);
-        // A notice keeps rendering while it fades. Dropping the transcript here
-        // stops a later notice from showing an old session's text.
         clearTimeout(fadeTimerRef.current);
         fadeTimerRef.current = setTimeout(() => {
           setNotice(null);
@@ -156,8 +144,6 @@ const RecordingOverlay: React.FC = () => {
 
       const unlistenLevel = await listen<number[]>("mic-level", (event) => {
         const newLevels = event.payload as number[];
-        // Exponential smoothing across the 16 buckets, then take the first N
-        // bars for the shared waveform.
         const smoothed = smoothedLevelsRef.current.map((prev, i) => {
           const target = newLevels[i] || 0;
           return prev * 0.7 + target * 0.3;
@@ -176,10 +162,7 @@ const RecordingOverlay: React.FC = () => {
         if (payload.kind) setWorkKind(payload.kind);
       });
 
-      // The backend ends every `loading_started` with exactly one of completed
-      // or failed, so only those end a load. Other events (e.g. `unloaded` from
-      // the idle watcher) aren't ordered against an in-flight load and must not
-      // clear it.
+      // Every `loading_started` ends with exactly one completed or failed.
       const unlistenModel = await listen<ModelStateEvent>(
         "model-state-changed",
         (event) => {
@@ -203,9 +186,10 @@ const RecordingOverlay: React.FC = () => {
         },
       );
 
-      return () => {
+      cleanup = () => {
         unlistenNotice();
         unlistenShow();
+        unlistenDone();
         unlistenHide();
         unlistenReady();
         unlistenLevel();
@@ -218,32 +202,28 @@ const RecordingOverlay: React.FC = () => {
     };
 
     setupEventListeners();
+    return () => cleanup?.();
   }, []);
 
-  // Elapsed capture timer starts only once microphone samples are flowing.
+  // Elapsed timer, once microphone samples are flowing.
   useEffect(() => {
-    if (state !== "streaming" || !isVisible || !captureReady) return;
+    const live = state === "streaming" || state === "recording";
+    if (!live || !isVisible || !captureReady) return;
     const id = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(id);
   }, [state, isVisible, captureReady]);
 
-  // Stick to the bottom as text streams in — but only while pinned, so a user who
-  // has scrolled up to read history isn't yanked back down by the next chunk.
   useLayoutEffect(() => {
     const el = capRef.current;
     if (!el) return;
-    // Fade the top edge only once text actually overflows the cap.
     setOverflowing(el.scrollHeight > el.clientHeight + 1);
     if (pinnedRef.current) el.scrollTop = el.scrollHeight;
   }, [streamText]);
 
-  // `session` re-runs this when a new Live session starts mid-load (e.g. a
-  // retry during a cold load), since the reset doesn't change the other deps.
   useEffect(() => {
     if (modelLoadSlow && state === "streaming") setLoadNoticeShown(true);
   }, [modelLoadSlow, state, session]);
 
-  // Each fresh streaming session starts pinned to the bottom, fade cleared.
   useEffect(() => {
     pinnedRef.current = true;
     setOverflowing(false);
@@ -265,7 +245,6 @@ const RecordingOverlay: React.FC = () => {
 
   if (!isVisible && !shownNotice) return null;
 
-  // Re-pin when the user is within ~a line of the bottom; unpin otherwise.
   const handleStreamScroll = () => {
     const el = capRef.current;
     if (!el) return;
@@ -275,18 +254,34 @@ const RecordingOverlay: React.FC = () => {
   const fmtTime = (s: number) =>
     `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
+  // Overall loudness for the cloud: mean of the speech buckets, lifted a bit
+  // so normal talking reads clearly.
+  const voice = Math.min(
+    1,
+    Math.pow(levels.reduce((a, b) => a + b, 0) / WAVE_BARS, 0.6) * 1.6,
+  );
+
   const transcribingLabel = modelLoading
     ? t("overlay.loadingModel")
     : t("overlay.transcribing");
 
-  // ---- Shared building blocks (one visual language for every overlay form) ----
+  const cloud = (cloudState: CloudState) => (
+    <span className="vslot">
+      <VobiCloud
+        size={CLOUD_SIZE}
+        state={cloudState}
+        level={cloudState === "listening" ? voice : 0}
+      />
+    </span>
+  );
+
   const waveform = (
-    <div className={`swave ${captureReady ? "ready" : "arming"}`}>
+    <div className={`vwave ${captureReady ? "ready" : "arming"}`}>
       {levels.map((v, i) => (
         <i
           key={i}
           style={{
-            height: `${Math.max(3, Math.min(18, 3 + Math.pow(v, 0.7) * 15))}px`,
+            transform: `scaleY(${Math.max(0.14, Math.min(1, 0.14 + Math.pow(v, 0.7) * 0.86)).toFixed(3)})`,
           }}
         />
       ))}
@@ -295,120 +290,123 @@ const RecordingOverlay: React.FC = () => {
 
   const cancelBtn = (
     <button
-      className="sx"
-      aria-label="cancel"
+      className="vround"
+      aria-label={t("overlay.cancel")}
       onClick={() => commands.cancelOperation()}
     >
-      <svg viewBox="0 0 16 16" aria-hidden="true">
+      <svg viewBox="0 0 12 12" aria-hidden="true">
         <path
-          d="M4 4 L12 12 M12 4 L4 12"
+          d="M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5"
           stroke="currentColor"
-          strokeWidth="1.6"
+          strokeWidth="1.8"
           strokeLinecap="round"
         />
       </svg>
     </button>
   );
 
-  // dot (left) | waveform (center) | timer + cancel (right) — same structure for
-  // pill & panel, so the Live morph is a pure width change.
-  const listeningRow = (showTimer: boolean, showCancel: boolean) => (
-    <div className="sbase">
-      <div className="sbase-l">
-        <span className={`sdot ${captureReady ? "ready" : "arming"}`} />
-      </div>
+  const listeningRow = (showTimer: boolean) => (
+    <div className="vrow">
+      {cloud(captureReady ? "listening" : "idle")}
       {waveform}
-      <div className="sbase-r">
-        {showTimer && <span className="stimer">{fmtTime(elapsed)}</span>}
-        {showCancel && cancelBtn}
-      </div>
+      {showTimer && <span className="vtimer">{fmtTime(elapsed)}</span>}
+      {cancelBtn}
     </div>
   );
 
-  // spinner (left) | label (center) | cancel (right) — same 3-zone grid as the
-  // listening row, so the label is centered.
-  const workingRow = (label: string, showCancel: boolean) => (
-    <div className="sbase">
-      <div className="sbase-l">
-        <span className="sspinner" />
-      </div>
-      <span className="swork-label">{label}</span>
-      <div className="sbase-r">{showCancel && cancelBtn}</div>
+  const workingRow = (label: string) => (
+    <div className="vrow">
+      {cloud("thinking")}
+      <span className="vshimmer">{label}</span>
+      {cancelBtn}
     </div>
   );
 
-  const noticeRow = (
-    <div className="sbase snotice">
-      <NoticeBadgeIcon className="nglyph" />
-      <span className="nlabel">{noticeTitle}</span>
+  const doneRow = (
+    <div className="vrow">
+      {cloud("done")}
+      <svg className="vcheck" viewBox="0 0 22 22" aria-hidden="true">
+        <path
+          d="M5 11.5l4 4 8-9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="vdone">
+        <b>{t("overlay.pasted")}</b>
+        {doneWords > 0 && (
+          <span>{t("overlay.words", { count: doneWords })}</span>
+        )}
+      </span>
+    </div>
+  );
+
+  const noticeRow = shownNotice && (
+    <div className="vrow">
+      {cloud(shownNotice.level === "error" ? "error" : "idle")}
+      <span className={`vnotice level-${shownNotice.level}`}>
+        {noticeTitle}
+      </span>
     </div>
   );
   const noticeProbe = shownNotice && (
-    <span ref={noticeProbeRef} className="nlabel nprobe" aria-hidden="true">
+    <span ref={noticeProbeRef} className="vnotice vprobe" aria-hidden="true">
       {noticeTitle}
     </span>
   );
-  const noticeClass = shownNotice ? `cnotice level-${shownNotice.level}` : "";
   const dismissNotice = shownNotice
     ? () => commands.dismissOverlayNotice()
     : undefined;
 
-  // ---- Live overlay: a pill that sculpts open into a panel ----
+  // ---- Live overlay: the pill opens upward (or downward) into a text card ----
   const liveNotice = state === "live_notice" ? shownNotice : null;
   if (state === "streaming" || liveNotice) {
     const hasText =
       streamText.committed.length > 0 || streamText.tentative.length > 0;
     const working = !liveNotice && phase === "working";
-    // A notice keeps the transcript; with none, the panel explains the notice.
     const noticeText =
       liveNotice && !hasText
         ? (noticeDisplay(liveNotice.code).explanation?.(t) ?? liveNotice.detail)
         : null;
-    // While listening, a slow model load opens the panel with a notice where the
-    // text would be, so speech that isn't transcribing yet doesn't look ignored.
     const loadingNotice = !liveNotice && modelLoadSlow && !working && !hasText;
-    // Keep the panel open whenever there's text — even while finalizing — so the
-    // transcript stays put under a working spinner instead of collapsing and
-    // squishing the text mid-stream. Only fall back to the small working pill
-    // when there was no text to preserve.
     const open = liveNotice
       ? hasText || !!noticeText
       : hasText || loadingNotice || (loadNoticeShown && !working);
-    const collapsed = working && !hasText;
 
     return (
-      <div dir={direction} className={`ov-stage ${position}`}>
+      <div dir={direction} className={`vstage ${position}`}>
         {noticeProbe}
         <div
           key={session}
-          className={`scard ${open ? "open" : ""} ${collapsed ? "working" : ""} ${
+          className={`vcard live ${open ? "open" : ""} ${working ? "working" : ""} ${
             isVisible ? "" : "leaving"
-          } ${noticeClass}`}
+          }`}
           style={liveNotice && !open ? { width: noticeWidth } : undefined}
           onClick={dismissNotice}
         >
-          <div className="stext">
-            <div className="stext-clip">
+          <div className="vtext">
+            <div className="vtext-clip">
               <div
-                className={`stext-cap ${overflowing ? "overflowing" : ""}`}
+                className={`vtext-cap ${overflowing ? "overflowing" : ""}`}
                 ref={capRef}
                 onScroll={handleStreamScroll}
               >
                 <p>
                   {loadingNotice && (
-                    <span className="sloading">
+                    <span className="vloading">
                       {t("overlay.loadingModel")}
                     </span>
                   )}
-                  {noticeText && <span className="ndetail">{noticeText}</span>}
+                  {noticeText && <span className="vdetail">{noticeText}</span>}
                   <span className="committed">
                     {streamText.committed ? streamText.committed + " " : ""}
                   </span>
                   <span className="tentative">{streamText.tentative}</span>
-                  {/* Drop the blinking caret once finalizing — it's no longer
-                      capturing, and a static spinner conveys the work. */}
                   {!working && !loadingNotice && !liveNotice && (
-                    <span className="scaret" />
+                    <span className="vcaret" />
                   )}
                 </p>
               </div>
@@ -421,37 +419,43 @@ const RecordingOverlay: React.FC = () => {
                   workKind === "polishing"
                     ? t("overlay.processing")
                     : transcribingLabel,
-                  true,
                 )
-              : listeningRow(open, true)}
+              : listeningRow(true)}
         </div>
       </div>
     );
   }
 
-  // ---- Minimal overlay: exactly one row at a time — waveform (recording), or a
-  // spinner + label (transcribing / processing). Never both. The pill animates its
-  // width between them; the cancel button is in both rows so it stays put.
+  // ---- Compact pill: one row at a time, the pill animates its width ----
   const working = state === "transcribing" || state === "processing";
   const workLabel =
     state === "processing" ? t("overlay.processing") : transcribingLabel;
+  const mode = shownNotice
+    ? "m-notice"
+    : state === "done"
+      ? "m-done"
+      : working
+        ? "m-working"
+        : "m-listening";
 
   return (
     <div
       dir={direction}
-      className={`ov-stage ${position} ov-fade ${isVisible ? "show" : ""}`}
+      className={`vstage ${position} vfade ${isVisible ? "show" : ""}`}
     >
       {noticeProbe}
       <div
-        className={`scard compact ${working && isVisible ? "cworking" : ""} ${noticeClass}`}
+        className={`vcard compact ${mode}`}
         style={shownNotice ? { width: noticeWidth } : undefined}
         onClick={dismissNotice}
       >
         {shownNotice
           ? noticeRow
-          : working
-            ? workingRow(workLabel, true)
-            : listeningRow(false, true)}
+          : state === "done"
+            ? doneRow
+            : working
+              ? workingRow(workLabel)
+              : listeningRow(true)}
       </div>
     </div>
   );

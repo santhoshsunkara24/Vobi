@@ -913,6 +913,7 @@ impl ShortcutAction for TranscribeAction {
                                         // UI while this paste ran.
                                         let owns_ui =
                                             || RECORDING_SESSION.load(Ordering::SeqCst) == session;
+                                        let words = final_text.split_whitespace().count();
                                         let (outcome, notice) =
                                             match utils::paste(final_text, ah_clone.clone()) {
                                                 Ok(utils::PasteOutcome::Pasted) => {
@@ -958,7 +959,7 @@ impl ShortcutAction for TranscribeAction {
                                                 notices::raise(&ah_clone, notice)
                                             }
                                             (true, None) => {
-                                                utils::hide_recording_overlay(&ah_clone)
+                                                utils::show_done_then_hide(&ah_clone, words)
                                             }
                                             (false, Some(notice)) => {
                                                 notices::raise_without_overlay(&ah_clone, notice)

@@ -1,4 +1,5 @@
 // Temporary Vobi wordmark. Replaced by the real brand in Phase 3.
+const WORDMARK = "vobi"; // brand name, not translated
 const HandyTextLogo = ({
   width,
   height,
@@ -26,8 +27,7 @@ const HandyTextLogo = ({
         letterSpacing="-3"
         fill="#2563EB"
       >
-        {/* eslint-disable-next-line i18next/no-literal-string */}
-        vobi
+        {WORDMARK}
       </text>
     </svg>
   );

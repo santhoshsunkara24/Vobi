@@ -982,7 +982,11 @@
   "overlay": {
     "transcribing": "Transskriberer...",
     "processing": "Behandler...",
-    "loadingModel": "Indlæser model..."
+    "loadingModel": "Indlæser model...",
+    "pasted": "Pasted",
+    "words_one": "· {{count}} word",
+    "words_other": "· {{count}} words",
+    "cancel": "Cancel"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} blokerer muligvis 1 genvej",

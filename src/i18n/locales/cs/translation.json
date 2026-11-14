@@ -982,7 +982,11 @@
   "overlay": {
     "transcribing": "Přepisuji...",
     "processing": "Zpracovávám...",
-    "loadingModel": "Načítání modelu..."
+    "loadingModel": "Načítání modelu...",
+    "pasted": "Pasted",
+    "words_one": "· {{count}} word",
+    "words_other": "· {{count}} words",
+    "cancel": "Cancel"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} může blokovat 1 zkratku",

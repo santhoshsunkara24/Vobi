@@ -48,12 +48,16 @@ tauri_panel! {
 // width from 172 (--ov-rest-w) to 216 (--ov-work-w) and expands from center, so
 // the window must fit the widest state plus a little slack. The longest notice
 // titles need nearly all of it.
-const OVERLAY_WIDTH: f64 = 266.0;
-const OVERLAY_HEIGHT: f64 = 50.0;
+//
+// Vobi pill: 56h, up to 300w (--v-w-listen), plus 14px around it (--v-pad) for
+// the cloud's hop and the pill's shadow. The longest notice titles fit too.
+const OVERLAY_WIDTH: f64 = 332.0;
+const OVERLAY_HEIGHT: f64 = 84.0;
 
-// Actual is 394x118, just a little extra
-const OVERLAY_STREAM_WIDTH: f64 = 400.0;
-const OVERLAY_STREAM_HEIGHT: f64 = 120.0;
+// Live card: 404w (--v-w-open), text region (66) + its padding (14) + the 56h
+// row, plus the 14px room on both sides.
+const OVERLAY_STREAM_WIDTH: f64 = 424.0;
+const OVERLAY_STREAM_HEIGHT: f64 = 168.0;
 
 const NOTICE_STATE: &str = "notice";
 const LIVE_NOTICE_STATE: &str = "live_notice";
@@ -87,16 +91,21 @@ fn overlay_dimensions(state: &str) -> (f64, f64) {
 static LAST_MIC_LEVEL_EMIT: AtomicU64 = AtomicU64::new(0);
 const EMIT_THROTTLE_MS: u64 = 33; // ~30 FPS
 
+// Window offsets from the screen edge. The pill sits 14px (--v-pad) inside the
+// window, so on screen it lands 14px further in than these numbers.
 #[cfg(target_os = "macos")]
-const OVERLAY_TOP_OFFSET: f64 = 46.0;
+const OVERLAY_TOP_OFFSET: f64 = 32.0;
 #[cfg(any(target_os = "windows", target_os = "linux"))]
-const OVERLAY_TOP_OFFSET: f64 = 4.0;
+const OVERLAY_TOP_OFFSET: f64 = 0.0;
 
 #[cfg(target_os = "macos")]
-const OVERLAY_BOTTOM_OFFSET: f64 = 15.0;
+const OVERLAY_BOTTOM_OFFSET: f64 = 4.0;
 
 #[cfg(any(target_os = "windows", target_os = "linux"))]
-const OVERLAY_BOTTOM_OFFSET: f64 = 40.0;
+const OVERLAY_BOTTOM_OFFSET: f64 = 28.0;
+
+/// How long the "Pasted" moment holds before the pill fades away.
+const DONE_HOLD: Duration = Duration::from_millis(1100);
 
 /// Configures the edge and offset of a GTK layer surface. gtk-layer-shell
 /// commits anchor and margin changes itself, including while the surface is
@@ -778,6 +787,30 @@ static OVERLAY_SESSION_SHOWING: AtomicBool = AtomicBool::new(false);
 static OVERLAY_SESSION_LIVE: AtomicBool = AtomicBool::new(false);
 
 /// Hides the recording overlay window with fade-out animation
+/// The text landed: Vobi does its happy hop with "Pasted", then the pill fades.
+/// The Live card has already shown the text, so it just hides as before.
+pub fn show_done_then_hide(app_handle: &AppHandle, words: usize) {
+    if !OVERLAY_SESSION_SHOWING.load(Ordering::SeqCst)
+        || OVERLAY_SESSION_LIVE.load(Ordering::SeqCst)
+    {
+        hide_recording_overlay(app_handle);
+        return;
+    }
+    let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") else {
+        return;
+    };
+    let shown_at = OVERLAY_SHOW_GENERATION.load(Ordering::SeqCst);
+    let _ = overlay_window.emit("overlay-done", words);
+    let handle = app_handle.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(DONE_HOLD);
+        // A newer session took the overlay over: leave it alone.
+        if OVERLAY_SHOW_GENERATION.load(Ordering::SeqCst) == shown_at {
+            hide_recording_overlay(&handle);
+        }
+    });
+}
+
 pub fn hide_recording_overlay(app_handle: &AppHandle) {
     OVERLAY_SESSION_SHOWING.store(false, Ordering::SeqCst);
     OVERLAY_SESSION_LIVE.store(false, Ordering::SeqCst);

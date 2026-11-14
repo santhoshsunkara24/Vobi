@@ -982,7 +982,11 @@
   "overlay": {
     "transcribing": "מתמלל...",
     "processing": "מעבד...",
-    "loadingModel": "טוען מודל..."
+    "loadingModel": "טוען מודל...",
+    "pasted": "Pasted",
+    "words_one": "· {{count}} word",
+    "words_other": "· {{count}} words",
+    "cancel": "Cancel"
   },
   "secureInput": {
     "blockedWithCulprit_one": "ייתכן ש-{{name}} חוסם קיצור דרך אחד",
