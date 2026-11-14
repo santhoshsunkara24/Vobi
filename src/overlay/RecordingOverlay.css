@@ -20,11 +20,6 @@
     rgba(250, 252, 255, 0.88) 0%,
     rgba(236, 244, 255, 0.84) 100%
   );
-  --v-bg-native: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.32) 0%,
-    rgba(232, 243, 255, 0.18) 100%
-  );
   --v-text: #0e2238;
   --v-text-2: rgba(14, 34, 56, 0.58);
   --v-hair: rgba(255, 255, 255, 0.55);
@@ -116,8 +111,15 @@
   transition-timing-function: var(--v-spring);
   will-change: width;
 }
+/* macOS: the system's own glass sits underneath (glass.rs) and draws the
+   blur, refraction, edge highlight and shadow, so the pill adds nothing on
+   top: no tint, no painted rim, no sheen, no drop shadow. */
 .native-glass .vcard {
-  background: var(--v-bg-native);
+  background: transparent;
+  box-shadow: none;
+}
+.native-glass .vcard::after {
+  display: none;
 }
 /* A soft sheen across the top half, like light on glass. */
 .vcard::after {
