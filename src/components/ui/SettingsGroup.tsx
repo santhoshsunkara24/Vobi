@@ -6,26 +6,27 @@ interface SettingsGroupProps {
   children: React.ReactNode;
 }
 
+/** A titled white card of setting rows, as in the prototype's Settings page. */
 export const SettingsGroup: React.FC<SettingsGroupProps> = ({
   title,
   description,
   children,
 }) => {
   return (
-    <div className="space-y-2">
+    <section className="v-group">
       {title && (
-        <div className="px-4">
-          <h2 className="text-xs font-medium text-ink-3 uppercase tracking-wide">
-            {title}
-          </h2>
+        <div className="v-group-t">
+          <h2 className="m-0 text-[13px] font-semibold text-ink-3">{title}</h2>
           {description && (
-            <p className="text-xs text-ink-3 mt-1">{description}</p>
+            <p className="mt-1 mb-0 text-[12.5px] font-medium text-ink-3">
+              {description}
+            </p>
           )}
         </div>
       )}
-      <div className="bg-background border border-line rounded-lg overflow-visible">
-        <div className="divide-y divide-line">{children}</div>
+      <div className="v-card overflow-visible px-[18px] py-[6px]">
+        <div className="divide-y divide-[var(--border)]">{children}</div>
       </div>
-    </div>
+    </section>
   );
 };

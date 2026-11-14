@@ -1,244 +1,186 @@
-/* Handy Colors: every color the app uses comes from here. Pick by job:
- * greys (ink-2, ink-3, line-strong, line, wash) for text, edges and fills;
- * logo-primary / background-ui for brand and primary actions; plum for keys
- * and picks (onboarding); moss / warning / error (+ -wash) for status.
- * demo-*, wordmark and mascot are illustration, not UI.
+/* Vobi tokens (design/prototype/index.html is the source of truth).
+ * Light only: there is no dark palette and no theme switch.
+ *
+ * Two layers:
+ *  1. The prototype's own tokens (--sky-*, --grad, --surface, --text-2 ...),
+ *     used directly by the Vobi shell (src/styles/vobi.css).
+ *  2. Handy's semantic names (--color-text, --color-ink-2, --color-line ...),
+ *     kept so every existing settings and onboarding component picks up the
+ *     new palette without being rewritten. Pick by job: greys (ink-2, ink-3,
+ *     line-strong, line, wash) for text, edges and fills; logo-primary for the
+ *     accent; background-ui for primary (ink) actions; plum for keycaps;
+ *     moss / warning / error (+ -wash) for status.
  */
 
 :root {
-  /* Palette source of truth. Each themed color is defined once as a
-     light/dark pair; the active tokens below and the `data-theme` overrides
-     in App.css reference these, so a hex value lives in exactly one place. */
-  --light-color-text: #0f0f0f;
-  --light-color-background: #fbfbfb;
-  --light-color-logo-primary: #faa2ca;
-  --light-color-logo-stroke: #382731;
+  /* Sky -> Blue accent scale */
+  --sky-50: #ecf8ff;
+  --sky-100: #d6f0fe;
+  --sky-200: #ade2fc;
+  --sky-300: #76cef9;
+  --sky-400: #3db8f4;
+  --sky-500: #1a9eea;
+  --sky-600: #0f84d0;
+  --sky-700: #0f6ba9;
+  --sky-800: #12598a;
+  --sky-900: #154a72;
+  --blue-end: #3a7bf5;
+  --grad: linear-gradient(135deg, #6ad5f9 0%, #2fb1f4 42%, #3a7bf5 100%);
+  --grad-soft: linear-gradient(135deg, #e3f6fe 0%, #dcebff 100%);
+  --green: #22b07d;
+  --red: #ef4b5a;
+  --amber: #f2a93b;
 
-  --dark-color-text: #fbfbfb;
-  --dark-color-background: #2c2b29;
-  --dark-color-logo-primary: #f28cbb;
+  --font:
+    "Instrument Sans Variable", "Instrument Sans", -apple-system,
+    "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
 
-  /* Status colors. Each has a -wash tint below. */
-  --light-color-warning: #d97706;
-  --light-color-error: #dc2626;
-  --dark-color-warning: #fbbf24;
-  --dark-color-error: #f87171;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-full: 999px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  /* Smooth spring (no bounce, 0.35s response) and the bouncy one, baked from
+     the prototype's spring solver; ease-out where linear() is unsupported. */
+  --spring: var(--ease-out);
+  --spring-dur: 400ms;
+  --spring-bouncy: var(--ease-out);
+  --spring-bouncy-dur: 600ms;
 
-  /* Success. Pink already means "recording", so it gets its own hue. */
-  --light-color-moss: #2f7d5b;
-  --dark-color-moss: #86c9a4;
-
-  /* Plum: the ink for keycaps and picked items. */
-  --light-color-plum: var(--light-color-logo-stroke);
-  --dark-color-plum: var(--dark-color-text);
-
-  /* Demo's drawn app window. */
-  --light-color-demo-window: var(--light-color-background);
-  --dark-color-demo-window: color-mix(
-    in srgb,
-    #fff 4%,
-    var(--dark-color-background)
-  );
-
-  /* Demo's laptop: lid, base gradient and wallpaper. */
-  --light-color-demo-lid: #1f1e21;
-  --dark-color-demo-lid: #0f0e10;
-  --light-color-demo-alu-hi: #ececee;
-  --dark-color-demo-alu-hi: #5a585d;
-  --light-color-demo-alu-lo: #cdccd1;
-  --dark-color-demo-alu-lo: #3b3a3e;
-  --light-demo-wallpaper:
-    radial-gradient(
-      110% 80% at 90% 105%,
-      color-mix(in srgb, var(--light-color-logo-primary) 50%, #fbfbfb) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      90% 80% at 5% -5%,
-      color-mix(in srgb, #c7b9ef 55%, #fbfbfb) 0%,
-      transparent 62%
-    ),
-    color-mix(in srgb, #e9e1f3 60%, #fbfbfb);
-  --dark-demo-wallpaper:
-    radial-gradient(
-      110% 80% at 90% 105%,
-      color-mix(in srgb, var(--dark-color-logo-primary) 26%, #1b1719) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      90% 80% at 5% -5%,
-      color-mix(in srgb, #7c68c0 38%, #1b1719) 0%,
-      transparent 62%
-    ),
-    #1f1a1e;
-
-  /* The wordmark. Dark mode outlines it in white to cut down on pinks. */
-  --light-color-wordmark: var(--light-color-logo-primary);
-  --light-color-wordmark-stroke: var(--light-color-logo-stroke);
-  --dark-color-wordmark: var(--dark-color-logo-primary);
-  --dark-color-wordmark-stroke: var(--dark-color-text);
-
-  /* Mascot outline and face; dark mode uses the background, not muddy plum. */
-  --light-color-mascot-line: var(--light-color-logo-stroke);
-  --dark-color-mascot-line: var(--dark-color-background);
-
-  /* Demo's recording pill ring and shadow. */
-  --light-demo-pill-shadow:
-    0 0 0 1px color-mix(in srgb, var(--color-background-ui) 16%, transparent),
-    0 10px 26px -10px rgba(0, 0, 0, 0.35);
-  --dark-demo-pill-shadow:
-    0 0 0 1px
-      color-mix(in srgb, var(--dark-color-logo-primary) 20%, transparent),
-    0 10px 26px -10px rgba(0, 0, 0, 0.6);
-
-  /* Status tints for the box behind a status color. */
-  --light-color-moss-wash: color-mix(
-    in srgb,
-    var(--light-color-moss) 12%,
-    var(--light-color-background)
-  );
-  --dark-color-moss-wash: color-mix(
-    in srgb,
-    var(--dark-color-moss) 14%,
-    var(--dark-color-background)
-  );
-  --light-color-warning-wash: color-mix(
-    in srgb,
-    var(--light-color-warning) 12%,
-    var(--light-color-background)
-  );
-  --dark-color-warning-wash: color-mix(
-    in srgb,
-    var(--dark-color-warning) 14%,
-    var(--dark-color-background)
-  );
-  --light-color-error-wash: color-mix(
-    in srgb,
-    var(--light-color-error) 12%,
-    var(--light-color-background)
-  );
-  --dark-color-error-wash: color-mix(
-    in srgb,
-    var(--dark-color-error) 14%,
-    var(--dark-color-background)
-  );
-
-  /* Tokens that do not change between light and dark */
-  --color-background-ui: #da5893;
-  --color-mid-gray: #808080;
-
-  /* Active palette — defaults to light, follows the OS via the media query
-     below, or is forced by `data-theme` (see the overrides below). */
-  --color-text: var(--light-color-text);
-  --color-background: var(--light-color-background);
-  --color-logo-primary: var(--light-color-logo-primary);
-  --color-warning: var(--light-color-warning);
-  --color-error: var(--light-color-error);
-  --color-moss: var(--light-color-moss);
-  --color-plum: var(--light-color-plum);
-  --demo-pill-shadow: var(--light-demo-pill-shadow);
-  --color-demo-window: var(--light-color-demo-window);
-  --color-demo-lid: var(--light-color-demo-lid);
-  --color-demo-alu-hi: var(--light-color-demo-alu-hi);
-  --color-demo-alu-lo: var(--light-color-demo-alu-lo);
-  --demo-wallpaper: var(--light-demo-wallpaper);
-  --color-wordmark: var(--light-color-wordmark);
-  --color-wordmark-stroke: var(--light-color-wordmark-stroke);
-  --color-mascot-line: var(--light-color-mascot-line);
-  --color-moss-wash: var(--light-color-moss-wash);
-  --color-warning-wash: var(--light-color-warning-wash);
-  --color-error-wash: var(--light-color-error-wash);
-
-  /* Grey steps: secondary text, hints/icons, control edges, dividers, hover fill. */
-  --color-ink-2: color-mix(in srgb, var(--color-text) 60%, transparent);
-  --color-ink-3: var(--color-mid-gray);
-  --color-line-strong: color-mix(
-    in srgb,
-    var(--color-mid-gray) 80%,
-    transparent
-  );
-  --color-line: color-mix(in srgb, var(--color-mid-gray) 20%, transparent);
-  --color-wash: color-mix(in srgb, var(--color-mid-gray) 10%, transparent);
-  /* Edge of a picked card or option. */
-  --color-plum-pick: color-mix(in srgb, var(--color-plum) 60%, transparent);
-  /* The far end of a capture slot's breathing edge (KeySlot). */
-  --color-plum-faint: color-mix(in srgb, var(--color-plum) 22%, transparent);
+  --wall:
+    radial-gradient(900px 600px at 15% 10%, #d7eefb 0%, transparent 60%),
+    radial-gradient(800px 600px at 90% 90%, #dce7fb 0%, transparent 60%),
+    #e9eff4;
+  --bg: #f3f6f9;
+  --surface: #ffffff;
+  --surface-2: #f3f6f9;
+  --surface-3: #e8edf2;
+  --border: rgba(18, 38, 58, 0.07);
+  --border-2: rgba(18, 38, 58, 0.12);
+  --text: #0e1620;
+  --text-2: #5a6675;
+  --text-3: #97a2af;
+  --accent: var(--sky-500);
+  --accent-soft: var(--sky-50);
+  --accent-text: var(--sky-700);
+  --ink: #0e1620;
+  --on-ink: #ffffff;
+  --shadow-card:
+    0 1px 2px rgba(18, 38, 58, 0.04), 0 10px 28px -8px rgba(18, 38, 58, 0.08);
+  --shadow-win:
+    0 40px 90px -20px rgba(18, 38, 58, 0.35),
+    0 12px 30px -10px rgba(18, 38, 58, 0.18), 0 0 0 1px rgba(18, 38, 58, 0.06);
+  --shadow-pop:
+    0 24px 60px -12px rgba(18, 38, 58, 0.28), 0 0 0 1px rgba(18, 38, 58, 0.06);
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+@supports (transition-timing-function: linear(0, 1)) {
   :root {
-    --color-text: var(--dark-color-text);
-    --color-background: var(--dark-color-background);
-    --color-logo-primary: var(--dark-color-logo-primary);
-    --color-warning: var(--dark-color-warning);
-    --color-error: var(--dark-color-error);
-    --color-moss: var(--dark-color-moss);
-    --color-plum: var(--dark-color-plum);
-    --demo-pill-shadow: var(--dark-demo-pill-shadow);
-    --color-demo-window: var(--dark-color-demo-window);
-    --color-demo-lid: var(--dark-color-demo-lid);
-    --color-demo-alu-hi: var(--dark-color-demo-alu-hi);
-    --color-demo-alu-lo: var(--dark-color-demo-alu-lo);
-    --demo-wallpaper: var(--dark-demo-wallpaper);
-    --color-wordmark: var(--dark-color-wordmark);
-    --color-wordmark-stroke: var(--dark-color-wordmark-stroke);
-    --color-mascot-line: var(--dark-color-mascot-line);
-    --color-moss-wash: var(--dark-color-moss-wash);
-    --color-warning-wash: var(--dark-color-warning-wash);
-    --color-error-wash: var(--dark-color-error-wash);
+    /* springEasing(1, .35) */
+    --spring: linear(
+      0,
+      0.115,
+      0.277,
+      0.438,
+      0.576,
+      0.686,
+      0.783,
+      0.843,
+      0.887,
+      0.92,
+      0.943,
+      0.959,
+      0.971,
+      0.98,
+      0.986,
+      0.99,
+      0.993,
+      0.995,
+      0.997,
+      0.998,
+      0.998,
+      0.999,
+      0.999,
+      0.999,
+      1
+    );
+    --spring-dur: 612ms;
+    /* springEasing(.65, .45) */
+    --spring-bouncy: linear(
+      0,
+      0.122,
+      0.33,
+      0.576,
+      0.762,
+      0.901,
+      0.991,
+      1.04,
+      1.061,
+      1.06,
+      1.049,
+      1.036,
+      1.021,
+      1.011,
+      1.004,
+      0.999,
+      0.997,
+      0.996,
+      0.997,
+      0.997,
+      0.998,
+      0.999,
+      1,
+      1,
+      1
+    );
+    --spring-bouncy-dur: 825ms;
   }
 }
 
-/*
- * Explicit theme override, driven by the `theme` setting via
- * `document.documentElement.dataset.theme`. When set, the higher-specificity
- * attribute selectors win over the `prefers-color-scheme` media query above,
- * so a user can keep Handy light or dark regardless of the OS setting.
- * `system` (or no attribute) leaves the OS in charge.
- *
- * Lives here (not in App.css) so every window that imports the shared palette —
- * the settings window and the recording overlay alike — honours the override.
- */
-:root[data-theme="light"] {
-  --color-text: var(--light-color-text);
-  --color-background: var(--light-color-background);
-  --color-logo-primary: var(--light-color-logo-primary);
-  --color-warning: var(--light-color-warning);
-  --color-error: var(--light-color-error);
-  --color-moss: var(--light-color-moss);
-  --color-plum: var(--light-color-plum);
-  --demo-pill-shadow: var(--light-demo-pill-shadow);
-  --color-demo-window: var(--light-color-demo-window);
-  --color-demo-lid: var(--light-color-demo-lid);
-  --color-demo-alu-hi: var(--light-color-demo-alu-hi);
-  --color-demo-alu-lo: var(--light-color-demo-alu-lo);
-  --demo-wallpaper: var(--light-demo-wallpaper);
-  --color-wordmark: var(--light-color-wordmark);
-  --color-wordmark-stroke: var(--light-color-wordmark-stroke);
-  --color-mascot-line: var(--light-color-mascot-line);
-  --color-moss-wash: var(--light-color-moss-wash);
-  --color-warning-wash: var(--light-color-warning-wash);
-  --color-error-wash: var(--light-color-error-wash);
-}
+:root {
+  /* Handy's semantic names, mapped onto the Vobi palette. */
+  --color-text: var(--text);
+  --color-background: var(--surface);
+  --color-canvas: var(--bg);
+  --color-logo-primary: var(--accent);
+  --color-background-ui: var(--ink);
+  --color-mid-gray: #8a95a3;
+  --color-warning: #c27a0e;
+  --color-error: #d93445;
+  --color-moss: #178a60;
+  --color-plum: var(--ink);
 
-:root[data-theme="dark"] {
-  --color-text: var(--dark-color-text);
-  --color-background: var(--dark-color-background);
-  --color-logo-primary: var(--dark-color-logo-primary);
-  --color-warning: var(--dark-color-warning);
-  --color-error: var(--dark-color-error);
-  --color-moss: var(--dark-color-moss);
-  --color-plum: var(--dark-color-plum);
-  --demo-pill-shadow: var(--dark-demo-pill-shadow);
-  --color-demo-window: var(--dark-color-demo-window);
-  --color-demo-lid: var(--dark-color-demo-lid);
-  --color-demo-alu-hi: var(--dark-color-demo-alu-hi);
-  --color-demo-alu-lo: var(--dark-color-demo-alu-lo);
-  --demo-wallpaper: var(--dark-demo-wallpaper);
-  --color-wordmark: var(--dark-color-wordmark);
-  --color-wordmark-stroke: var(--dark-color-wordmark-stroke);
-  --color-mascot-line: var(--dark-color-mascot-line);
-  --color-moss-wash: var(--dark-color-moss-wash);
-  --color-warning-wash: var(--dark-color-warning-wash);
-  --color-error-wash: var(--dark-color-error-wash);
+  --color-ink-2: var(--text-2);
+  --color-ink-3: var(--text-3);
+  --color-line-strong: rgba(18, 38, 58, 0.2);
+  --color-line: var(--border-2);
+  --color-wash: rgba(18, 38, 58, 0.05);
+  /* Edge of a picked card or option. */
+  --color-plum-pick: var(--sky-400);
+  /* The far end of a capture slot's breathing edge (KeySlot). */
+  --color-plum-faint: var(--sky-200);
+
+  --color-moss-wash: color-mix(in srgb, var(--green) 10%, var(--surface));
+  --color-warning-wash: color-mix(in srgb, var(--amber) 14%, var(--surface));
+  --color-error-wash: color-mix(in srgb, var(--red) 10%, var(--surface));
+
+  /* Onboarding's drawn demo: an app window on a little laptop. */
+  --color-demo-window: var(--surface);
+  --color-demo-lid: #1c2530;
+  --color-demo-alu-hi: #eef1f4;
+  --color-demo-alu-lo: #cfd6dd;
+  --demo-wallpaper: var(--wall);
+  --demo-pill-shadow:
+    0 0 0 1px rgba(18, 38, 58, 0.08), 0 10px 26px -10px rgba(6, 12, 22, 0.45);
+
+  /* Illustration colours. */
+  --color-wordmark: var(--accent);
+  --color-wordmark-stroke: var(--ink);
+  --color-mascot-line: var(--ink);
 }

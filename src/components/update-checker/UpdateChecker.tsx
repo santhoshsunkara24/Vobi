@@ -15,9 +15,14 @@ import {
 
 interface UpdateCheckerProps {
   className?: string;
+  /** Draw nothing while update checks are turned off. */
+  quiet?: boolean;
 }
 
-const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
+const UpdateChecker: React.FC<UpdateCheckerProps> = ({
+  className = "",
+  quiet = false,
+}) => {
   const { t } = useTranslation();
   // Update checking state
   const [isChecking, setIsChecking] = useState(false);
@@ -209,8 +214,8 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
   return (
     <>
       {showPortableUpdateDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-background border border-line rounded-lg p-6 max-w-md w-full mx-4 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,10,18,.35)] animate-fade">
+          <div className="v-card max-w-md w-full mx-4 space-y-4 rounded-[24px] p-6 shadow-win">
             <h2 className="text-base font-semibold">
               {t("footer.portableUpdateTitle")}
             </h2>
@@ -221,13 +226,13 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
             </p>
             <div className="flex gap-2 justify-end">
               <button
-                className="px-3 py-1.5 text-sm rounded border border-line hover:bg-wash transition-colors"
+                className="v-btn v-btn-soft v-btn-sm"
                 onClick={() => setShowPortableUpdateDialog(false)}
               >
                 {t("common.close")}
               </button>
               <button
-                className="px-3 py-1.5 text-sm rounded bg-logo-primary text-white hover:bg-logo-primary/80 transition-colors"
+                className="v-btn v-btn-ink v-btn-sm"
                 onClick={() => {
                   openUrl(portableInstallerUrl);
                   setShowPortableUpdateDialog(false);
@@ -241,21 +246,23 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
           </div>
         </div>
       )}
-      <div className={`flex items-center gap-3 ${className}`}>
+      <div
+        className={`flex items-center gap-3 ${className} ${quiet && !updateChecksEnabled ? "hidden" : ""}`}
+      >
         {isUpdateClickable ? (
           <button
             onClick={getUpdateStatusAction()}
             disabled={isUpdateDisabled}
             className={`transition-colors disabled:opacity-50 tabular-nums ${
               updateAvailable
-                ? "text-logo-primary hover:text-logo-primary font-medium"
-                : "text-ink-2 hover:text-text"
+                ? "text-accent-text hover:text-accent font-semibold"
+                : "cursor-pointer text-ink-3 hover:text-text"
             }`}
           >
             {getUpdateStatusText()}
           </button>
         ) : (
-          <span className="text-ink-2 tabular-nums">
+          <span className="text-ink-3 tabular-nums">
             {getUpdateStatusText()}
           </span>
         )}

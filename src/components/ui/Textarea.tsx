@@ -11,11 +11,11 @@ export const Textarea: React.FC<TextareaProps> = ({
   ...props
 }) => {
   const baseClasses =
-    "px-2 py-1 text-sm font-semibold bg-wash border border-line-strong rounded-md text-start transition-[background-color,border-color] duration-150 hover:bg-logo-primary/10 hover:border-logo-primary focus:outline-none focus:bg-logo-primary/10 focus:border-logo-primary resize-y";
+    "text-[13.5px] leading-[1.5] bg-surface-2 rounded-[14px] text-start transition-[background-color,box-shadow] duration-200 hover:bg-surface-3 focus:outline-none focus:bg-surface focus:shadow-[0_0_0_3px_var(--accent-soft),0_0_0_1.5px_var(--sky-300)] placeholder:text-ink-3 resize-y";
 
   const variantClasses = {
-    default: "px-3 py-2 min-h-[100px]",
-    compact: "px-2 py-1 min-h-[80px]",
+    default: "px-[14px] py-[10px] min-h-[100px]",
+    compact: "px-3 py-2 min-h-[80px]",
   };
 
   return (

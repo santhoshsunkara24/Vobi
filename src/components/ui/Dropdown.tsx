@@ -55,8 +55,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   // The trigger's hover; in the menu, hover is grey so it never looks chosen.
   const hover =
-    tone === "neutral" ? "hover:bg-wash" : "hover:bg-logo-primary/10";
-  const chosen = tone === "neutral" ? "bg-line" : "bg-logo-primary/15";
+    tone === "neutral" ? "hover:bg-surface-3" : "hover:bg-surface-3";
+  const chosen = tone === "neutral" ? "bg-surface-2" : "bg-accent-soft";
 
   const selectedOption = options.find(
     (option) => option.value === selectedValue,
@@ -90,10 +90,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
       <button
         type="button"
         ref={triggerRef}
-        className={`px-2 py-[5px] text-sm font-semibold bg-wash border border-line-strong rounded-md min-w-[200px] w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-all duration-150 ${
-          disabled
-            ? "opacity-50 cursor-not-allowed"
-            : `${hover} cursor-pointer ${tone === "neutral" ? "hover:border-ink-3" : "hover:border-logo-primary"}`
+        className={`h-9 ps-[14px] pe-[12px] text-[13.5px] font-semibold bg-surface-2 rounded-full min-w-[200px] w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-colors duration-200 ${
+          disabled ? "opacity-50 cursor-not-allowed" : `${hover} cursor-pointer`
         }`}
         onClick={handleToggle}
         disabled={disabled}
@@ -101,7 +99,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       >
         <span className="truncate">{selectedOption?.label || placeholder}</span>
         <svg
-          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-ink-3 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -116,7 +114,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </button>
       {isOpen && !disabled && (
         <div
-          className={`absolute ${placement === "above" ? "bottom-full mb-1" : "top-full mt-1"} bg-background border border-line rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto p-1 ${
+          className={`absolute ${placement === "above" ? "bottom-full mb-1" : "top-full mt-1"} bg-surface rounded-[14px] shadow-pop z-50 max-h-60 overflow-y-auto p-1.5 animate-drop ${
             menuClassName ?? "left-0 right-0"
           }`}
         >
@@ -131,7 +129,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={option.value}
                   type="button"
-                  className={`flex w-full items-center gap-2 rounded-md px-2 text-sm text-start transition-colors duration-150 ${
+                  className={`flex w-full items-center gap-2 rounded-[9px] px-2.5 text-[13.5px] text-start transition-colors duration-150 ${
                     option.description ? "py-2" : "py-1.5"
                   } ${isChosen ? chosen : "hover:bg-wash"} ${
                     option.disabled ? "opacity-50 cursor-not-allowed" : ""
@@ -164,7 +162,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       aria-hidden="true"
-                      className="shrink-0 text-ink-2"
+                      className="shrink-0 text-accent"
                     >
                       <path d="M5 12.5l4.5 4.5L19 7.5" />
                     </svg>

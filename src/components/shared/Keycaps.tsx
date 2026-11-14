@@ -39,13 +39,14 @@ export const Keycaps: React.FC<KeycapsProps> = ({
   className = "",
 }) => {
   const labels = keycapLabels(binding, osType);
+  // Vobi keycaps: white, a hairline edge and a 2px base that presses flat.
   const state = pressed
-    ? "translate-y-[3px] shadow-none bg-plum text-background border-plum"
+    ? "translate-y-[1px] bg-accent-soft text-accent-text border-sky-300 border-b"
     : partial
-      ? "translate-y-[3px] shadow-none border-dashed bg-background text-plum border-plum"
-      : `shadow-[0_3px_0_0_var(--color-plum)] bg-background text-plum border-plum ${
+      ? "border-dashed bg-surface text-ink-2 border-line-strong"
+      : `bg-surface text-text border-line border-b-2 ${
           lift
-            ? "group-hover/keycaps:-translate-y-[2px] group-hover/keycaps:shadow-[0_5px_0_0_var(--color-plum)] group-focus-visible/keycaps:-translate-y-[2px] group-focus-visible/keycaps:shadow-[0_5px_0_0_var(--color-plum)]"
+            ? "group-hover/keycaps:-translate-y-[1px] group-focus-visible/keycaps:-translate-y-[1px]"
             : ""
         }`;
 
@@ -59,7 +60,7 @@ export const Keycaps: React.FC<KeycapsProps> = ({
         <span
           key={i}
           aria-hidden="true"
-          className={`relative inline-flex items-center justify-center border font-display font-semibold leading-none select-none transition-[transform,box-shadow,background-color] duration-[70ms] ease-out ${SIZES[size]} ${state}`}
+          className={`relative inline-flex items-center justify-center border font-display font-semibold leading-none select-none transition-[transform,background-color,color,border-color] duration-[90ms] ease-out ${SIZES[size]} ${state}`}
         >
           {label}
         </span>
@@ -80,7 +81,7 @@ export const KeySlot: React.FC<
   <span
     aria-hidden={children ? undefined : true}
     {...rest}
-    className={`inline-flex translate-y-[3px] items-center justify-center whitespace-nowrap border border-dashed border-plum-pick font-display font-semibold leading-none text-ink-2 animate-key-slot motion-reduce:animate-none ${SLOT_SIZES[size]} ${className}`}
+    className={`inline-flex items-center justify-center whitespace-nowrap border border-dashed border-plum-pick font-display font-semibold leading-none text-ink-2 animate-key-slot motion-reduce:animate-none ${SLOT_SIZES[size]} ${className}`}
   >
     {children}
   </span>

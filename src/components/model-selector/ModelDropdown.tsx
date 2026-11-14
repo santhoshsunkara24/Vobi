@@ -29,7 +29,7 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
   };
 
   return (
-    <div className="absolute bottom-full start-0 mb-2 w-64 max-h-[60vh] overflow-y-auto bg-background border border-line rounded-lg shadow-lg py-2 z-50">
+    <div className="absolute bottom-full start-0 mb-2 w-64 max-h-[60vh] overflow-y-auto bg-surface rounded-[14px] shadow-pop p-1.5 z-50 animate-drop">
       {locked && (
         <div className="px-3 pb-2 mb-1 text-xs text-ink-2 border-b border-line">
           {t("modelSelector.lockedWhileTranscribing")}
@@ -50,15 +50,11 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
               tabIndex={locked ? -1 : 0}
               role="button"
               aria-disabled={locked}
-              className={`w-full px-3 py-2 text-start transition-colors focus:outline-none ${
+              className={`w-full rounded-[9px] px-3 py-2 text-start transition-colors focus:outline-none ${
                 locked
                   ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-wash cursor-pointer"
-              } ${
-                currentModelId === model.id
-                  ? "bg-logo-primary/10 text-logo-primary"
-                  : ""
-              }`}
+                  : "hover:bg-surface-2 cursor-pointer"
+              } ${currentModelId === model.id ? "bg-accent-soft" : ""}`}
             >
               <div className="flex items-center justify-between">
                 <div>
