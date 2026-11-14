@@ -6,7 +6,7 @@ type TrayIconState = "idle" | "recording" | "transcribing";
 const CLOUD_STATE: Record<TrayIconState, CloudState> = {
   idle: "idle",
   recording: "listening",
-  transcribing: "thinking",
+  transcribing: "transcribing",
 };
 
 const TrayIcon = ({ state, size }: { state: TrayIconState; size: number }) => (

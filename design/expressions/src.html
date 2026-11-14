@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Expressions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --font: "Instrument Sans", -apple-system, system-ui, sans-serif;
+    --text: #14202e;
+    --text-2: #5d6b7c;
+    --line: #e3eaf2;
+    --card: #ffffff;
+    --wall: #f3f7fb;
+    --accent: #2b7ff0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    background: var(--wall);
+    color: var(--text);
+  }
+  main { max-width: 1180px; margin: 0 auto; padding: 40px 24px 64px; }
+  header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+  header p { margin: 6px 0 0; color: var(--text-2); font-size: 14.5px; max-width: 560px; line-height: 1.5; }
+  .btn {
+    font: 500 13px var(--font);
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  .btn:hover { border-color: #c9d6e4; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .stage {
+    position: relative;
+    height: 196px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, #eaf7ff 0%, #f7fbff 100%);
+  }
+  .replay {
+    position: absolute; top: 10px; right: 10px;
+    font: 500 12px var(--font);
+    padding: 5px 10px;
+  }
+  .pillrow {
+    display: flex; justify-content: center; align-items: center;
+    padding: 14px 12px;
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(80% 140% at 10% 0%, #9fdcff 0%, transparent 60%),
+      radial-gradient(70% 140% at 95% 100%, #b9c4ff 0%, transparent 60%),
+      #dfe9f6;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 8px;
+    height: 52px;
+    padding: 0 18px 0 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 6px 20px rgba(20, 48, 76, 0.12);
+    backdrop-filter: blur(14px);
+    font-size: 13.5px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .meta { padding: 14px 16px 16px; display: grid; gap: 6px; }
+  .meta b { font-weight: 600; font-size: 15px; }
+  .meta span { color: var(--text-2); font-size: 13px; line-height: 1.45; }
+  .chip {
+    justify-self: start;
+    font: 500 12px ui-monospace, "SF Mono", monospace;
+    color: var(--accent);
+    background: #eaf3ff;
+    border-radius: 6px;
+    padding: 2px 7px;
+  }
+
+  h2 { font-size: 17px; font-weight: 600; margin: 44px 0 6px; }
+  .sub { color: var(--text-2); font-size: 13.5px; margin: 0 0 14px; }
+  .tray { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .bar { display: flex; align-items: center; gap: 0; height: 30px; padding: 0 12px; overflow-x: auto; }
+  .bar.light { background: rgba(246, 246, 246, 0.95); color: #1c1c1e; --vobi-eye: #fff; border-bottom: 1px solid var(--line); }
+  .bar.dark { background: #232327; color: #fff; --vobi-eye: #232327; }
+  .bar .ic { width: 64px; display: grid; place-items: center; flex: none; }
+  .labels { display: flex; padding: 8px 12px; overflow-x: auto; gap: 0; }
+  .labels div { width: 64px; flex: none; text-align: center; font-size: 11px; color: var(--text-2); line-height: 1.3; }
+  .zoomrow { display: flex; padding: 14px 12px 18px; border-top: 1px solid var(--line); overflow-x: auto; color: #1c1c1e; --vobi-eye: #fff; }
+  .zoomrow .ic { width: 64px; flex: none; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Vobi’s faces</h1>
+      <p>One face for each thing Vobi does. The big cloud is the size used in onboarding and the app; the pill below it is the 46&nbsp;px overlay size. Faces that play once (pasted, nothing to fix, nothing selected, failed) replay every few seconds.</p>
+    </div>
+    <button class="btn" id="replayAll">Replay all</button>
+  </header>
+  <section class="grid" id="grid"></section>
+
+  <h2>Tray icon</h2>
+  <p class="sub">The single-colour version, at real menu-bar size on light and dark bars, then enlarged. It carries the eyes and the tilt; marks and the mouth are left out at this size.</p>
+  <div class="tray">
+    <div class="bar light" id="trayLight"></div>
+    <div class="bar dark" id="trayDark"></div>
+    <div class="labels" id="trayLabels"></div>
+    <div class="zoomrow" id="trayZoom"></div>
+  </div>
+</main>
+
+<script>/*ENGINE*/</script>
+<script>
+  const ACTIONS = [
+    { state: "idle", action: "Waiting", note: "Calm, breathing, blinks now and then.", pill: "Ready" },
+    { state: "listening", action: "Recording", note: "Looks up at you; puffs and mouth move with your voice.", pill: "Listening", voice: true },
+    { state: "transcribing", action: "Transcribing", note: "Eyes down, reading left to right; small even puffs.", pill: "Writing it down" },
+    { state: "sleepy", action: "Loading model", note: "Still waking up: half-closed eyes, a yawn, a rising “z”.", pill: "Waking up the model" },
+    { state: "refining", action: "Refining with AI", note: "Eyes up, pondering side to side, a “hmm” and sparkles.", pill: "Refining" },
+    { state: "fixing", action: "Fixing spelling", note: "Narrowed eyes checking the text in quick hops, with tiny nods.", pill: "Fixing spelling" },
+    { state: "done", action: "Pasted · Fixed · Refined", note: "A hop and a wiggle, ^ ^ eyes and a grin.", pill: "Pasted", once: true },
+    { state: "clean", action: "Nothing to fix", note: "All good: a wink, a smile and a small nod.", pill: "Looks good already", once: true },
+    { state: "confused", action: "Nothing selected", note: "Head tilt, eyes searching, a wavy mouth and a “?”.", pill: "Select some text first", once: true },
+    { state: "sleepy", action: "Refine not set up", note: "Same sleepy face as loading: it isn’t ready yet.", pill: "Set up Refine in Settings" },
+    { state: "error", action: "Failed", note: "Worried brows, droopy eyes, a frown and a small shrink.", pill: "Couldn’t paste", once: true },
+  ];
+
+  const grid = document.getElementById("grid");
+  const players = [];
+
+  for (const a of ACTIONS) {
+    const tile = document.createElement("article");
+    tile.className = "tile";
+    tile.innerHTML = `
+      <div class="stage"><span class="big"></span>${a.once ? '<button class="btn replay">Replay</button>' : ""}</div>
+      <div class="pillrow"><div class="pill"><span class="small"></span>${a.pill}</div></div>
+      <div class="meta"><b>${a.action}</b><span>${a.note}</span><code class="chip">${a.state}</code></div>`;
+    grid.appendChild(tile);
+    const big = new CloudEngine(tile.querySelector(".big"), { size: 112, shadow: true });
+    const small = new CloudEngine(tile.querySelector(".small"), { size: 46 });
+    const play = () => {
+      for (const c of [big, small]) {
+        c.setState("idle");
+        requestAnimationFrame(() => c.setState(a.state));
+      }
+    };
+    play();
+    if (a.once) tile.querySelector(".replay").onclick = play;
+    players.push({ a, play, clouds: [big, small] });
+  }
+
+  // A made-up voice for the recording tile.
+  setInterval(() => {
+    const t = performance.now() / 1000;
+    const v = Math.max(0, Math.sin(t * 2.1) * 0.5 + Math.sin(t * 5.3) * 0.3 + 0.35);
+    for (const p of players) if (p.a.voice) p.clouds.forEach((c) => c.setLevel(v));
+  }, 50);
+
+  // Replay the one-shot faces every few seconds.
+  setInterval(() => players.forEach((p) => p.a.once && p.play()), 4200);
+  document.getElementById("replayAll").onclick = () => players.forEach((p) => p.play());
+
+  // Tray row: one icon per distinct state.
+  const TRAY = ["idle", "listening", "transcribing", "refining", "fixing", "done", "clean", "confused", "error", "sleepy"];
+  for (const s of TRAY) {
+    for (const [id, size] of [["trayLight", 18], ["trayDark", 18], ["trayZoom", 44]]) {
+      const ic = document.createElement("span");
+      ic.className = "ic";
+      document.getElementById(id).appendChild(ic);
+      const span = document.createElement("span");
+      ic.appendChild(span);
+      const c = new CloudEngine(span, { size, mono: true });
+      c.setState(s);
+      if (s === "listening") setInterval(() => c.setLevel(0.4 + Math.random() * 0.5), 120);
+    }
+    const l = document.createElement("div");
+    l.textContent = s;
+    document.getElementById("trayLabels").appendChild(l);
+  }
+</script>
+</body>
+</html>

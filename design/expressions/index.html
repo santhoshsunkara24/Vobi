@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Expressions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --font: "Instrument Sans", -apple-system, system-ui, sans-serif;
+    --text: #14202e;
+    --text-2: #5d6b7c;
+    --line: #e3eaf2;
+    --card: #ffffff;
+    --wall: #f3f7fb;
+    --accent: #2b7ff0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    background: var(--wall);
+    color: var(--text);
+  }
+  main { max-width: 1180px; margin: 0 auto; padding: 40px 24px 64px; }
+  header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+  header p { margin: 6px 0 0; color: var(--text-2); font-size: 14.5px; max-width: 560px; line-height: 1.5; }
+  .btn {
+    font: 500 13px var(--font);
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  .btn:hover { border-color: #c9d6e4; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .stage {
+    position: relative;
+    height: 196px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, #eaf7ff 0%, #f7fbff 100%);
+  }
+  .replay {
+    position: absolute; top: 10px; right: 10px;
+    font: 500 12px var(--font);
+    padding: 5px 10px;
+  }
+  .pillrow {
+    display: flex; justify-content: center; align-items: center;
+    padding: 14px 12px;
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(80% 140% at 10% 0%, #9fdcff 0%, transparent 60%),
+      radial-gradient(70% 140% at 95% 100%, #b9c4ff 0%, transparent 60%),
+      #dfe9f6;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 8px;
+    height: 52px;
+    padding: 0 18px 0 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 6px 20px rgba(20, 48, 76, 0.12);
+    backdrop-filter: blur(14px);
+    font-size: 13.5px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .meta { padding: 14px 16px 16px; display: grid; gap: 6px; }
+  .meta b { font-weight: 600; font-size: 15px; }
+  .meta span { color: var(--text-2); font-size: 13px; line-height: 1.45; }
+  .chip {
+    justify-self: start;
+    font: 500 12px ui-monospace, "SF Mono", monospace;
+    color: var(--accent);
+    background: #eaf3ff;
+    border-radius: 6px;
+    padding: 2px 7px;
+  }
+
+  h2 { font-size: 17px; font-weight: 600; margin: 44px 0 6px; }
+  .sub { color: var(--text-2); font-size: 13.5px; margin: 0 0 14px; }
+  .tray { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .bar { display: flex; align-items: center; gap: 0; height: 30px; padding: 0 12px; overflow-x: auto; }
+  .bar.light { background: rgba(246, 246, 246, 0.95); color: #1c1c1e; --vobi-eye: #fff; border-bottom: 1px solid var(--line); }
+  .bar.dark { background: #232327; color: #fff; --vobi-eye: #232327; }
+  .bar .ic { width: 64px; display: grid; place-items: center; flex: none; }
+  .labels { display: flex; padding: 8px 12px; overflow-x: auto; gap: 0; }
+  .labels div { width: 64px; flex: none; text-align: center; font-size: 11px; color: var(--text-2); line-height: 1.3; }
+  .zoomrow { display: flex; padding: 14px 12px 18px; border-top: 1px solid var(--line); overflow-x: auto; color: #1c1c1e; --vobi-eye: #fff; }
+  .zoomrow .ic { width: 64px; flex: none; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Vobi’s faces</h1>
+      <p>One face for each thing Vobi does. The big cloud is the size used in onboarding and the app; the pill below it is the 46&nbsp;px overlay size. Faces that play once (pasted, nothing to fix, nothing selected, failed) replay every few seconds.</p>
+    </div>
+    <button class="btn" id="replayAll">Replay all</button>
+  </header>
+  <section class="grid" id="grid"></section>
+
+  <h2>Tray icon</h2>
+  <p class="sub">The single-colour version, at real menu-bar size on light and dark bars, then enlarged. It carries the eyes and the tilt; marks and the mouth are left out at this size.</p>
+  <div class="tray">
+    <div class="bar light" id="trayLight"></div>
+    <div class="bar dark" id="trayDark"></div>
+    <div class="labels" id="trayLabels"></div>
+    <div class="zoomrow" id="trayZoom"></div>
+  </div>
+</main>
+
+<script>(() => {
+  // ../../src/components/vobi/cloudEngine.ts
+  var NAVY = "#14304C";
+  var PUFFS = [
+    [-21, -2, 17],
+    [-2, -14, 22],
+    [21, -6, 18],
+    [33, 8, 11]
+  ];
+  var BASE = [-42, 4, 84, 34];
+  var ORIGIN = [0, 10];
+  var BASE_Y = 42;
+  var reduceMotion = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var instance = 0;
+  function cloudPath(puffs, samples) {
+    const circles = puffs.slice();
+    const [bx, by, bw, bh] = BASE;
+    const br = bh / 2;
+    const step = Math.max(4, (bw - bh) / 6);
+    for (let x = bx + br;x <= bx + bw - br + 0.01; x += step) {
+      circles.push([x, by + br, br]);
+    }
+    const [ox, oy] = ORIGIN;
+    const radii = new Array(samples);
+    for (let i = 0;i < samples; i++) {
+      const a = i / samples * Math.PI * 2;
+      const dx = Math.cos(a);
+      const dy = Math.sin(a);
+      let best = 0;
+      for (const [cx, cy, r] of circles) {
+        const px = cx - ox;
+        const py = cy - oy;
+        const b = dx * px + dy * py;
+        const disc = b * b - (px * px + py * py - r * r);
+        if (disc >= 0)
+          best = Math.max(best, b + Math.sqrt(disc));
+      }
+      radii[i] = best;
+    }
+    for (let k = 0;k < 3; k++) {
+      const c = radii.slice();
+      for (let i = 0;i < samples; i++) {
+        radii[i] = (c[(i - 1 + samples) % samples] + 2 * c[i] + c[(i + 1) % samples]) / 4;
+      }
+    }
+    let d = "M";
+    for (let i = 0;i < samples; i++) {
+      const a = i / samples * Math.PI * 2;
+      if (i)
+        d += "L";
+      d += `${(ox + Math.cos(a) * radii[i]).toFixed(2)},${(oy + Math.sin(a) * radii[i]).toFixed(2)}`;
+    }
+    return d + "Z";
+  }
+  function markup(id, o) {
+    const small = o.size < 70;
+    const eye = o.mono ? "var(--vobi-eye, #fff)" : NAVY;
+    const body = o.mono ? `<path data-r="body" fill="currentColor"/>` : `<path data-r="body" fill="url(#${id}f)" filter="url(#${id}soft)"/>
+       <g clip-path="url(#${id}clip)">
+         <ellipse cx="0" cy="46" rx="60" ry="24" fill="url(#${id}ao)"/>
+         <ellipse cx="0" cy="30" rx="30" ry="9" fill="url(#${id}glow)"/>
+         <ellipse cx="-12" cy="-22" rx="34" ry="18" fill="url(#${id}hi)" opacity=".9"/>
+       </g>
+       <path data-r="rim" fill="none" stroke="url(#${id}rim)" stroke-width="2"/>
+       <ellipse cx="-14" cy="-18" rx="6" ry="3.4" fill="#fff" opacity=".9" transform="rotate(-25 -14 -18)"/>`;
+    const glints = o.mono || small ? "" : [1, 2, 3, 4].map((i) => `<circle data-r="g${i}" r="${i > 2 ? 0.8 : 1.7}" fill="#fff"/>`).join("");
+    const line = o.mono ? 4.5 : small ? 3.4 : 3;
+    const mouthLine = small ? 2.8 : 2.2;
+    const face = o.mono ? "" : `<path data-r="wl" fill="none" stroke="${NAVY}" stroke-width="${small ? 2.8 : 2.2}" stroke-linecap="round" opacity="0"/>
+       <path data-r="wr" fill="none" stroke="${NAVY}" stroke-width="${small ? 2.8 : 2.2}" stroke-linecap="round" opacity="0"/>
+       <path data-r="smile" fill="none" stroke="${NAVY}" stroke-width="${mouthLine}" stroke-linecap="round" stroke-linejoin="round"/>
+       <ellipse data-r="mouth" fill="#0E2238"/>
+       <path data-r="grin" fill="#0E2238" stroke="#0E2238" stroke-width="1.2" stroke-linejoin="round"/>
+       <ellipse data-r="tongue" fill="#FF7EAA"/>`;
+    return `<svg width="${o.size}" height="${o.size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">
+    <defs>
+      <linearGradient id="${id}f" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#DDF7FF"/><stop offset=".55" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></linearGradient>
+      <radialGradient id="${id}hi"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}ao"><stop offset="0" stop-color="#1B44C9" stop-opacity=".55"/><stop offset="1" stop-color="#1B44C9" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}glow"><stop offset="0" stop-color="#9EEBFF" stop-opacity=".85"/><stop offset="1" stop-color="#9EEBFF" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}bl"><stop offset="0" stop-color="#FF7EAA" stop-opacity=".75"/><stop offset="1" stop-color="#FF7EAA" stop-opacity="0"/></radialGradient>
+      <linearGradient id="${id}rim" x1="0" y1="-40" x2="0" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <filter id="${id}soft" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="${small ? 1 : 5}" stdDeviation="${small ? 1.4 : 5}" flood-color="#1B44C9" flood-opacity=".32"/></filter>
+      <clipPath id="${id}clip"><path data-r="clip"/></clipPath>
+    </defs>
+    ${o.shadow ? `<ellipse data-r="shadow" cx="0" cy="52" rx="34" ry="4" fill="#0B2A4A" opacity=".12"/>` : ""}
+    <g data-r="root">${body}
+      ${o.mono ? "" : `<ellipse data-r="bl" rx="6" ry="3.4" fill="url(#${id}bl)"/><ellipse data-r="br" rx="6" ry="3.4" fill="url(#${id}bl)"/>`}
+      <ellipse data-r="el" fill="${eye}"/><ellipse data-r="er" fill="${eye}"/>
+      ${glints}
+      <path data-r="al" fill="none" stroke="${eye}" stroke-width="${line}" stroke-linecap="round"/>
+      <path data-r="ar" fill="none" stroke="${eye}" stroke-width="${line}" stroke-linecap="round"/>
+      ${face}
+    </g>
+    ${o.mono ? "" : extras(id, small)}
+  </svg>`;
+  }
+  function extras(id, small) {
+    const star = (r) => `M0,${-r} C${r * 0.18},${-r * 0.18} ${r * 0.18},${-r * 0.18} ${r},0 C${r * 0.18},${r * 0.18} ${r * 0.18},${r * 0.18} 0,${r} C${-r * 0.18},${r * 0.18} ${-r * 0.18},${r * 0.18} ${-r},0 C${-r * 0.18},${-r * 0.18} ${-r * 0.18},${-r * 0.18} 0,${-r}Z`;
+    const k = small ? 1.3 : 1;
+    const sw = small ? 1.6 : 1.2;
+    const ink = `fill="none" stroke="${NAVY}" stroke-linecap="round" stroke-linejoin="round"`;
+    const q = `<g data-r="q" opacity="0"><g transform="scale(${k})"><path d="M-4.6,-5 C-4.6,-10.6 4.8,-10.6 4.8,-5 C4.8,-1.2 0,-0.8 0,3" ${ink} stroke-width="3.4"/><circle cx="0" cy="8.4" r="2.1" fill="${NAVY}"/></g></g>`;
+    const z = (n) => `<g data-r="z${n}" opacity="0"><path d="M${-4.4 * k},${-4.6 * k} H${4.4 * k} L${-4.4 * k},${4.6 * k} H${4.4 * k}" ${ink} stroke-width="${2.6 * k}"/></g>`;
+    return `<defs><linearGradient id="${id}sp" x1="0" y1="-1" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#9FE3FF"/></linearGradient></defs>
+    <path data-r="s1" d="${star(8 * k)}" fill="url(#${id}sp)" stroke="#2B7FF0" stroke-width="${sw}" stroke-linejoin="round" opacity="0"/>
+    <path data-r="s2" d="${star(5.2 * k)}" fill="url(#${id}sp)" stroke="#2B7FF0" stroke-width="${sw}" stroke-linejoin="round" opacity="0"/>
+    <path data-r="s3" d="${star(3.8 * k)}" fill="url(#${id}sp)" stroke="#2B7FF0" stroke-width="${sw * 0.9}" stroke-linejoin="round" opacity="0"/>
+    ${q}${z(1)}${z(2)}`;
+  }
+  var P = (p) => ({
+    open: 1,
+    big: 1,
+    dp: 1.8,
+    mw: 2.6,
+    wv: 0,
+    asym: 0,
+    mo: 0,
+    tilt: 0,
+    blush: 0.7,
+    brow: 0,
+    bs: 0,
+    bl: 0,
+    size: 1,
+    ...p
+  });
+  var POSES = {
+    idle: P({}),
+    listening: P({ big: 1.12, blush: 0.75 }),
+    transcribing: P({ open: 0.78, dp: 1.2, mw: 2.2 }),
+    thinking: P({ dp: 1, mw: 2.2 }),
+    refining: P({
+      open: 0.95,
+      dp: 0.6,
+      mw: 2.6,
+      asym: 1.8,
+      blush: 0.75,
+      brow: 0.9,
+      bs: 0.6,
+      bl: 1.6
+    }),
+    fixing: P({ open: 0.68, dp: 0, mw: 1.6, mo: 0.4, brow: 0.85, bs: -1.4 }),
+    done: P({ dp: 4.4, mw: 4.8, blush: 1 }),
+    clean: P({ dp: 3.2, mw: 4, asym: 0.8, tilt: 4, blush: 0.9 }),
+    confused: P({
+      big: 1.05,
+      dp: 0,
+      mw: 3.4,
+      wv: 1.1,
+      tilt: -9,
+      blush: 0.6,
+      brow: 1,
+      bs: 0,
+      bl: 2.6
+    }),
+    error: P({
+      open: 0.6,
+      big: 1.1,
+      dp: -2.6,
+      mw: 2.8,
+      blush: 0.25,
+      brow: 1,
+      bs: 1.8,
+      size: 0.95
+    }),
+    sleepy: P({ open: 0.2, dp: 0.6, mw: 2.2, mo: 0.35, tilt: 6, blush: 0.55 })
+  };
+  var spring = (x = 1) => ({ x, v: 0, to: x });
+  var step = (s, k, c, dt) => {
+    s.v += (-k * (s.x - s.to) - c * s.v) * dt;
+    s.x += s.v * dt;
+  };
+  var set = (el, attrs) => {
+    if (!el)
+      return;
+    for (const k in attrs)
+      el.setAttribute(k, String(attrs[k]));
+  };
+  var f = (n) => n.toFixed(2);
+  var clamp01 = (n) => Math.max(0, Math.min(1, n));
+  function mouthPath(mx, y, w, dp, asym, wv, phase) {
+    const n = 12;
+    let d = "";
+    for (let i = 0;i <= n; i++) {
+      const u = -1 + 2 * i / n;
+      const x = mx + u * w;
+      const yy = y + dp * (1 - u * u) - asym * ((u + 1) / 2) + wv * Math.sin(u * Math.PI * 1.5 + phase);
+      d += `${i ? "L" : "M"}${f(x)},${f(yy)}`;
+    }
+    return d;
+  }
+
+  class CloudEngine {
+    o;
+    state = "idle";
+    level = 0;
+    target = 0;
+    t = Math.random() * 10;
+    since = 0;
+    last = 0;
+    raf = 0;
+    timer;
+    nextBlink = performance.now() + 900 + Math.random() * 3000;
+    fixStep = -1;
+    r = {};
+    samples;
+    sy = spring();
+    sx = spring();
+    ty = spring(0);
+    blink = spring();
+    happy = spring(0);
+    wink = spring(0);
+    lx = spring(0);
+    ly = spring(0);
+    nod = spring(0);
+    tilt = spring(0);
+    p;
+    sp = spring(0);
+    qm = spring(0);
+    zz = spring(0);
+    constructor(mount, o) {
+      this.o = o;
+      const id = `vobi${++instance}`;
+      mount.innerHTML = markup(id, o);
+      mount.querySelectorAll("[data-r]").forEach((el) => {
+        this.r[el.getAttribute("data-r")] = el;
+      });
+      this.samples = o.size < 70 ? 80 : 140;
+      const idle = POSES.idle;
+      this.p = Object.fromEntries(Object.keys(idle).map((k) => [k, spring(idle[k])]));
+      this.raf = requestAnimationFrame(this.frame);
+    }
+    setState(s) {
+      if (s === this.state)
+        return;
+      const prev = this.state;
+      this.state = s;
+      this.since = 0;
+      this.fixStep = -1;
+      const pose = POSES[s];
+      for (const k in pose)
+        this.p[k].to = pose[k];
+      this.happy.to = s === "done" ? 1 : 0;
+      this.wink.to = s === "clean" ? 1 : 0;
+      this.sp.to = s === "refining" ? 1 : 0;
+      this.qm.to = s === "confused" ? 1 : 0;
+      this.zz.to = s === "sleepy" ? 1 : 0;
+      if (s === "done") {
+        this.sy.v -= 2.8;
+        this.sx.v += 1.8;
+        this.ty.v -= 200;
+        this.tilt.v += 160;
+      }
+      if (s === "clean") {
+        this.nod.v += 70;
+        this.sy.v += 0.9;
+        this.ty.v -= 70;
+      }
+      if (s === "listening" && prev !== "listening") {
+        this.sy.v += 1.5;
+        this.sx.v -= 0.8;
+        this.ty.v -= 60;
+      }
+      if (s === "confused")
+        this.tilt.v -= 60;
+      if (s === "error") {
+        this.sy.v += 1.2;
+        this.nod.v += 40;
+      }
+    }
+    setLevel(level) {
+      this.target = Math.max(0, Math.min(1, level));
+    }
+    destroy() {
+      cancelAnimationFrame(this.raf);
+      clearTimeout(this.timer);
+    }
+    frame = (now) => {
+      const dt = Math.min(0.033, (now - (this.last || now)) / 1000 || 0.016);
+      this.last = now;
+      this.t += dt;
+      this.since += dt;
+      const st = this.state;
+      const still = reduceMotion();
+      const t = still ? 0 : this.t;
+      const p = this.p;
+      const tl = st === "listening" ? this.target : 0;
+      this.level += (tl - this.level) * (tl > this.level ? 0.45 : 0.12);
+      const L = this.level;
+      if (now > this.nextBlink && st !== "done" && st !== "sleepy") {
+        this.blink.x = 0.08;
+        this.blink.v = 0;
+        this.nextBlink = now + 2400 + Math.random() * 3400;
+      }
+      let lx = 0;
+      let ly = 0;
+      if (st === "thinking") {
+        lx = 3.5 * Math.sign(Math.sin(this.t * 1.3));
+        ly = -2.5;
+      } else if (st === "listening")
+        ly = -1;
+      else if (st === "transcribing") {
+        const ph = this.t / 1.5 % 1;
+        lx = still ? 0 : ph < 0.82 ? -3.4 + ph / 0.82 * 6.8 : -3.4;
+        ly = 2.4;
+      } else if (st === "refining") {
+        lx = still ? 2 : 3.2 * Math.sin(this.t * 0.9);
+        ly = -3;
+      } else if (st === "fixing") {
+        const i = Math.floor(this.t / 0.48);
+        if (i !== this.fixStep) {
+          if (this.fixStep >= 0 && !still)
+            this.nod.v += 26;
+          this.fixStep = i;
+        }
+        lx = still ? 0 : [-3, 0.5, 3, -0.8][i % 4];
+        ly = 2.6;
+      } else if (st === "confused") {
+        lx = still ? 2.5 : 3.2 * Math.sin(this.t * 1.15);
+        ly = -1.2;
+      } else if (st === "error")
+        ly = 1.8;
+      else if (st === "sleepy")
+        ly = 1;
+      this.lx.to = lx;
+      this.ly.to = ly;
+      const yawn = st === "sleepy" && !still ? Math.pow(Math.max(0, Math.sin(this.t * 1.1)), 4) : 0;
+      const breathe = still ? 0 : Math.sin(this.t * (st === "idle" ? 1.3 : st === "sleepy" ? 0.9 : 2.4)) * (st === "idle" || st === "sleepy" ? 0.022 : 0.015);
+      const size = p.size.x;
+      this.sy.to = size * (1 + breathe + L * 0.1 + yawn * 0.03);
+      this.sx.to = size * (1 - breathe * 0.5 + L * 0.05);
+      step(this.sy, 260, 13, dt);
+      step(this.sx, 260, 13, dt);
+      step(this.ty, 220, 16, dt);
+      step(this.blink, 300, 22, dt);
+      step(this.happy, 240, 22, dt);
+      step(this.wink, 260, 22, dt);
+      step(this.lx, st === "fixing" ? 320 : 140, st === "fixing" ? 26 : 16, dt);
+      step(this.ly, 140, 16, dt);
+      step(this.nod, 260, 14, dt);
+      step(this.tilt, 170, 7, dt);
+      step(this.sp, 120, 18, dt);
+      step(this.qm, 160, 16, dt);
+      step(this.zz, 90, 16, dt);
+      for (const k in p)
+        step(p[k], 170, 22, dt);
+      const hap = clamp01(this.happy.x);
+      const wink = clamp01(this.wink.x);
+      const ty = Math.min(0, this.ty.x);
+      const puffs = PUFFS.map(([cx, cy, rr], i) => {
+        const ph = i * 1.9;
+        let d2 = Math.sin(t * (1.1 + i * 0.17) + ph) * 0.9;
+        if (st === "listening")
+          d2 += Math.max(0, Math.sin(t * 9 + ph * 1.4)) * L * 5.5;
+        if (st === "thinking")
+          d2 += Math.max(0, Math.sin(t * 4.2 - i * 0.9)) * 2.6;
+        if (st === "transcribing")
+          d2 += Math.max(0, Math.sin(t * 7 - i * 1.6)) * 1.3;
+        if (st === "refining")
+          d2 += Math.sin(t * 1.8 - i * 1.4) * 2;
+        return [cx, cy, rr + d2];
+      });
+      const d = cloudPath(puffs, this.samples);
+      set(this.r.body, { d });
+      set(this.r.clip, { d });
+      set(this.r.rim, { d });
+      const lean = p.tilt.x + (st === "sleepy" && !still ? Math.sin(this.t * 0.9) * 2 : 0);
+      set(this.r.root, {
+        transform: `translate(0 ${f(ty)}) translate(0 ${BASE_Y}) rotate(${f(still ? p.tilt.to : this.tilt.x + lean)}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`
+      });
+      set(this.r.shadow, { opacity: (0.12 * (1 + ty / 45)).toFixed(3) });
+      const mono = !!this.o.mono;
+      const gap = mono ? 13 : 12;
+      const rx = mono ? 5.5 : 4.6;
+      const ry = mono ? 7.5 : 6.2;
+      const ex = this.lx.x;
+      const big = p.big.x;
+      const ey = (mono ? 15 : 16) + this.ly.x + this.nod.x * 0.06;
+      const lid = Math.max(0.06, this.blink.x) * p.open.x * (1 - yawn * 0.6);
+      for (const [key, s] of [
+        ["el", -1],
+        ["er", 1]
+      ]) {
+        const arc = s > 0 ? Math.max(hap, wink) : hap;
+        const open = lid * (1 - arc);
+        const h = Math.max(0.6, ry * big * open);
+        set(this.r[key], {
+          cx: f(s * gap + ex),
+          cy: f(ey + (ry * big - h) * 0.55),
+          rx: f(rx * big),
+          ry: f(h),
+          opacity: arc > 0.85 ? 0 : 1
+        });
+      }
+      for (const [key, s] of [
+        ["al", -1],
+        ["ar", 1]
+      ]) {
+        const arc = s > 0 ? Math.max(hap, wink) : hap;
+        const cx = s * gap + ex;
+        const w = rx * 1.25;
+        set(this.r[key], {
+          d: `M${f(cx - w)},${f(ey + 1.5)} Q${f(cx)},${f(ey - 4.2)} ${f(cx + w)},${f(ey + 1.5)}`,
+          opacity: f(arc > 0.5 ? Math.min(1, (arc - 0.5) * 3) : 0)
+        });
+      }
+      [1, 2, 3, 4].forEach((i) => {
+        const s = i % 2 ? -1 : 1;
+        const small = i > 2;
+        const arc = s > 0 ? Math.max(hap, wink) : hap;
+        set(this.r[`g${i}`], {
+          cx: f(s * gap + ex + (small ? -1.6 : 1.5) * big),
+          cy: f(ey + (small ? 2.4 : -2.2) * big),
+          opacity: lid * (1 - arc) > 0.55 ? 1 : 0
+        });
+      });
+      const blush = f(clamp01(p.blush.x + hap * 0.3));
+      set(this.r.bl, {
+        cx: f(-gap - 9 + ex * 0.5),
+        cy: f(ey + 6),
+        opacity: blush
+      });
+      set(this.r.br, {
+        cx: f(gap + 9 + ex * 0.5),
+        cy: f(ey + 6),
+        opacity: blush
+      });
+      if (this.r.wl) {
+        for (const [key, s] of [
+          ["wl", -1],
+          ["wr", 1]
+        ]) {
+          const cx = s * gap + ex;
+          const by = ey - ry * big * (0.45 + 0.55 * p.open.x) - 3.2 - (s < 0 ? p.bl.x : 0);
+          const w = 4.2;
+          const slope = p.bs.x;
+          const arch = s < 0 ? p.bl.x * 0.5 : 0;
+          const ox = cx + s * w;
+          const ix = cx - s * w;
+          set(this.r[key], {
+            d: `M${f(ox)},${f(by + slope * 0.5)} Q${f(cx)},${f(by - (slope < 0 ? 0.4 : 1.2) - arch)} ${f(ix)},${f(by - slope)}`,
+            opacity: f(clamp01(p.brow.x))
+          });
+        }
+      }
+      if (this.r.smile) {
+        const talk = st === "listening" ? L : 0;
+        const my = ey + 7.5;
+        const mx = ex * 0.6;
+        const mo = clamp01(p.mo.x + yawn * 0.9);
+        const oShape = talk > 0.06 ? 0 : mo;
+        set(this.r.mouth, {
+          cx: f(mx),
+          cy: f(my + 1 + oShape * 0.6),
+          rx: f(talk > 0.06 ? 2.6 + talk * 0.8 : 1.3 + oShape * 1.3),
+          ry: f(talk > 0.06 ? 0.5 + talk * 3.6 : 1.1 + oShape * 2.4),
+          opacity: talk > 0.06 ? 1 : f(clamp01(oShape * 3))
+        });
+        const w = p.mw.x;
+        const dp = p.dp.x;
+        const grin = hap > 0.4 ? Math.min(1, (hap - 0.4) * 2.5) : 0;
+        set(this.r.smile, {
+          d: mouthPath(mx, my, w, dp, p.asym.x, p.wv.x, t * 2.2),
+          opacity: talk > 0.06 ? 0 : f((1 - grin) * (1 - clamp01(oShape * 3)))
+        });
+        const gw = 4.6;
+        const gd = 6.4 * grin;
+        const y = my;
+        set(this.r.grin, {
+          d: `M${f(mx - gw)},${f(y - 0.6)} Q${f(mx)},${f(y - 1.4)} ${f(mx + gw)},${f(y - 0.6)} Q${f(mx + gw * 0.7)},${f(y + gd)} ${f(mx)},${f(y + gd)} Q${f(mx - gw * 0.7)},${f(y + gd)} ${f(mx - gw)},${f(y - 0.6)}Z`,
+          opacity: talk > 0.06 ? 0 : f(grin)
+        });
+        set(this.r.tongue, {
+          cx: f(mx),
+          cy: f(y + gd * 0.78),
+          rx: f(2.4 * grin),
+          ry: f(1.5 * grin),
+          opacity: talk > 0.06 ? 0 : f(grin)
+        });
+      }
+      if (this.r.s1) {
+        const sp = clamp01(this.sp.x);
+        [
+          ["s1", 38, -38, 0],
+          ["s2", -44, -28, 2.1],
+          ["s3", 48, -10, 4.2]
+        ].forEach(([key, x, y, ph]) => {
+          const tw = still ? 0.85 : 0.5 + 0.5 * Math.sin(this.t * 2.6 + ph);
+          const sc = sp * (0.55 + 0.45 * tw);
+          set(this.r[key], {
+            transform: `translate(${x} ${f(y - (1 - sp) * 6)}) rotate(${f(still ? 0 : this.t * 25 + ph * 20)}) scale(${sc.toFixed(3)})`,
+            opacity: f(sp * (0.45 + 0.55 * tw))
+          });
+        });
+        const q = clamp01(this.qm.x);
+        set(this.r.q, {
+          transform: `translate(38 ${f(-38 + (still ? 0 : Math.sin(this.t * 2.4) * 2.4) + (1 - q) * 8)}) rotate(${f(still ? 10 : 10 + Math.sin(this.t * 1.7) * 10)}) scale(${(0.6 + q * 0.4).toFixed(3)})`,
+          opacity: f(q)
+        });
+        const z = clamp01(this.zz.x);
+        [
+          ["z1", 0],
+          ["z2", 0.5]
+        ].forEach(([key, off]) => {
+          const ph = still ? 0.35 + off : (this.t / 2.8 + off) % 1;
+          set(this.r[key], {
+            transform: `translate(${f(30 + ph * 14 + Math.sin(ph * 6) * 2)} ${f(-24 - ph * 30)}) rotate(-12) scale(${(0.55 + ph * 0.6).toFixed(3)})`,
+            opacity: f(z * Math.sin(Math.min(1, ph) * Math.PI))
+          });
+        });
+      }
+      if (document.hidden) {
+        this.timer = setTimeout(() => {
+          this.raf = requestAnimationFrame(this.frame);
+        }, 400);
+      } else {
+        this.raf = requestAnimationFrame(this.frame);
+      }
+    };
+  }
+
+  // entry.ts
+  window.CloudEngine = CloudEngine;
+})();
+</script>
+<script>
+  const ACTIONS = [
+    { state: "idle", action: "Waiting", note: "Calm, breathing, blinks now and then.", pill: "Ready" },
+    { state: "listening", action: "Recording", note: "Looks up at you; puffs and mouth move with your voice.", pill: "Listening", voice: true },
+    { state: "transcribing", action: "Transcribing", note: "Eyes down, reading left to right; small even puffs.", pill: "Writing it down" },
+    { state: "sleepy", action: "Loading model", note: "Still waking up: half-closed eyes, a yawn, a rising “z”.", pill: "Waking up the model" },
+    { state: "refining", action: "Refining with AI", note: "Eyes up, pondering side to side, a “hmm” and sparkles.", pill: "Refining" },
+    { state: "fixing", action: "Fixing spelling", note: "Narrowed eyes checking the text in quick hops, with tiny nods.", pill: "Fixing spelling" },
+    { state: "done", action: "Pasted · Fixed · Refined", note: "A hop and a wiggle, ^ ^ eyes and a grin.", pill: "Pasted", once: true },
+    { state: "clean", action: "Nothing to fix", note: "All good: a wink, a smile and a small nod.", pill: "Looks good already", once: true },
+    { state: "confused", action: "Nothing selected", note: "Head tilt, eyes searching, a wavy mouth and a “?”.", pill: "Select some text first", once: true },
+    { state: "sleepy", action: "Refine not set up", note: "Same sleepy face as loading: it isn’t ready yet.", pill: "Set up Refine in Settings" },
+    { state: "error", action: "Failed", note: "Worried brows, droopy eyes, a frown and a small shrink.", pill: "Couldn’t paste", once: true },
+  ];
+
+  const grid = document.getElementById("grid");
+  const players = [];
+
+  for (const a of ACTIONS) {
+    const tile = document.createElement("article");
+    tile.className = "tile";
+    tile.innerHTML = `
+      <div class="stage"><span class="big"></span>${a.once ? '<button class="btn replay">Replay</button>' : ""}</div>
+      <div class="pillrow"><div class="pill"><span class="small"></span>${a.pill}</div></div>
+      <div class="meta"><b>${a.action}</b><span>${a.note}</span><code class="chip">${a.state}</code></div>`;
+    grid.appendChild(tile);
+    const big = new CloudEngine(tile.querySelector(".big"), { size: 112, shadow: true });
+    const small = new CloudEngine(tile.querySelector(".small"), { size: 46 });
+    const play = () => {
+      for (const c of [big, small]) {
+        c.setState("idle");
+        requestAnimationFrame(() => c.setState(a.state));
+      }
+    };
+    play();
+    if (a.once) tile.querySelector(".replay").onclick = play;
+    players.push({ a, play, clouds: [big, small] });
+  }
+
+  // A made-up voice for the recording tile.
+  setInterval(() => {
+    const t = performance.now() / 1000;
+    const v = Math.max(0, Math.sin(t * 2.1) * 0.5 + Math.sin(t * 5.3) * 0.3 + 0.35);
+    for (const p of players) if (p.a.voice) p.clouds.forEach((c) => c.setLevel(v));
+  }, 50);
+
+  // Replay the one-shot faces every few seconds.
+  setInterval(() => players.forEach((p) => p.a.once && p.play()), 4200);
+  document.getElementById("replayAll").onclick = () => players.forEach((p) => p.play());
+
+  // Tray row: one icon per distinct state.
+  const TRAY = ["idle", "listening", "transcribing", "refining", "fixing", "done", "clean", "confused", "error", "sleepy"];
+  for (const s of TRAY) {
+    for (const [id, size] of [["trayLight", 18], ["trayDark", 18], ["trayZoom", 44]]) {
+      const ic = document.createElement("span");
+      ic.className = "ic";
+      document.getElementById(id).appendChild(ic);
+      const span = document.createElement("span");
+      ic.appendChild(span);
+      const c = new CloudEngine(span, { size, mono: true });
+      c.setState(s);
+      if (s === "listening") setInterval(() => c.setLevel(0.4 + Math.random() * 0.5), 120);
+    }
+    const l = document.createElement("div");
+    l.textContent = s;
+    document.getElementById("trayLabels").appendChild(l);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Refine Card Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --v-font: "Instrument Sans", -apple-system, system-ui, sans-serif;
+    --v-text: #f5f5f7;
+    --v-text-2: rgba(235, 235, 245, 0.6);
+    --v-fill: rgba(255, 255, 255, 0.1);
+    --v-fill-hover: rgba(255, 255, 255, 0.16);
+    --v-accent: #5cb6ff;
+    --v-shimmer: #9fd3ff;
+    --v-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --v-dur: 420ms;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: var(--v-font);
+    -webkit-font-smoothing: antialiased;
+    background: #f4f7fb;
+    color: #1c1c1e;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- a stand-in desktop behind the card, so the glass has something to show */
+  .desk {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background:
+      radial-gradient(60% 70% at 15% 20%, #8fd3ff 0%, transparent 60%),
+      radial-gradient(50% 60% at 85% 30%, #ffb38a 0%, transparent 60%),
+      radial-gradient(60% 60% at 50% 100%, #6c7cff 0%, transparent 65%),
+      #dfe8f5;
+  }
+  .note {
+    position: absolute;
+    top: 48px; left: 50%;
+    transform: translateX(-50%);
+    width: min(560px, calc(100% - 32px));
+    background: rgba(255,255,255,.92);
+    border-radius: 14px;
+    padding: 22px 26px;
+    box-shadow: 0 10px 40px -12px rgba(20,30,60,.3);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .note h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #8a8f98; }
+  .note mark { background: #b8dcff; color: inherit; border-radius: 3px; padding: 1px 0; }
+
+  /* ---- the card (same geometry as the overlay's .vcard.vpreview) */
+  .stage {
+    position: absolute;
+    left: 0; right: 0; bottom: 18px;
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+  }
+  .vcard {
+    position: relative;
+    width: 420px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--v-text);
+    text-shadow: 0 1px 3px rgba(0,0,0,.3);
+    /* Browser stand-in for Apple's clear glass (the app uses the real one). */
+    background: rgba(28, 30, 36, 0.38);
+    backdrop-filter: blur(22px) saturate(1.6);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.28),
+      inset 0 0 0 1px rgba(255,255,255,.14),
+      0 16px 40px -12px rgba(0,0,0,.4);
+    border-radius: 29px;
+    padding: 6px 12px 12px 6px;
+    gap: 4px;
+    transition:
+      width var(--v-dur) var(--v-ease),
+      height 360ms var(--v-ease),
+      border-radius var(--v-dur) var(--v-ease);
+  }
+  .vcard.enter { animation: vpop 460ms var(--v-ease); }
+  @keyframes vpop {
+    from { opacity: 0; transform: translateY(10px) scale(.94); filter: blur(4px); }
+  }
+
+  .head { display: flex; align-items: center; gap: 10px; height: 50px; }
+  .slot { width: 48px; height: 48px; margin-top: -2px; flex: none; display: grid; place-items: center; }
+  .slot img { width: 34px; height: 34px; border-radius: 9px; transition: transform 300ms var(--v-ease); }
+    @keyframes bob { 50% { transform: translateY(-3px) rotate(-4deg); } }
+
+  .label { flex: 1; display: grid; font-size: 14px; }
+  .label > * { grid-area: 1 / 1; transition: opacity 220ms ease, transform 300ms var(--v-ease), filter 220ms ease; }
+  .label b { font-weight: 600; }
+  .label .sub { color: var(--v-text-2); font-weight: 500; font-size: 13px; margin-left: 6px; }
+  .label .working {
+    background: linear-gradient(90deg, var(--v-text-2) 0%, var(--v-shimmer) 50%, var(--v-text-2) 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 1.6s linear infinite;
+    text-shadow: none;
+    font-weight: 500;
+  }
+  @keyframes shimmer { from { background-position: 120% 0; } to { background-position: -80% 0; } }
+  .label .off { opacity: 0; transform: translateY(4px); filter: blur(3px); pointer-events: none; }
+
+  .round {
+    width: 34px; height: 34px; border: 0; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--v-fill); color: var(--v-text);
+    cursor: pointer;
+    transition: background 120ms ease-out, transform 120ms var(--v-ease);
+  }
+  .round:hover { background: var(--v-fill-hover); }
+  .round:active { transform: scale(.92); }
+  .round svg { width: 16px; height: 16px; }
+
+  /* ---- the text: each line clears from a blur, top to bottom */
+  .text {
+    position: relative;
+    margin: 0 4px 0 12px;
+    max-height: 104px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    font-size: 14.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    transition: opacity 260ms ease-out, filter 260ms ease-out;
+  }
+  .text::-webkit-scrollbar { display: none; }
+  .text .w { display: inline; }
+  .text.revealing .w {
+    animation: reveal 520ms var(--v-ease) both;
+    animation-delay: calc(var(--line) * 110ms);
+  }
+  @keyframes reveal {
+    from { opacity: 0; filter: blur(8px); transform: translateY(5px); }
+    to   { opacity: 1; filter: blur(0); transform: none; }
+  }
+  /* Thinking: the old text softens into a blur while the new one is written. */
+  .text.thinking { opacity: .38; filter: blur(5px); }
+
+  .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; transition: opacity 220ms ease; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 14px; border: 0; border-radius: 999px;
+    font: 600 13.5px var(--v-font);
+    cursor: pointer;
+    transition: background 120ms ease-out, transform 120ms var(--v-ease), opacity 200ms ease;
+  }
+  .btn svg { width: 16px; height: 16px; }
+  .btn:active { transform: scale(.96); }
+  .btn:disabled { opacity: .45; cursor: default; transform: none; }
+  .soft { background: var(--v-fill); color: var(--v-text); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .soft:hover:not(:disabled) { background: var(--v-fill-hover); }
+  /* The sparkles twinkle while Refine is thinking. */
+  .busy .soft .spark path:first-child { animation: twinkle 1s ease-in-out infinite; transform-origin: 10.5px 13.5px; }
+  .busy .soft .spark path:last-child { animation: twinkle 1s ease-in-out .5s infinite; transform-origin: 17.75px 6.25px; }
+  @keyframes twinkle { 50% { transform: scale(.6) rotate(20deg); opacity: .5; } }
+  .primary { background: #fff; color: #1c1c1e; text-shadow: none; }
+  .primary:hover:not(:disabled) { background: #ececef; }
+
+  /* ---- after Paste: the card folds into the small "Refined" pill */
+  .vcard.done { width: 230px; border-radius: 999px; padding: 6px 18px 6px 6px; }
+  .vcard.done .text, .vcard.done .actions, .vcard.done .round { display: none; }
+  .check { width: 20px; height: 20px; color: var(--v-accent); stroke-dasharray: 20; stroke-dashoffset: 20; animation: draw 380ms var(--v-ease) 80ms forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .vcard.leave { opacity: 0; transform: translateY(8px) scale(.96); transition: opacity 240ms ease, transform 300ms ease; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .text.revealing .w, .vcard.enter { animation: none; }
+    .text.thinking { filter: none; }
+  }
+
+  /* ---- demo controls */
+  .bar {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid #e6e9ef;
+    font-size: 13px; color: #5b616b;
+  }
+  .bar button {
+    font: 600 13px var(--v-font);
+    height: 32px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid #dfe3ea; background: #fff; color: #1c1c1e; cursor: pointer;
+  }
+  .bar button:hover { background: #f4f6f9; }
+  .bar .hint { margin-left: auto; }
+</style>
+</head>
+<body>
+  <div class="desk">
+    <div class="note">
+      <h2>Notes</h2>
+      Quick update for the team. <mark id="sel">so basically we was thinking that maybe we should move the launch to next week because the designs is not ready and also the testing hasnt started yet so it make sense to wait</mark>
+    </div>
+
+    <div class="stage">
+      <div class="vcard enter" id="card">
+        <div class="head">
+          <span class="slot" id="slot"></span>
+          <span class="label">
+            <span class="working off" id="working">Refining…</span>
+            <span id="ready"><b id="title">Refined</b><span class="sub" id="sub"></span></span>
+          </span>
+          <button class="round" id="x" aria-label="Keep original" title="Keep original">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6L18 18"/><path d="M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <div class="text" id="text"></div>
+        <div class="actions" id="actions">
+          <button class="btn soft" id="again">
+            <svg aria-hidden="true" class="spark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 6.5C11.2 10.6 13.4 12.8 17.5 13.5C13.4 14.2 11.2 16.4 10.5 20.5C9.8 16.4 7.6 14.2 3.5 13.5C7.6 12.8 9.8 10.6 10.5 6.5Z"/><path d="M17.75 3.25C18 4.9 19.1 6 20.75 6.25C19.1 6.5 18 7.6 17.75 9.25C17.5 7.6 16.4 6.5 14.75 6.25C16.4 6 17.5 4.9 17.75 3.25Z"/></svg>
+            Refine again
+          </button>
+          <button class="btn primary" id="paste">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 4.25C5.55 4.25 4.5 5.3 4.5 8.25L4.5 16.9C4.5 20.2 5.8 21.5 9.1 21.5L14.9 21.5C18.2 21.5 19.5 20.2 19.5 16.9L19.5 8.25C19.5 5.3 18.45 4.25 15.5 4.25"/><path d="M9.75 2.5L14.25 2.5C14.802 2.5 15.5 3.198 15.5 3.75L15.5 5.25C15.5 5.802 14.802 6.5 14.25 6.5L9.75 6.5C9.198 6.5 8.5 5.802 8.5 5.25L8.5 3.75C8.5 3.198 9.198 2.5 9.75 2.5Z"/><path d="M12 9.5V17.25"/><path d="M9.25 14.5L12 17.25L14.75 14.5"/></svg>
+            Paste
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <button id="replay">Replay from the start</button>
+    <span class="hint">Try Refine again, Paste, and ✕ on the card.</span>
+  </div>
+
+<script>(() => {
+  // src/components/vobi/cloudEngine.ts
+  var NAVY = "#14304C";
+  var PUFFS = [
+    [-21, -2, 17],
+    [-2, -14, 22],
+    [21, -6, 18],
+    [33, 8, 11]
+  ];
+  var BASE = [-42, 4, 84, 34];
+  var ORIGIN = [0, 10];
+  var BASE_Y = 42;
+  var reduceMotion = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var instance = 0;
+  function cloudPath(puffs, samples) {
+    const circles = puffs.slice();
+    const [bx, by, bw, bh] = BASE;
+    const br = bh / 2;
+    const step = Math.max(4, (bw - bh) / 6);
+    for (let x = bx + br;x <= bx + bw - br + 0.01; x += step) {
+      circles.push([x, by + br, br]);
+    }
+    const [ox, oy] = ORIGIN;
+    const radii = new Array(samples);
+    for (let i = 0;i < samples; i++) {
+      const a = i / samples * Math.PI * 2;
+      const dx = Math.cos(a);
+      const dy = Math.sin(a);
+      let best = 0;
+      for (const [cx, cy, r] of circles) {
+        const px = cx - ox;
+        const py = cy - oy;
+        const b = dx * px + dy * py;
+        const disc = b * b - (px * px + py * py - r * r);
+        if (disc >= 0)
+          best = Math.max(best, b + Math.sqrt(disc));
+      }
+      radii[i] = best;
+    }
+    for (let k = 0;k < 3; k++) {
+      const c = radii.slice();
+      for (let i = 0;i < samples; i++) {
+        radii[i] = (c[(i - 1 + samples) % samples] + 2 * c[i] + c[(i + 1) % samples]) / 4;
+      }
+    }
+    let d = "M";
+    for (let i = 0;i < samples; i++) {
+      const a = i / samples * Math.PI * 2;
+      if (i)
+        d += "L";
+      d += `${(ox + Math.cos(a) * radii[i]).toFixed(2)},${(oy + Math.sin(a) * radii[i]).toFixed(2)}`;
+    }
+    return d + "Z";
+  }
+  function markup(id, o) {
+    const small = o.size < 70;
+    const eye = o.mono ? "var(--vobi-eye, #fff)" : NAVY;
+    const body = o.mono ? `<path data-r="body" fill="currentColor"/>` : `<path data-r="body" fill="url(#${id}f)" filter="url(#${id}soft)"/>
+       <g clip-path="url(#${id}clip)">
+         <ellipse cx="0" cy="46" rx="60" ry="24" fill="url(#${id}ao)"/>
+         <ellipse cx="0" cy="30" rx="30" ry="9" fill="url(#${id}glow)"/>
+         <ellipse cx="-12" cy="-22" rx="34" ry="18" fill="url(#${id}hi)" opacity=".9"/>
+       </g>
+       <path data-r="rim" fill="none" stroke="url(#${id}rim)" stroke-width="2"/>
+       <ellipse cx="-14" cy="-18" rx="6" ry="3.4" fill="#fff" opacity=".9" transform="rotate(-25 -14 -18)"/>`;
+    const glints = o.mono || small ? "" : [1, 2, 3, 4].map((i) => `<circle data-r="g${i}" r="${i > 2 ? 0.8 : 1.7}" fill="#fff"/>`).join("");
+    return `<svg width="${o.size}" height="${o.size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">
+    <defs>
+      <linearGradient id="${id}f" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#DDF7FF"/><stop offset=".55" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></linearGradient>
+      <radialGradient id="${id}hi"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}ao"><stop offset="0" stop-color="#1B44C9" stop-opacity=".55"/><stop offset="1" stop-color="#1B44C9" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}glow"><stop offset="0" stop-color="#9EEBFF" stop-opacity=".85"/><stop offset="1" stop-color="#9EEBFF" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}bl"><stop offset="0" stop-color="#FF7EAA" stop-opacity=".75"/><stop offset="1" stop-color="#FF7EAA" stop-opacity="0"/></radialGradient>
+      <linearGradient id="${id}rim" x1="0" y1="-40" x2="0" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <filter id="${id}soft" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="${small ? 1 : 5}" stdDeviation="${small ? 1.4 : 5}" flood-color="#1B44C9" flood-opacity=".32"/></filter>
+      <clipPath id="${id}clip"><path data-r="clip"/></clipPath>
+    </defs>
+    ${o.shadow ? `<ellipse data-r="shadow" cx="0" cy="52" rx="34" ry="4" fill="#0B2A4A" opacity=".12"/>` : ""}
+    <g data-r="root">${body}
+      ${o.mono ? "" : `<ellipse data-r="bl" rx="6" ry="3.4" fill="url(#${id}bl)"/><ellipse data-r="br" rx="6" ry="3.4" fill="url(#${id}bl)"/>`}
+      <ellipse data-r="el" fill="${eye}"/><ellipse data-r="er" fill="${eye}"/>
+      ${glints}
+      <path data-r="al" fill="none" stroke="${eye}" stroke-width="${o.mono ? 4.5 : 3}" stroke-linecap="round"/>
+      <path data-r="ar" fill="none" stroke="${eye}" stroke-width="${o.mono ? 4.5 : 3}" stroke-linecap="round"/>
+      ${o.mono ? "" : `<path data-r="smile" fill="none" stroke="${NAVY}" stroke-width="2.2" stroke-linecap="round"/><ellipse data-r="mouth" fill="#0E2238"/><path data-r="grin" fill="#0E2238" stroke="#0E2238" stroke-width="1.2" stroke-linejoin="round"/><ellipse data-r="tongue" fill="#FF7EAA"/>`}
+    </g>
+  </svg>`;
+  }
+  var spring = (x = 1) => ({ x, v: 0, to: x });
+  var step = (s, k, c, dt) => {
+    s.v += (-k * (s.x - s.to) - c * s.v) * dt;
+    s.x += s.v * dt;
+  };
+  var set = (el, attrs) => {
+    if (!el)
+      return;
+    for (const k in attrs)
+      el.setAttribute(k, String(attrs[k]));
+  };
+
+  class CloudEngine {
+    o;
+    state = "idle";
+    level = 0;
+    target = 0;
+    t = Math.random() * 10;
+    last = 0;
+    raf = 0;
+    timer;
+    nextBlink = performance.now() + 900 + Math.random() * 3000;
+    r = {};
+    samples;
+    sy = spring();
+    sx = spring();
+    ty = spring(0);
+    open = spring();
+    happy = spring(0);
+    err = spring(0);
+    lx = spring(0);
+    ly = spring(0);
+    big = spring(1);
+    tilt = spring(0);
+    constructor(mount, o) {
+      this.o = o;
+      const id = `vobi${++instance}`;
+      mount.innerHTML = markup(id, o);
+      mount.querySelectorAll("[data-r]").forEach((el) => {
+        this.r[el.getAttribute("data-r")] = el;
+      });
+      this.samples = o.size < 70 ? 80 : 140;
+      this.raf = requestAnimationFrame(this.frame);
+    }
+    setState(s) {
+      if (s === this.state)
+        return;
+      const prev = this.state;
+      this.state = s;
+      this.happy.to = s === "done" ? 1 : 0;
+      this.err.to = s === "error" ? 1 : 0;
+      this.big.to = s === "listening" ? 1.12 : 1;
+      if (s === "done") {
+        this.sy.v -= 2.8;
+        this.sx.v += 1.8;
+        this.ty.v -= 200;
+        this.tilt.v += 160;
+      }
+      if (s === "listening" && prev !== "listening") {
+        this.sy.v += 1.5;
+        this.sx.v -= 0.8;
+        this.ty.v -= 60;
+      }
+      if (s === "error")
+        this.sy.v += 1.2;
+    }
+    setLevel(level) {
+      this.target = Math.max(0, Math.min(1, level));
+    }
+    destroy() {
+      cancelAnimationFrame(this.raf);
+      clearTimeout(this.timer);
+    }
+    frame = (now) => {
+      const dt = Math.min(0.033, (now - (this.last || now)) / 1000 || 0.016);
+      this.last = now;
+      this.t += dt;
+      const st = this.state;
+      const still = reduceMotion();
+      const t = still ? 0 : this.t;
+      const tl = st === "listening" ? this.target : 0;
+      this.level += (tl - this.level) * (tl > this.level ? 0.45 : 0.12);
+      const L = this.level;
+      if (now > this.nextBlink && st !== "done" && st !== "error") {
+        this.open.x = 0.08;
+        this.open.v = 0;
+        this.nextBlink = now + 2400 + Math.random() * 3400;
+      }
+      this.lx.to = st === "thinking" ? 3.5 * Math.sign(Math.sin(this.t * 1.3)) : 0;
+      this.ly.to = st === "thinking" ? -2.5 : st === "listening" ? -1 : st === "error" ? 1.5 : 0;
+      const breathe = still ? 0 : Math.sin(this.t * (st === "idle" ? 1.3 : 2.4)) * (st === "idle" ? 0.022 : 0.015);
+      this.sy.to = 1 + breathe + L * 0.1 - this.err.x * 0.04;
+      this.sx.to = 1 - breathe * 0.5 + L * 0.05;
+      step(this.sy, 260, 13, dt);
+      step(this.sx, 260, 13, dt);
+      step(this.ty, 220, 16, dt);
+      step(this.open, 300, 22, dt);
+      step(this.happy, 240, 22, dt);
+      step(this.err, 240, 22, dt);
+      step(this.lx, 140, 16, dt);
+      step(this.ly, 140, 16, dt);
+      step(this.big, 220, 18, dt);
+      step(this.tilt, 170, 7, dt);
+      const hap = Math.max(0, Math.min(1, this.happy.x));
+      const er = Math.max(0, Math.min(1, this.err.x));
+      const ty = Math.min(0, this.ty.x);
+      const puffs = PUFFS.map(([cx, cy, rr], i) => {
+        const ph = i * 1.9;
+        let d2 = Math.sin(t * (1.1 + i * 0.17) + ph) * 0.9;
+        if (st === "listening")
+          d2 += Math.max(0, Math.sin(t * 9 + ph * 1.4)) * L * 5.5;
+        if (st === "thinking")
+          d2 += Math.max(0, Math.sin(t * 4.2 - i * 0.9)) * 2.6;
+        return [cx, cy, rr + d2 - er * 1.2];
+      });
+      const d = cloudPath(puffs, this.samples);
+      set(this.r.body, { d });
+      set(this.r.clip, { d });
+      set(this.r.rim, { d });
+      set(this.r.root, {
+        transform: `translate(0 ${ty.toFixed(2)}) translate(0 ${BASE_Y}) rotate(${(still ? 0 : this.tilt.x).toFixed(2)}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`
+      });
+      set(this.r.shadow, { opacity: (0.12 * (1 + ty / 45)).toFixed(3) });
+      const mono = !!this.o.mono;
+      const gap = mono ? 13 : 12;
+      const rx = mono ? 5.5 : 4.6;
+      const ry = mono ? 7.5 : 6.2;
+      const lx = this.lx.x;
+      const big = this.big.x;
+      const ey = (mono ? 15 : 16) + this.ly.x;
+      const eyeOpen = Math.max(0.06, this.open.x) * (1 - hap) * (1 - er * 0.7);
+      for (const [key, s] of [
+        ["el", -1],
+        ["er", 1]
+      ]) {
+        set(this.r[key], {
+          cx: (s * gap + lx).toFixed(2),
+          cy: ey.toFixed(2),
+          rx: (rx * big * (1 + er * 0.25)).toFixed(2),
+          ry: Math.max(0.6, ry * big * eyeOpen).toFixed(2),
+          opacity: hap > 0.85 ? 0 : 1
+        });
+      }
+      for (const [key, s] of [
+        ["al", -1],
+        ["ar", 1]
+      ]) {
+        const cx = s * gap + lx;
+        const w = rx * 1.25;
+        set(this.r[key], {
+          d: `M${(cx - w).toFixed(2)},${(ey + 1.5).toFixed(2)} Q${cx.toFixed(2)},${(ey - 4.2).toFixed(2)} ${(cx + w).toFixed(2)},${(ey + 1.5).toFixed(2)}`,
+          opacity: (hap > 0.5 ? Math.min(1, (hap - 0.5) * 3) : 0).toFixed(2)
+        });
+      }
+      const glintsOn = eyeOpen > 0.55 ? 1 : 0;
+      [1, 2, 3, 4].forEach((i) => {
+        const s = i % 2 ? -1 : 1;
+        const small = i > 2;
+        set(this.r[`g${i}`], {
+          cx: (s * gap + lx + (small ? -1.6 : 1.5) * big).toFixed(2),
+          cy: (ey + (small ? 2.4 : -2.2) * big).toFixed(2),
+          opacity: glintsOn
+        });
+      });
+      const blush = ((0.7 + hap * 0.3) * (1 - er * 0.6)).toFixed(2);
+      set(this.r.bl, {
+        cx: (-gap - 9 + lx * 0.5).toFixed(2),
+        cy: (ey + 6).toFixed(2),
+        opacity: blush
+      });
+      set(this.r.br, {
+        cx: (gap + 9 + lx * 0.5).toFixed(2),
+        cy: (ey + 6).toFixed(2),
+        opacity: blush
+      });
+      if (this.r.smile) {
+        const talk = st === "listening" ? L : 0;
+        const my = ey + 7.5;
+        const mx = lx * 0.6;
+        set(this.r.mouth, {
+          cx: mx.toFixed(2),
+          cy: (my + 1).toFixed(2),
+          rx: (2.6 + talk * 0.8).toFixed(2),
+          ry: (0.5 + talk * 3.6).toFixed(2),
+          opacity: talk > 0.06 ? 1 : 0
+        });
+        const w = 2.6 + hap * 2.2;
+        const dp = 1.8 + hap * 2.6 - er * 4.2;
+        const y = my + er * 1.5;
+        const grin = hap > 0.4 ? Math.min(1, (hap - 0.4) * 2.5) : 0;
+        set(this.r.smile, {
+          d: `M${(mx - w).toFixed(2)},${y.toFixed(2)} Q${mx.toFixed(2)},${(y + dp).toFixed(2)} ${(mx + w).toFixed(2)},${y.toFixed(2)}`,
+          opacity: talk > 0.06 ? 0 : (1 - grin).toFixed(2)
+        });
+        const gw = 4.6;
+        const gd = 6.4 * grin;
+        set(this.r.grin, {
+          d: `M${(mx - gw).toFixed(2)},${(y - 0.6).toFixed(2)} Q${mx.toFixed(2)},${(y - 1.4).toFixed(2)} ${(mx + gw).toFixed(2)},${(y - 0.6).toFixed(2)} Q${(mx + gw * 0.7).toFixed(2)},${(y + gd).toFixed(2)} ${mx.toFixed(2)},${(y + gd).toFixed(2)} Q${(mx - gw * 0.7).toFixed(2)},${(y + gd).toFixed(2)} ${(mx - gw).toFixed(2)},${(y - 0.6).toFixed(2)}Z`,
+          opacity: talk > 0.06 ? 0 : grin.toFixed(2)
+        });
+        set(this.r.tongue, {
+          cx: mx.toFixed(2),
+          cy: (y + gd * 0.78).toFixed(2),
+          rx: (2.4 * grin).toFixed(2),
+          ry: (1.5 * grin).toFixed(2),
+          opacity: talk > 0.06 ? 0 : grin.toFixed(2)
+        });
+      }
+      if (document.hidden) {
+        this.timer = setTimeout(() => {
+          this.raf = requestAnimationFrame(this.frame);
+        }, 400);
+      } else {
+        this.raf = requestAnimationFrame(this.frame);
+      }
+    };
+  }
+
+  // ../../../../private/tmp/claude-501/-Users-santhoshsunkara-Documents-Vobi/6c8fe66c-61a4-4c36-bee3-fa3ecb05c0d0/scratchpad/cloud/entry.ts
+  window.CloudEngine = CloudEngine;
+})();
+</script>
+<script>
+  const cloud = new CloudEngine(document.getElementById("slot"), { size: 46 });
+  const versions = [
+    "We're thinking of moving the launch to next week. The designs aren't ready yet and testing hasn't started, so it makes sense to wait.",
+    "Let's push the launch to next week. Design isn't finished and testing hasn't begun, so waiting gives us a cleaner release.",
+    "Proposal: launch next week instead. With the designs still in progress and testing not yet started, a short delay is the safer call.",
+  ];
+  let v = 0;
+  const card = document.getElementById("card");
+  const text = document.getElementById("text");
+  const working = document.getElementById("working");
+  const ready = document.getElementById("ready");
+  const sub = document.getElementById("sub");
+  const title = document.getElementById("title");
+  const again = document.getElementById("again");
+  const paste = document.getElementById("paste");
+
+  // Lock the card's height while its content changes, then let it ease to the new one.
+  function morphHeight(change) {
+    const from = card.offsetHeight;
+    card.style.height = from + "px";
+    change();
+    card.style.height = "auto";
+    const to = card.offsetHeight;
+    card.style.height = from + "px";
+    card.offsetHeight; // commit
+    card.style.height = to + "px";
+    setTimeout(() => (card.style.height = ""), 380);
+  }
+
+  // Wrap each word, find which visual line it landed on, and stagger by line.
+  function reveal(str) {
+    morphHeight(() => {
+      text.classList.remove("revealing", "thinking");
+      text.innerHTML = "";
+      str.split(/(\s+)/).forEach((part) => {
+        if (/^\s+$/.test(part)) { text.append(part); return; }
+        const s = document.createElement("span");
+        s.className = "w";
+        s.textContent = part;
+        text.append(s);
+      });
+    });
+    let line = -1, lastTop = null;
+    text.querySelectorAll(".w").forEach((w) => {
+      if (w.offsetTop !== lastTop) { line++; lastTop = w.offsetTop; }
+      w.style.setProperty("--line", line);
+    });
+    text.offsetWidth;
+    text.classList.add("revealing");
+    sub.textContent = str.split(/\s+/).length + " words";
+  }
+
+  function setBusy(busy) {
+    cloud.setState(busy ? "thinking" : "idle");
+    card.classList.toggle("busy", busy);
+    working.classList.toggle("off", !busy);
+    ready.classList.toggle("off", busy);
+    text.classList.toggle("thinking", busy);
+    again.disabled = paste.disabled = busy;
+  }
+
+  function start() {
+    v = 0;
+    card.className = "vcard";
+    card.style.height = "";
+    title.textContent = "Refined";
+    card.offsetWidth;
+    card.classList.add("enter");
+    text.innerHTML = "";
+    setBusy(true);
+    setTimeout(() => { setBusy(false); reveal(versions[v]); }, 1100);
+  }
+
+  again.onclick = () => {
+    setBusy(true);
+    setTimeout(() => {
+      v = (v + 1) % versions.length;
+      setBusy(false);
+      reveal(versions[v]);
+    }, 1400);
+  };
+
+  paste.onclick = () => {
+    const words = versions[v].split(/\s+/).length;
+    document.getElementById("sel").textContent = versions[v];
+    card.classList.add("done");
+    title.textContent = "Refined";
+    sub.textContent = words + " words";
+    cloud.setState("done");
+    setTimeout(() => card.classList.add("leave"), 1600);
+  };
+
+  document.getElementById("x").onclick = () => card.classList.add("leave");
+  document.getElementById("replay").onclick = () => {
+    document.getElementById("sel").textContent = "so basically we was thinking that maybe we should move the launch to next week because the designs is not ready and also the testing hasnt started yet so it make sense to wait";
+    start();
+  };
+
+  start();
+</script>
+</body>
+</html>

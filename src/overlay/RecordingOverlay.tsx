@@ -11,6 +11,7 @@ import type {
   StreamTextEvent,
   StreamWorkKind,
 } from "@/bindings";
+import { ClipboardPaste, Sparkles, X as XIcon } from "@hexline/bicon/react";
 import { VobiCloud, type CloudState } from "@/components/vobi/VobiCloud";
 import i18n, { syncLanguageFromSettings } from "@/i18n";
 import { noticeDisplay } from "@/lib/notices";
@@ -63,6 +64,91 @@ document.documentElement.classList.toggle(
   "vwin",
   /Windows/.test(navigator.userAgent),
 );
+
+// Vobi's face for each "Fix selection" / "Refine" result.
+const FIX_FACE: Record<FixResult["kind"], CloudState> = {
+  fixed: "done",
+  refined: "done",
+  clean: "clean",
+  empty: "confused",
+  failed: "error",
+  nokey: "sleepy",
+};
+
+// Errors look sad; warnings (a result, just not the one set up) look puzzled.
+const noticeFace = (level: Notice["level"]): CloudState =>
+  level === "error" ? "error" : "confused";
+
+const closeIcon = <XIcon size={16} strokeWidth={1.7} aria-hidden="true" />;
+
+/**
+ * The Refine preview's text. A new version clears from a blur line by line,
+ * top to bottom; while Refine is thinking the old one softens into a blur.
+ * The card eases to its new height instead of jumping.
+ */
+const RevealText: React.FC<{
+  text: string;
+  busy: boolean;
+  cardRef: React.RefObject<HTMLDivElement>;
+}> = ({ text, busy, cardRef }) => {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const lastHeightRef = useRef(0);
+  const parts = React.useMemo(() => text.split(/(\s+)/), [text]);
+
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    const card = cardRef.current;
+    if (!box) return;
+    // Number each word by the visual line it landed on.
+    let line = -1;
+    let lastTop: number | null = null;
+    box.querySelectorAll<HTMLElement>(".vw").forEach((w) => {
+      if (w.offsetTop !== lastTop) {
+        line++;
+        lastTop = w.offsetTop;
+      }
+      w.style.setProperty("--line", String(line));
+    });
+
+    // Morph the card from its old height to the new one.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    if (card) {
+      const from = lastHeightRef.current;
+      const to = card.offsetHeight;
+      if (from && from !== to) {
+        card.style.height = `${from}px`;
+        void card.offsetHeight;
+        card.style.height = `${to}px`;
+        timer = setTimeout(() => {
+          card.style.height = "";
+        }, 380);
+      }
+      lastHeightRef.current = to;
+    }
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [text, cardRef]);
+
+  return (
+    <div
+      // A new text remounts, so its lines play the reveal from the start.
+      key={text}
+      ref={boxRef}
+      className={`vprev-text is-revealing ${busy ? "is-busy" : ""}`}
+    >
+      {parts.map((part, i) =>
+        /^\s+$/.test(part) || !part ? (
+          part
+        ) : (
+          <span key={i} className="vw">
+            {part}
+          </span>
+        ),
+      )}
+    </div>
+  );
+};
 
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
@@ -364,6 +450,8 @@ const RecordingOverlay: React.FC = () => {
   const transcribingLabel = modelLoading
     ? t("overlay.loadingModel")
     : t("overlay.transcribing");
+  // Still waking up the model: sleepy until it's loaded.
+  const transcribingFace: CloudState = modelLoading ? "sleepy" : "transcribing";
 
   const cloud = (cloudState: CloudState) => (
     <span className="vslot">
@@ -394,14 +482,7 @@ const RecordingOverlay: React.FC = () => {
       aria-label={t("overlay.cancel")}
       onClick={() => commands.cancelOperation()}
     >
-      <svg viewBox="0 0 12 12" aria-hidden="true">
-        <path
-          d="M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-      </svg>
+      {closeIcon}
     </button>
   );
 
@@ -414,9 +495,9 @@ const RecordingOverlay: React.FC = () => {
     </div>
   );
 
-  const workingRow = (label: string) => (
+  const workingRow = (label: string, face: CloudState) => (
     <div className="vrow">
-      {cloud("thinking")}
+      {cloud(face)}
       <span className="vshimmer">{label}</span>
       {cancelBtn}
     </div>
@@ -425,16 +506,6 @@ const RecordingOverlay: React.FC = () => {
   const doneRow = (
     <div className="vrow">
       {cloud("done")}
-      <svg className="vcheck" viewBox="0 0 22 22" aria-hidden="true">
-        <path
-          d="M5 11.5l4 4 8-9"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
       <span className="vdone">
         <b>{t("overlay.pasted")}</b>
         {doneWords > 0 && (
@@ -446,27 +517,7 @@ const RecordingOverlay: React.FC = () => {
 
   const fixRow = fix && (
     <div className="vrow">
-      {cloud(
-        fix.kind === "fixed" || fix.kind === "clean" || fix.kind === "refined"
-          ? "done"
-          : fix.kind === "failed"
-            ? "error"
-            : "idle",
-      )}
-      {fix.kind === "fixed" ||
-      fix.kind === "clean" ||
-      fix.kind === "refined" ? (
-        <svg className="vcheck" viewBox="0 0 22 22" aria-hidden="true">
-          <path
-            d="M5 11.5l4 4 8-9"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : null}
+      {cloud(FIX_FACE[fix.kind])}
       <span className="vfix">
         {fix.kind === "refined" ? (
           <>
@@ -511,7 +562,7 @@ const RecordingOverlay: React.FC = () => {
 
   const noticeRow = shownNotice && (
     <div className="vrow">
-      {cloud(shownNotice.level === "error" ? "error" : "idle")}
+      {cloud(noticeFace(shownNotice.level))}
       <span className={`vnotice level-${shownNotice.level}`}>
         {noticeTitle}
       </span>
@@ -533,54 +584,56 @@ const RecordingOverlay: React.FC = () => {
         dir={direction}
         className={`vstage ${position} vfade ${isVisible ? "show" : ""} ${nativeGlass ? "native-glass" : ""}`}
       >
-        <div ref={cardRef} className="vcard vpreview">
+        <div
+          ref={cardRef}
+          className={`vcard vpreview ${preview.busy ? "is-busy" : ""}`}
+        >
           <div className="vprev-head">
-            {cloud(preview.busy ? "thinking" : "done")}
-            {preview.busy ? (
-              <span className="vshimmer">{t("overlay.refining")}</span>
-            ) : (
-              <span className="vfix">
+            {cloud(preview.busy ? "refining" : "idle")}
+            {/* Both labels stay mounted so they can cross-fade. */}
+            <span className="vprev-label">
+              <span
+                className={`vshimmer ${preview.busy ? "" : "is-off"}`}
+                aria-hidden={!preview.busy}
+              >
+                {t("overlay.refining")}
+              </span>
+              <span
+                className={`vfix ${preview.busy ? "is-off" : ""}`}
+                aria-hidden={preview.busy}
+              >
                 <b>{t("overlay.refined")}</b>
                 <span className="vfix-list">
                   <span>{t("overlay.words", { count: preview.words })}</span>
                 </span>
               </span>
-            )}
+            </span>
             <button
               className="vround vprev-x"
               aria-label={t("overlay.keepOriginal")}
               title={t("overlay.keepOriginal")}
               onClick={() => commands.refineDismiss()}
             >
-              <svg viewBox="0 0 12 12" aria-hidden="true">
-                <path
-                  d="M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                />
-              </svg>
+              {closeIcon}
             </button>
           </div>
-          <div className={`vprev-text ${preview.busy ? "is-busy" : ""}`}>
-            {preview.text}
-          </div>
+          <RevealText
+            text={preview.text}
+            busy={preview.busy}
+            cardRef={cardRef}
+          />
           <div className="vprev-actions">
             <button
               className="vbtn vbtn-soft"
               disabled={preview.busy}
               onClick={() => commands.refineAgain()}
             >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <path
-                  d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v2.8h-2.8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Sparkles
+                className="vspark"
+                size={16}
+                strokeWidth={1.7}
+                aria-hidden="true"
+              />
               {t("overlay.refineAgain")}
             </button>
             <button
@@ -588,16 +641,7 @@ const RecordingOverlay: React.FC = () => {
               disabled={preview.busy}
               onClick={() => commands.refineAccept()}
             >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <path
-                  d="M3.5 8.5l3 3 6-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ClipboardPaste size={16} strokeWidth={1.7} aria-hidden="true" />
               {t("overlay.paste")}
             </button>
           </div>
@@ -664,11 +708,9 @@ const RecordingOverlay: React.FC = () => {
           {liveNotice
             ? noticeRow
             : working
-              ? workingRow(
-                  workKind === "polishing"
-                    ? t("overlay.processing")
-                    : transcribingLabel,
-                )
+              ? workKind === "polishing"
+                ? workingRow(t("overlay.processing"), "refining")
+                : workingRow(transcribingLabel, transcribingFace)
               : listeningRow(true)}
         </div>
       </div>
@@ -684,6 +726,11 @@ const RecordingOverlay: React.FC = () => {
       : state === "processing"
         ? t("overlay.processing")
         : transcribingLabel;
+  // Refine and post-processing are the AI at work; plain transcription reads.
+  const workFace: CloudState =
+    state === "refining" || state === "processing"
+      ? "refining"
+      : transcribingFace;
   const mode = shownNotice
     ? "m-notice"
     : state === "fix"
@@ -713,7 +760,7 @@ const RecordingOverlay: React.FC = () => {
             : state === "done"
               ? doneRow
               : working
-                ? workingRow(workLabel)
+                ? workingRow(workLabel, workFace)
                 : listeningRow(true)}
       </div>
     </div>

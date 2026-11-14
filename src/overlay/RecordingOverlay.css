@@ -240,8 +240,8 @@
   transform: scale(0.9);
 }
 .vround svg {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
 }
 
 /* Working label shimmers while Vobi polishes. */
@@ -273,20 +273,6 @@
   }
 }
 
-.vcheck {
-  width: 22px;
-  height: 22px;
-  flex: none;
-  color: var(--v-accent);
-  stroke-dasharray: 20;
-  stroke-dashoffset: 20;
-  animation: vcheck 380ms var(--v-ease) 80ms forwards;
-}
-@keyframes vcheck {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
 .vdone {
   display: flex;
   align-items: baseline;
@@ -371,6 +357,10 @@
   padding: 6px 12px 12px 6px;
   gap: 4px;
   white-space: normal;
+  transition:
+    width var(--v-dur) var(--v-ease),
+    height 360ms var(--v-ease),
+    border-radius var(--v-dur) var(--v-ease);
 }
 .vprev-head {
   display: flex;
@@ -378,9 +368,24 @@
   gap: 10px;
   height: 50px;
 }
-.vprev-head .vfix,
-.vprev-head .vshimmer {
+/* "Refining…" and "Refined · N words" share one cell and cross-fade. */
+.vprev-label {
   flex: 1;
+  min-width: 0;
+  display: grid;
+}
+.vprev-label > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 220ms ease,
+    transform 300ms var(--v-ease),
+    filter 220ms ease;
+}
+.vprev-label > .is-off {
+  opacity: 0;
+  transform: translateY(4px);
+  filter: blur(3px);
+  pointer-events: none;
 }
 .vprev-x {
   margin-left: auto;
@@ -395,15 +400,51 @@
   color: var(--v-text);
   white-space: pre-wrap;
   transition:
-    opacity 200ms ease-out,
-    filter 200ms ease-out;
+    opacity 260ms ease-out,
+    filter 260ms ease-out;
+}
+/* Each line of a new version clears from a blur, top to bottom. */
+.vprev-text.is-revealing .vw {
+  animation: vreveal 520ms var(--v-ease) both;
+  animation-delay: calc(var(--line, 0) * 110ms);
+}
+@keyframes vreveal {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+.vprev-text .vw {
+  display: inline;
 }
 .vprev-text::-webkit-scrollbar {
   display: none;
 }
+/* Thinking: the old text softens into a blur while the new one is written. */
 .vprev-text.is-busy {
-  opacity: 0.45;
-  filter: blur(1.5px);
+  opacity: 0.38;
+  filter: blur(5px);
+}
+/* The sparkles on "Refine again" twinkle while Refine is thinking. */
+.vpreview.is-busy .vspark path:first-child {
+  animation: vtwinkle 1s ease-in-out infinite;
+  transform-origin: 10.5px 13.5px;
+}
+.vpreview.is-busy .vspark path:last-child {
+  animation: vtwinkle 1s ease-in-out 0.5s infinite;
+  transform-origin: 17.75px 6.25px;
+}
+@keyframes vtwinkle {
+  50% {
+    transform: scale(0.6) rotate(20deg);
+    opacity: 0.5;
+  }
 }
 .vprev-actions {
   display: flex;
@@ -427,8 +468,8 @@
     opacity 120ms;
 }
 .vbtn svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 .vbtn:active {
   transform: scale(0.96);
@@ -555,13 +596,14 @@
     transition-duration: 120ms !important;
   }
   .vcard.live,
-  .vcheck,
   .vshimmer,
-  .vcaret {
+  .vcaret,
+  .vprev-text .vw,
+  .vspark path {
     animation: none !important;
   }
-  .vcheck {
-    stroke-dashoffset: 0;
+  .vprev-text.is-busy {
+    filter: none;
   }
   .vfade,
   .vstage.top.vfade {

@@ -10,7 +10,33 @@
  * The design source is design/blob-options/marshmallow-colors.html ("ocean").
  */
 
-export type CloudState = "idle" | "listening" | "thinking" | "done" | "error";
+/**
+ * What Vobi is doing, each with its own face:
+ *
+ * - `idle`         calm, breathing, blinking now and then
+ * - `listening`    looking up at you, mouth moving with your voice
+ * - `transcribing` eyes down, reading left to right as it writes
+ * - `thinking`     working on it (generic): glancing side to side
+ * - `refining`     pondering: eyes up, a "hmm" mouth, sparkles twinkling
+ * - `fixing`       focused: narrowed eyes checking the text, small nods
+ * - `done`         delighted: hop, wiggle, ^ ^ eyes and a grin
+ * - `clean`        all good: a wink and a smile
+ * - `confused`     head tilt, eyes searching, wavy mouth, a "?"
+ * - `error`        sad: droopy eyes, a frown, a little shrink
+ * - `sleepy`       half-closed eyes, a yawn and a "z" (loading, not set up)
+ */
+export type CloudState =
+  | "idle"
+  | "listening"
+  | "transcribing"
+  | "thinking"
+  | "refining"
+  | "fixing"
+  | "done"
+  | "clean"
+  | "confused"
+  | "error"
+  | "sleepy";
 
 export interface CloudOptions {
   /** Pixel size of the square SVG. */
@@ -104,6 +130,17 @@ function markup(id: string, o: CloudOptions): string {
               `<circle data-r="g${i}" r="${i > 2 ? 0.8 : 1.7}" fill="#fff"/>`,
           )
           .join("");
+  // Small sizes get thicker strokes so the face still reads at 46px.
+  const line = o.mono ? 4.5 : small ? 3.4 : 3;
+  const mouthLine = small ? 2.8 : 2.2;
+  const face = o.mono
+    ? ""
+    : `<path data-r="wl" fill="none" stroke="${NAVY}" stroke-width="${small ? 2.8 : 2.2}" stroke-linecap="round" opacity="0"/>
+       <path data-r="wr" fill="none" stroke="${NAVY}" stroke-width="${small ? 2.8 : 2.2}" stroke-linecap="round" opacity="0"/>
+       <path data-r="smile" fill="none" stroke="${NAVY}" stroke-width="${mouthLine}" stroke-linecap="round" stroke-linejoin="round"/>
+       <ellipse data-r="mouth" fill="#0E2238"/>
+       <path data-r="grin" fill="#0E2238" stroke="#0E2238" stroke-width="1.2" stroke-linejoin="round"/>
+       <ellipse data-r="tongue" fill="#FF7EAA"/>`;
   return `<svg width="${o.size}" height="${o.size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">
     <defs>
       <linearGradient id="${id}f" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#DDF7FF"/><stop offset=".55" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></linearGradient>
@@ -120,12 +157,116 @@ function markup(id: string, o: CloudOptions): string {
       ${o.mono ? "" : `<ellipse data-r="bl" rx="6" ry="3.4" fill="url(#${id}bl)"/><ellipse data-r="br" rx="6" ry="3.4" fill="url(#${id}bl)"/>`}
       <ellipse data-r="el" fill="${eye}"/><ellipse data-r="er" fill="${eye}"/>
       ${glints}
-      <path data-r="al" fill="none" stroke="${eye}" stroke-width="${o.mono ? 4.5 : 3}" stroke-linecap="round"/>
-      <path data-r="ar" fill="none" stroke="${eye}" stroke-width="${o.mono ? 4.5 : 3}" stroke-linecap="round"/>
-      ${o.mono ? "" : `<path data-r="smile" fill="none" stroke="${NAVY}" stroke-width="2.2" stroke-linecap="round"/><ellipse data-r="mouth" fill="#0E2238"/>`}
+      <path data-r="al" fill="none" stroke="${eye}" stroke-width="${line}" stroke-linecap="round"/>
+      <path data-r="ar" fill="none" stroke="${eye}" stroke-width="${line}" stroke-linecap="round"/>
+      ${face}
     </g>
+    ${o.mono ? "" : extras(id, small)}
   </svg>`;
 }
+
+/** Little marks around the head: sparkles (refining), "?" (confused), "z" (sleepy). */
+function extras(id: string, small: boolean): string {
+  const star = (r: number) =>
+    `M0,${-r} C${r * 0.18},${-r * 0.18} ${r * 0.18},${-r * 0.18} ${r},0 C${r * 0.18},${r * 0.18} ${r * 0.18},${r * 0.18} 0,${r} C${-r * 0.18},${r * 0.18} ${-r * 0.18},${r * 0.18} ${-r},0 C${-r * 0.18},${-r * 0.18} ${-r * 0.18},${-r * 0.18} 0,${-r}Z`;
+  // At the overlay size everything is scaled by ~0.38, so marks grow a bit.
+  const k = small ? 1.3 : 1;
+  const sw = small ? 1.6 : 1.2;
+  // "?" and "z" are drawn as paths, not text, so they look the same on every
+  // system (no font fallback on Windows or Linux).
+  const ink = `fill="none" stroke="${NAVY}" stroke-linecap="round" stroke-linejoin="round"`;
+  const q = `<g data-r="q" opacity="0"><g transform="scale(${k})"><path d="M-4.6,-5 C-4.6,-10.6 4.8,-10.6 4.8,-5 C4.8,-1.2 0,-0.8 0,3" ${ink} stroke-width="3.4"/><circle cx="0" cy="8.4" r="2.1" fill="${NAVY}"/></g></g>`;
+  const z = (n: number) =>
+    `<g data-r="z${n}" opacity="0"><path d="M${-4.4 * k},${-4.6 * k} H${4.4 * k} L${-4.4 * k},${4.6 * k} H${4.4 * k}" ${ink} stroke-width="${2.6 * k}"/></g>`;
+  return `<defs><linearGradient id="${id}sp" x1="0" y1="-1" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#9FE3FF"/></linearGradient></defs>
+    <path data-r="s1" d="${star(8 * k)}" fill="url(#${id}sp)" stroke="#2B7FF0" stroke-width="${sw}" stroke-linejoin="round" opacity="0"/>
+    <path data-r="s2" d="${star(5.2 * k)}" fill="url(#${id}sp)" stroke="#2B7FF0" stroke-width="${sw}" stroke-linejoin="round" opacity="0"/>
+    <path data-r="s3" d="${star(3.8 * k)}" fill="url(#${id}sp)" stroke="#2B7FF0" stroke-width="${sw * 0.9}" stroke-linejoin="round" opacity="0"/>
+    ${q}${z(1)}${z(2)}`;
+}
+
+/** How each state holds the face; motion on top of this lives in `frame`. */
+type Pose = {
+  /** Eye openness, 1 = normal. */
+  open: number;
+  /** Eye size. */
+  big: number;
+  /** Mouth: curve depth (negative = frown), half-width, wobble, one side raised. */
+  dp: number;
+  mw: number;
+  wv: number;
+  asym: number;
+  /** Mouth as a small "o" (0..1). */
+  mo: number;
+  /** Head tilt in degrees. */
+  tilt: number;
+  blush: number;
+  /** Brows: how visible, inner-end slope (+ worried, - focused), left brow raise. */
+  brow: number;
+  bs: number;
+  bl: number;
+  /** Body scale (error shrinks a little). */
+  size: number;
+};
+
+const P = (p: Partial<Pose>): Pose => ({
+  open: 1,
+  big: 1,
+  dp: 1.8,
+  mw: 2.6,
+  wv: 0,
+  asym: 0,
+  mo: 0,
+  tilt: 0,
+  blush: 0.7,
+  brow: 0,
+  bs: 0,
+  bl: 0,
+  size: 1,
+  ...p,
+});
+
+const POSES: Record<CloudState, Pose> = {
+  idle: P({}),
+  listening: P({ big: 1.12, blush: 0.75 }),
+  transcribing: P({ open: 0.78, dp: 1.2, mw: 2.2 }),
+  thinking: P({ dp: 1, mw: 2.2 }),
+  refining: P({
+    open: 0.95,
+    dp: 0.6,
+    mw: 2.6,
+    asym: 1.8,
+    blush: 0.75,
+    brow: 0.9,
+    bs: 0.6,
+    bl: 1.6,
+  }),
+  fixing: P({ open: 0.68, dp: 0, mw: 1.6, mo: 0.4, brow: 0.85, bs: -1.4 }),
+  done: P({ dp: 4.4, mw: 4.8, blush: 1 }),
+  clean: P({ dp: 3.2, mw: 4, asym: 0.8, tilt: 4, blush: 0.9 }),
+  confused: P({
+    big: 1.05,
+    dp: 0,
+    mw: 3.4,
+    wv: 1.1,
+    tilt: -9,
+    blush: 0.6,
+    brow: 1,
+    bs: 0,
+    bl: 2.6,
+  }),
+  error: P({
+    open: 0.6,
+    big: 1.1,
+    dp: -2.6,
+    mw: 2.8,
+    blush: 0.25,
+    brow: 1,
+    bs: 1.8,
+    size: 0.95,
+  }),
+  sleepy: P({ open: 0.2, dp: 0.6, mw: 2.2, mo: 0.35, tilt: 6, blush: 0.55 }),
+};
 
 const spring = (x = 1): Spring => ({ x, v: 0, to: x });
 const step = (s: Spring, k: number, c: number, dt: number) => {
@@ -139,27 +280,66 @@ const set = (
   if (!el) return;
   for (const k in attrs) el.setAttribute(k, String(attrs[k]));
 };
+const f = (n: number) => n.toFixed(2);
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
+/** A polyline mouth: a curve of depth `dp`, one end raised by `asym`, with an optional wave. */
+function mouthPath(
+  mx: number,
+  y: number,
+  w: number,
+  dp: number,
+  asym: number,
+  wv: number,
+  phase: number,
+): string {
+  const n = 12;
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const u = -1 + (2 * i) / n;
+    const x = mx + u * w;
+    const yy =
+      y +
+      dp * (1 - u * u) -
+      asym * ((u + 1) / 2) +
+      wv * Math.sin(u * Math.PI * 1.5 + phase);
+    d += `${i ? "L" : "M"}${f(x)},${f(yy)}`;
+  }
+  return d;
+}
 
 export class CloudEngine {
   private state: CloudState = "idle";
   private level = 0;
   private target = 0;
   private t = Math.random() * 10;
+  /** Seconds since the current state began. */
+  private since = 0;
   private last = 0;
   private raf = 0;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private nextBlink = performance.now() + 900 + Math.random() * 3000;
+  private fixStep = -1;
   private readonly r: Record<string, Element> = {};
   private readonly samples: number;
   private readonly sy = spring();
   private readonly sx = spring();
   private readonly ty = spring(0);
-  private readonly open = spring();
+  private readonly blink = spring();
   private readonly happy = spring(0);
-  private readonly err = spring(0);
+  private readonly wink = spring(0);
   private readonly lx = spring(0);
   private readonly ly = spring(0);
-  private readonly big = spring(1);
+  /** Face-only nod, on top of where the eyes look. */
+  private readonly nod = spring(0);
+  /** A little side-to-side wiggle when something worked. */
+  private readonly tilt = spring(0);
+  /** The pose, every number on its own spring. */
+  private readonly p: Record<keyof Pose, Spring>;
+  /** Extras: sparkles, "?", "z". */
+  private readonly sp = spring(0);
+  private readonly qm = spring(0);
+  private readonly zz = spring(0);
 
   constructor(
     mount: HTMLElement,
@@ -171,6 +351,10 @@ export class CloudEngine {
       this.r[el.getAttribute("data-r") as string] = el;
     });
     this.samples = o.size < 70 ? 80 : 140;
+    const idle = POSES.idle;
+    this.p = Object.fromEntries(
+      (Object.keys(idle) as (keyof Pose)[]).map((k) => [k, spring(idle[k])]),
+    ) as Record<keyof Pose, Spring>;
     this.raf = requestAnimationFrame(this.frame);
   }
 
@@ -178,20 +362,36 @@ export class CloudEngine {
     if (s === this.state) return;
     const prev = this.state;
     this.state = s;
+    this.since = 0;
+    this.fixStep = -1;
+    const pose = POSES[s];
+    for (const k in pose) this.p[k as keyof Pose].to = pose[k as keyof Pose];
     this.happy.to = s === "done" ? 1 : 0;
-    this.err.to = s === "error" ? 1 : 0;
-    this.big.to = s === "listening" ? 1.12 : 1;
+    this.wink.to = s === "clean" ? 1 : 0;
+    this.sp.to = s === "refining" ? 1 : 0;
+    this.qm.to = s === "confused" ? 1 : 0;
+    this.zz.to = s === "sleepy" ? 1 : 0;
     if (s === "done") {
       this.sy.v -= 2.8;
       this.sx.v += 1.8;
       this.ty.v -= 200;
+      this.tilt.v += 160;
+    }
+    if (s === "clean") {
+      this.nod.v += 70;
+      this.sy.v += 0.9;
+      this.ty.v -= 70;
     }
     if (s === "listening" && prev !== "listening") {
       this.sy.v += 1.5;
       this.sx.v -= 0.8;
       this.ty.v -= 60;
     }
-    if (s === "error") this.sy.v += 1.2;
+    if (s === "confused") this.tilt.v -= 60;
+    if (s === "error") {
+      this.sy.v += 1.2;
+      this.nod.v += 40;
+    }
   }
 
   /** Voice loudness, 0..1. Only used while listening. */
@@ -208,48 +408,85 @@ export class CloudEngine {
     const dt = Math.min(0.033, (now - (this.last || now)) / 1000 || 0.016);
     this.last = now;
     this.t += dt;
+    this.since += dt;
     const st = this.state;
     const still = reduceMotion();
     const t = still ? 0 : this.t;
+    const p = this.p;
 
     const tl = st === "listening" ? this.target : 0;
     this.level += (tl - this.level) * (tl > this.level ? 0.45 : 0.12);
     const L = this.level;
 
-    if (now > this.nextBlink && st !== "done" && st !== "error") {
-      this.open.x = 0.08;
-      this.open.v = 0;
+    if (now > this.nextBlink && st !== "done" && st !== "sleepy") {
+      this.blink.x = 0.08;
+      this.blink.v = 0;
       this.nextBlink = now + 2400 + Math.random() * 3400;
     }
-    this.lx.to =
-      st === "thinking" ? 3.5 * Math.sign(Math.sin(this.t * 1.3)) : 0;
-    this.ly.to =
-      st === "thinking"
-        ? -2.5
-        : st === "listening"
-          ? -1
-          : st === "error"
-            ? 1.5
-            : 0;
+
+    // Where the eyes look, per state.
+    let lx = 0;
+    let ly = 0;
+    if (st === "thinking") {
+      lx = 3.5 * Math.sign(Math.sin(this.t * 1.3));
+      ly = -2.5;
+    } else if (st === "listening") ly = -1;
+    else if (st === "transcribing") {
+      // Reading: drift left to right along a line, then flick back.
+      const ph = (this.t / 1.5) % 1;
+      lx = still ? 0 : ph < 0.82 ? -3.4 + (ph / 0.82) * 6.8 : -3.4;
+      ly = 2.4;
+    } else if (st === "refining") {
+      lx = still ? 2 : 3.2 * Math.sin(this.t * 0.9);
+      ly = -3;
+    } else if (st === "fixing") {
+      // Quick little checks across the text, with a tiny nod at each one.
+      const i = Math.floor(this.t / 0.48);
+      if (i !== this.fixStep) {
+        if (this.fixStep >= 0 && !still) this.nod.v += 26;
+        this.fixStep = i;
+      }
+      lx = still ? 0 : [-3, 0.5, 3, -0.8][i % 4];
+      ly = 2.6;
+    } else if (st === "confused") {
+      lx = still ? 2.5 : 3.2 * Math.sin(this.t * 1.15);
+      ly = -1.2;
+    } else if (st === "error") ly = 1.8;
+    else if (st === "sleepy") ly = 1;
+    this.lx.to = lx;
+    this.ly.to = ly;
+
+    // Sleepy: a slow yawn every few seconds.
+    const yawn =
+      st === "sleepy" && !still
+        ? Math.pow(Math.max(0, Math.sin(this.t * 1.1)), 4)
+        : 0;
+
     const breathe = still
       ? 0
-      : Math.sin(this.t * (st === "idle" ? 1.3 : 2.4)) *
-        (st === "idle" ? 0.022 : 0.015);
-    this.sy.to = 1 + breathe + L * 0.1 - this.err.x * 0.04;
-    this.sx.to = 1 - breathe * 0.5 + L * 0.05;
+      : Math.sin(this.t * (st === "idle" ? 1.3 : st === "sleepy" ? 0.9 : 2.4)) *
+        (st === "idle" || st === "sleepy" ? 0.022 : 0.015);
+    const size = p.size.x;
+    this.sy.to = size * (1 + breathe + L * 0.1 + yawn * 0.03);
+    this.sx.to = size * (1 - breathe * 0.5 + L * 0.05);
 
     step(this.sy, 260, 13, dt);
     step(this.sx, 260, 13, dt);
     step(this.ty, 220, 16, dt);
-    step(this.open, 300, 22, dt);
+    step(this.blink, 300, 22, dt);
     step(this.happy, 240, 22, dt);
-    step(this.err, 240, 22, dt);
-    step(this.lx, 140, 16, dt);
+    step(this.wink, 260, 22, dt);
+    step(this.lx, st === "fixing" ? 320 : 140, st === "fixing" ? 26 : 16, dt);
     step(this.ly, 140, 16, dt);
-    step(this.big, 220, 18, dt);
+    step(this.nod, 260, 14, dt);
+    step(this.tilt, 170, 7, dt);
+    step(this.sp, 120, 18, dt);
+    step(this.qm, 160, 16, dt);
+    step(this.zz, 90, 16, dt);
+    for (const k in p) step(p[k as keyof Pose], 170, 22, dt);
 
-    const hap = Math.max(0, Math.min(1, this.happy.x));
-    const er = Math.max(0, Math.min(1, this.err.x));
+    const hap = clamp01(this.happy.x);
+    const wink = clamp01(this.wink.x);
     const ty = Math.min(0, this.ty.x);
 
     const puffs = PUFFS.map(([cx, cy, rr], i): Puff => {
@@ -259,14 +496,21 @@ export class CloudEngine {
         d += Math.max(0, Math.sin(t * 9 + ph * 1.4)) * L * 5.5;
       if (st === "thinking")
         d += Math.max(0, Math.sin(t * 4.2 - i * 0.9)) * 2.6;
-      return [cx, cy, rr + d - er * 1.2];
+      // Typing along: small, even puffs in turn.
+      if (st === "transcribing")
+        d += Math.max(0, Math.sin(t * 7 - i * 1.6)) * 1.3;
+      // Mulling it over: a slow swirl around the cloud.
+      if (st === "refining") d += Math.sin(t * 1.8 - i * 1.4) * 2;
+      return [cx, cy, rr + d];
     });
     const d = cloudPath(puffs, this.samples);
     set(this.r.body, { d });
     set(this.r.clip, { d });
     set(this.r.rim, { d });
+    const lean =
+      p.tilt.x + (st === "sleepy" && !still ? Math.sin(this.t * 0.9) * 2 : 0);
     set(this.r.root, {
-      transform: `translate(0 ${ty.toFixed(2)}) translate(0 ${BASE_Y}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`,
+      transform: `translate(0 ${f(ty)}) translate(0 ${BASE_Y}) rotate(${f(still ? p.tilt.to : this.tilt.x + lean)}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`,
     });
     set(this.r.shadow, { opacity: (0.12 * (1 + ty / 45)).toFixed(3) });
 
@@ -275,71 +519,154 @@ export class CloudEngine {
     const gap = mono ? 13 : 12;
     const rx = mono ? 5.5 : 4.6;
     const ry = mono ? 7.5 : 6.2;
-    const lx = this.lx.x;
-    const big = this.big.x;
-    const ey = (mono ? 15 : 16) + this.ly.x;
-    const eyeOpen = Math.max(0.06, this.open.x) * (1 - hap) * (1 - er * 0.7);
+    const ex = this.lx.x;
+    const big = p.big.x;
+    const ey = (mono ? 15 : 16) + this.ly.x + this.nod.x * 0.06;
+    const lid = Math.max(0.06, this.blink.x) * p.open.x * (1 - yawn * 0.6);
     for (const [key, s] of [
       ["el", -1],
       ["er", 1],
     ] as const) {
+      const arc = s > 0 ? Math.max(hap, wink) : hap;
+      const open = lid * (1 - arc);
+      const h = Math.max(0.6, ry * big * open);
       set(this.r[key], {
-        cx: (s * gap + lx).toFixed(2),
-        cy: ey.toFixed(2),
-        rx: (rx * big * (1 + er * 0.25)).toFixed(2),
-        ry: Math.max(0.6, ry * big * eyeOpen).toFixed(2),
-        opacity: hap > 0.85 ? 0 : 1,
+        cx: f(s * gap + ex),
+        // Keep the bottom of the eye still so a closing eye looks like a lid.
+        cy: f(ey + (ry * big - h) * 0.55),
+        rx: f(rx * big),
+        ry: f(h),
+        opacity: arc > 0.85 ? 0 : 1,
       });
     }
     for (const [key, s] of [
       ["al", -1],
       ["ar", 1],
     ] as const) {
-      const cx = s * gap + lx;
+      const arc = s > 0 ? Math.max(hap, wink) : hap;
+      const cx = s * gap + ex;
       const w = rx * 1.25;
       set(this.r[key], {
-        d: `M${(cx - w).toFixed(2)},${(ey + 1.5).toFixed(2)} Q${cx.toFixed(2)},${(ey - 4.2).toFixed(2)} ${(cx + w).toFixed(2)},${(ey + 1.5).toFixed(2)}`,
-        opacity: (hap > 0.5 ? Math.min(1, (hap - 0.5) * 3) : 0).toFixed(2),
+        d: `M${f(cx - w)},${f(ey + 1.5)} Q${f(cx)},${f(ey - 4.2)} ${f(cx + w)},${f(ey + 1.5)}`,
+        opacity: f(arc > 0.5 ? Math.min(1, (arc - 0.5) * 3) : 0),
       });
     }
-    const glintsOn = eyeOpen > 0.55 ? 1 : 0;
     [1, 2, 3, 4].forEach((i) => {
       const s = i % 2 ? -1 : 1;
       const small = i > 2;
+      const arc = s > 0 ? Math.max(hap, wink) : hap;
       set(this.r[`g${i}`], {
-        cx: (s * gap + lx + (small ? -1.6 : 1.5) * big).toFixed(2),
-        cy: (ey + (small ? 2.4 : -2.2) * big).toFixed(2),
-        opacity: glintsOn,
+        cx: f(s * gap + ex + (small ? -1.6 : 1.5) * big),
+        cy: f(ey + (small ? 2.4 : -2.2) * big),
+        opacity: lid * (1 - arc) > 0.55 ? 1 : 0,
       });
     });
-    const blush = ((0.7 + hap * 0.3) * (1 - er * 0.6)).toFixed(2);
+    const blush = f(clamp01(p.blush.x + hap * 0.3));
     set(this.r.bl, {
-      cx: (-gap - 9 + lx * 0.5).toFixed(2),
-      cy: (ey + 6).toFixed(2),
+      cx: f(-gap - 9 + ex * 0.5),
+      cy: f(ey + 6),
       opacity: blush,
     });
     set(this.r.br, {
-      cx: (gap + 9 + lx * 0.5).toFixed(2),
-      cy: (ey + 6).toFixed(2),
+      cx: f(gap + 9 + ex * 0.5),
+      cy: f(ey + 6),
       opacity: blush,
     });
+
+    // Brows sit just above each eye; the inner ends tip up (worried) or down (focused).
+    if (this.r.wl) {
+      for (const [key, s] of [
+        ["wl", -1],
+        ["wr", 1],
+      ] as const) {
+        const cx = s * gap + ex;
+        // Brows follow the top of the eye down as it narrows.
+        const by =
+          ey - ry * big * (0.45 + 0.55 * p.open.x) - 3.2 - (s < 0 ? p.bl.x : 0);
+        const w = 4.2;
+        const slope = p.bs.x;
+        const arch = s < 0 ? p.bl.x * 0.5 : 0;
+        // Outer end, inner end (towards the middle of the face).
+        const ox = cx + s * w;
+        const ix = cx - s * w;
+        set(this.r[key], {
+          d: `M${f(ox)},${f(by + slope * 0.5)} Q${f(cx)},${f(by - (slope < 0 ? 0.4 : 1.2) - arch)} ${f(ix)},${f(by - slope)}`,
+          opacity: f(clamp01(p.brow.x)),
+        });
+      }
+    }
+
     if (this.r.smile) {
       const talk = st === "listening" ? L : 0;
       const my = ey + 7.5;
-      const mx = lx * 0.6;
+      const mx = ex * 0.6;
+      const mo = clamp01(p.mo.x + yawn * 0.9);
+      const oShape = talk > 0.06 ? 0 : mo;
       set(this.r.mouth, {
-        cx: mx.toFixed(2),
-        cy: (my + 1).toFixed(2),
-        rx: (2.6 + talk * 0.8).toFixed(2),
-        ry: (0.5 + talk * 3.6).toFixed(2),
-        opacity: talk > 0.06 ? 1 : 0,
+        cx: f(mx),
+        cy: f(my + 1 + oShape * 0.6),
+        rx: f(talk > 0.06 ? 2.6 + talk * 0.8 : 1.3 + oShape * 1.3),
+        ry: f(talk > 0.06 ? 0.5 + talk * 3.6 : 1.1 + oShape * 2.4),
+        opacity: talk > 0.06 ? 1 : f(clamp01(oShape * 3)),
       });
-      const w = 2.6 + hap * 2.2;
-      const dp = 1.8 + hap * 2.6 - er * 4.2;
-      const y = my + er * 1.5;
+      const w = p.mw.x;
+      const dp = p.dp.x;
+      // Happy: the smile opens into a grin with a little tongue.
+      const grin = hap > 0.4 ? Math.min(1, (hap - 0.4) * 2.5) : 0;
       set(this.r.smile, {
-        d: `M${(mx - w).toFixed(2)},${y.toFixed(2)} Q${mx.toFixed(2)},${(y + dp).toFixed(2)} ${(mx + w).toFixed(2)},${y.toFixed(2)}`,
-        opacity: talk > 0.06 ? 0 : 1,
+        d: mouthPath(mx, my, w, dp, p.asym.x, p.wv.x, t * 2.2),
+        opacity: talk > 0.06 ? 0 : f((1 - grin) * (1 - clamp01(oShape * 3))),
+      });
+      const gw = 4.6;
+      const gd = 6.4 * grin;
+      const y = my;
+      set(this.r.grin, {
+        d: `M${f(mx - gw)},${f(y - 0.6)} Q${f(mx)},${f(y - 1.4)} ${f(mx + gw)},${f(y - 0.6)} Q${f(mx + gw * 0.7)},${f(y + gd)} ${f(mx)},${f(y + gd)} Q${f(mx - gw * 0.7)},${f(y + gd)} ${f(mx - gw)},${f(y - 0.6)}Z`,
+        opacity: talk > 0.06 ? 0 : f(grin),
+      });
+      set(this.r.tongue, {
+        cx: f(mx),
+        cy: f(y + gd * 0.78),
+        rx: f(2.4 * grin),
+        ry: f(1.5 * grin),
+        opacity: talk > 0.06 ? 0 : f(grin),
+      });
+    }
+
+    // Extras around the head.
+    if (this.r.s1) {
+      const sp = clamp01(this.sp.x);
+      (
+        [
+          ["s1", 38, -38, 0],
+          ["s2", -44, -28, 2.1],
+          ["s3", 48, -10, 4.2],
+        ] as const
+      ).forEach(([key, x, y, ph]) => {
+        const tw = still ? 0.85 : 0.5 + 0.5 * Math.sin(this.t * 2.6 + ph);
+        const sc = sp * (0.55 + 0.45 * tw);
+        set(this.r[key], {
+          transform: `translate(${x} ${f(y - (1 - sp) * 6)}) rotate(${f(still ? 0 : this.t * 25 + ph * 20)}) scale(${sc.toFixed(3)})`,
+          opacity: f(sp * (0.45 + 0.55 * tw)),
+        });
+      });
+      const q = clamp01(this.qm.x);
+      set(this.r.q, {
+        transform: `translate(38 ${f(-38 + (still ? 0 : Math.sin(this.t * 2.4) * 2.4) + (1 - q) * 8)}) rotate(${f(still ? 10 : 10 + Math.sin(this.t * 1.7) * 10)}) scale(${(0.6 + q * 0.4).toFixed(3)})`,
+        opacity: f(q),
+      });
+      const z = clamp01(this.zz.x);
+      (
+        [
+          ["z1", 0],
+          ["z2", 0.5],
+        ] as const
+      ).forEach(([key, off]) => {
+        const ph = still ? 0.35 + off : (this.t / 2.8 + off) % 1;
+        set(this.r[key], {
+          transform: `translate(${f(30 + ph * 14 + Math.sin(ph * 6) * 2)} ${f(-24 - ph * 30)}) rotate(-12) scale(${(0.55 + ph * 0.6).toFixed(3)})`,
+          opacity: f(z * Math.sin(Math.min(1, ph) * Math.PI)),
+        });
       });
     }
 

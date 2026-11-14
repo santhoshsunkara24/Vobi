@@ -538,10 +538,13 @@ export const TryIt: React.FC<TryItProps> = ({
       ? "done"
       : mood === "listen"
         ? e.phase === "typing"
-          ? "thinking"
+          ? "transcribing"
           : "listening"
         : mood === "oops"
-          ? "error"
+          ? // Heard nothing / typed nothing: puzzled rather than sad.
+            say.id === "noWords" || say.id === "nothingTyped"
+            ? "confused"
+            : "error"
           : "idle";
 
   return (
