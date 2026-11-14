@@ -995,6 +995,15 @@ input[type="range"]:active::-webkit-slider-thumb {
   outline: 2px solid var(--sky-300);
   outline-offset: 2px;
 }
+/* Text fields show focus with their own soft ring (or the caret), never the
+   square keyboard outline. */
+input:not([type="range"]):not([type="checkbox"]):not(
+    [type="radio"]
+  ):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
 .v-spin {
   animation: v-spin 0.9s linear infinite;
 }
