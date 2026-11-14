@@ -12,10 +12,23 @@
     "Instrument Sans Variable", -apple-system, "Segoe UI Variable Text",
     "Segoe UI", system-ui, sans-serif;
   --v-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
-  --v-bg: #0e1620;
-  --v-text: #f2f6fa;
-  --v-text-2: #93a0af;
-  --v-hair: rgba(255, 255, 255, 0.08);
+  /* Liquid glass: light frosted pill, dark text. On macOS a native glass view
+     sits underneath (see glass.rs), so the pill itself is only a light tint;
+     elsewhere the frosted look is drawn here. */
+  --v-bg: linear-gradient(
+    180deg,
+    rgba(250, 252, 255, 0.88) 0%,
+    rgba(236, 244, 255, 0.84) 100%
+  );
+  --v-bg-native: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.32) 0%,
+    rgba(232, 243, 255, 0.18) 100%
+  );
+  --v-text: #0e2238;
+  --v-text-2: rgba(14, 34, 56, 0.58);
+  --v-hair: rgba(255, 255, 255, 0.55);
+  --v-accent: #1a8fe8;
   --v-grad: linear-gradient(135deg, #6ad5f9 0%, #2fb1f4 42%, #3a7bf5 100%);
   --v-ease: cubic-bezier(0.22, 1, 0.36, 1);
   /* A critically damped spring sampled into linear(): smooth, no bounce.
@@ -87,18 +100,35 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  isolation: isolate;
   color: var(--v-text);
   background: var(--v-bg);
   border-radius: 999px;
   box-shadow:
-    0 12px 28px -8px rgba(6, 12, 22, 0.5),
-    0 2px 6px rgba(6, 12, 22, 0.25),
-    inset 0 0 0 1px var(--v-hair);
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px var(--v-hair),
+    inset 0 -1px 0 rgba(120, 170, 230, 0.18),
+    0 14px 30px -10px rgba(24, 70, 150, 0.32),
+    0 2px 6px rgba(24, 70, 150, 0.12);
   transition:
     width var(--v-dur) var(--v-ease),
     border-radius var(--v-dur) var(--v-ease);
   transition-timing-function: var(--v-spring);
   will-change: width;
+}
+.native-glass .vcard {
+  background: var(--v-bg-native);
+}
+/* A soft sheen across the top half, like light on glass. */
+.vcard::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent);
+  opacity: 0.55;
+  z-index: -1;
 }
 .vcard.compact {
   width: var(--v-w-listen);
@@ -155,7 +185,7 @@
   width: 3px;
   height: 26px;
   border-radius: 2px;
-  background: linear-gradient(#7fdbfa, #3a86f5);
+  background: linear-gradient(#3db8f4, #2b6fef);
   transform: scaleY(0.14);
   transition: transform 90ms linear;
 }
@@ -180,14 +210,14 @@
   padding: 0;
   border-radius: 50%;
   color: var(--v-text);
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(14, 34, 56, 0.07);
   cursor: pointer;
   transition:
     background 120ms ease-out,
     transform 120ms var(--v-ease);
 }
 .vround:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(14, 34, 56, 0.13);
 }
 .vround:active {
   transform: scale(0.9);
@@ -208,7 +238,7 @@
   background: linear-gradient(
     90deg,
     var(--v-text-2) 0%,
-    #fff 40%,
+    #1a6fe0 40%,
     var(--v-text-2) 80%
   );
   background-size: 200% 100%;
@@ -230,7 +260,7 @@
   width: 22px;
   height: 22px;
   flex: none;
-  color: #6ad5f9;
+  color: var(--v-accent);
   stroke-dasharray: 20;
   stroke-dashoffset: 20;
   animation: vcheck 380ms var(--v-ease) 80ms forwards;
@@ -267,7 +297,7 @@
   white-space: nowrap;
 }
 .vfix b.is-error {
-  color: #ffb1b8;
+  color: #d93a49;
 }
 .vfix-list {
   display: flex;
@@ -287,11 +317,11 @@
 }
 .vfix-item s {
   color: var(--v-text-2);
-  text-decoration-color: rgba(255, 177, 184, 0.8);
+  text-decoration-color: rgba(217, 58, 73, 0.7);
 }
 .vfix-item i {
   font-style: normal;
-  color: #6ad5f9;
+  color: var(--v-accent);
 }
 .vfix-more {
   white-space: nowrap;
@@ -304,10 +334,10 @@
   text-overflow: ellipsis;
 }
 .vnotice.level-error {
-  color: #ffb1b8;
+  color: #d93a49;
 }
 .vnotice.level-warning {
-  color: #ffd79a;
+  color: #b7791f;
 }
 .vprobe {
   position: absolute;
@@ -399,7 +429,7 @@
   height: 1.05em;
   margin-left: 2px;
   vertical-align: -2px;
-  background: #3db8f4;
+  background: var(--v-accent);
   animation: vcaret 1s steps(1) infinite;
 }
 @keyframes vcaret {

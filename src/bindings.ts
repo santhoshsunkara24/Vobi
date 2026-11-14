@@ -5,6 +5,14 @@
 
 
 export const commands = {
+/**
+ * Places (or hides) the native glass under the pill. Coordinates are CSS
+ * pixels in the overlay window, top-left origin. Returns whether native glass
+ * is available on this platform.
+ */
+async setOverlayGlass(x: number, y: number, width: number, height: number, radius: number, alpha: number, visible: boolean) : Promise<boolean> {
+    return await TAURI_INVOKE("set_overlay_glass", { x, y, width, height, radius, alpha, visible });
+},
 async changeBinding(id: string, binding: string) : Promise<Result<BindingResponse, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_binding", { id, binding }) };

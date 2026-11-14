@@ -11,6 +11,7 @@ mod clipboard;
 mod commands;
 pub mod engine_supervisor;
 mod fix_selection;
+mod glass;
 mod helpers;
 mod input;
 mod language_detection;
@@ -688,6 +689,7 @@ pub fn run(cli_args: CliArgs) {
 
     let specta_builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
+            glass::set_overlay_glass,
             shortcut::change_binding,
             shortcut::reset_binding,
             shortcut::change_shortcut_activation_setting,

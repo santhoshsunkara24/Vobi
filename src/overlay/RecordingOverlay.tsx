@@ -84,6 +84,9 @@ const RecordingOverlay: React.FC = () => {
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
   const capRef = useRef<HTMLDivElement>(null);
+  // The pill's card: native glass (macOS) is kept exactly underneath it.
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [nativeGlass, setNativeGlass] = useState(false);
   const pinnedRef = useRef(true);
   const direction = getLanguageDirection(i18n.language);
 
@@ -224,6 +227,59 @@ const RecordingOverlay: React.FC = () => {
 
     setupEventListeners();
     return () => cleanup?.();
+  }, []);
+
+  // Keep the native "liquid glass" lined up with the pill every frame: its
+  // position, size, corner radius and fade. Only sends when something changed.
+  useEffect(() => {
+    let raf = 0;
+    let last = "";
+    let alive = true;
+    const tick = () => {
+      const el = cardRef.current;
+      let args: [number, number, number, number, number, number, boolean] = [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+      ];
+      if (el && el.isConnected) {
+        const r = el.getBoundingClientRect();
+        const cs = getComputedStyle(el);
+        const stage = el.closest(".vstage");
+        const fade =
+          (stage ? parseFloat(getComputedStyle(stage).opacity) : 1) *
+          parseFloat(cs.opacity || "1");
+        args = [
+          r.left,
+          r.top,
+          r.width,
+          r.height,
+          parseFloat(cs.borderTopLeftRadius) || 0,
+          fade,
+          true,
+        ];
+      }
+      const key = args
+        .map((v) => (typeof v === "number" ? v.toFixed(1) : String(v)))
+        .join();
+      if (key !== last) {
+        last = key;
+        commands
+          .setOverlayGlass(...args)
+          .then((ok) => alive && setNativeGlass(ok))
+          .catch(() => {});
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      alive = false;
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Elapsed timer, once microphone samples are flowing.
@@ -463,10 +519,14 @@ const RecordingOverlay: React.FC = () => {
       : hasText || loadingNotice || (loadNoticeShown && !working);
 
     return (
-      <div dir={direction} className={`vstage ${position}`}>
+      <div
+        dir={direction}
+        className={`vstage ${position} ${nativeGlass ? "native-glass" : ""}`}
+      >
         {noticeProbe}
         <div
           key={session}
+          ref={cardRef}
           className={`vcard live ${open ? "open" : ""} ${working ? "working" : ""} ${
             isVisible ? "" : "leaving"
           }`}
@@ -534,10 +594,11 @@ const RecordingOverlay: React.FC = () => {
   return (
     <div
       dir={direction}
-      className={`vstage ${position} vfade ${isVisible ? "show" : ""}`}
+      className={`vstage ${position} vfade ${isVisible ? "show" : ""} ${nativeGlass ? "native-glass" : ""}`}
     >
       {noticeProbe}
       <div
+        ref={cardRef}
         className={`vcard compact ${mode}`}
         style={shownNotice ? { width: noticeWidth } : undefined}
         onClick={dismissNotice}
