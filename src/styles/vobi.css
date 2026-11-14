@@ -367,10 +367,10 @@
   animation: v-bar-in var(--spring-dur) var(--spring) both;
 }
 .v-bars i[data-empty] {
-  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  background: color-mix(in srgb, var(--accent) 42%, var(--surface));
 }
 .v-bars i[data-future] {
-  background: var(--surface-3);
+  background: color-mix(in srgb, var(--text) 13%, var(--surface));
 }
 @keyframes v-bar-in {
   from {
