@@ -998,5 +998,124 @@
     "learnMore": "इसे कैसे ठीक करें",
     "recorderBlocked": "अभी शॉर्टकट रिकॉर्ड नहीं किए जा सकते — macOS Secure Input कुंजी इवेंट ब्लॉक कर रहा है. पहले Secure Input चेतावनी हल करें.",
     "dismiss": "खारिज करें"
+  },
+  "vobi": {
+    "nav": {
+      "label": "Pages",
+      "home": "Home",
+      "history": "History",
+      "dictionary": "Dictionary",
+      "snippets": "Snippets",
+      "settings": "Settings"
+    },
+    "side": {
+      "ready": "Ready to listen",
+      "holdBefore": "Hold",
+      "holdAfter": "in any app. Vobi types where your cursor is."
+    },
+    "home": {
+      "greeting": {
+        "morning": "Good morning",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening"
+      },
+      "search": "Search history",
+      "hero": {
+        "before": "Hold",
+        "after": "and just talk",
+        "sub": "Works in every app. Release to paste. Tap twice for hands-free.",
+        "try": "Try it now"
+      },
+      "try": {
+        "before": "Hold",
+        "after": "and talk. Your words land here.",
+        "placeholder": "Your words will appear here…",
+        "close": "Done"
+      },
+      "quick": "Quick actions",
+      "actions": {
+        "dictate": "Dictate",
+        "transcribe": "Transcribe file",
+        "addWord": "Add word",
+        "snippet": "New snippet"
+      },
+      "stats": {
+        "words": "Words this week",
+        "dictations": "Dictations",
+        "streak": "Streak",
+        "thisWeek": "this week",
+        "up": "+{{percent}}% vs last week",
+        "down": "−{{percent}}% vs last week",
+        "day": "day",
+        "days": "days",
+        "inARow": "in a row"
+      },
+      "recent": "Recent",
+      "viewAll": "View all",
+      "emptyBefore": "Nothing here yet. Hold",
+      "emptyAfter": "in any app and say something."
+    },
+    "history": {
+      "title": "History",
+      "sub": "Everything you’ve said, kept on this computer",
+      "search": "Search what you said",
+      "noMatch": "Nothing matches “{{query}}”",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "dictation": "Dictation",
+      "word": "{{count}} word",
+      "words": "{{count}} words",
+      "saved": "Saved"
+    },
+    "dictionary": {
+      "title": "Dictionary",
+      "sub": "Names and words Vobi should always spell right",
+      "placeholder": "Add a word, like “Kubernetes”",
+      "add": "Add word",
+      "empty": "No words yet. Add names, brands and jargon you use.",
+      "tipTitle": "Spelled your way",
+      "tipBody": "When Vobi hears something close to a word here, it writes it exactly as you typed it."
+    },
+    "snippets": {
+      "title": "Snippets",
+      "sub": "Say a short phrase, get the full text",
+      "new": "Snippet",
+      "trigger": "Phrase",
+      "triggerPlaceholder": "What you’ll say, like “my address”",
+      "text": "Text",
+      "textPlaceholder": "What Vobi should type instead",
+      "save": "Save snippet",
+      "cancel": "Cancel",
+      "remove": "Remove “{{trigger}}”",
+      "empty": "No snippets yet.",
+      "soon": "Snippets are saved now. Vobi will start expanding them in a coming update."
+    },
+    "settings": {
+      "title": "Settings",
+      "tabs": {
+        "label": "Settings sections",
+        "general": "General",
+        "model": "Model",
+        "postProcessing": "Post-processing",
+        "advanced": "Advanced",
+        "about": "About",
+        "debug": "Debug"
+      },
+      "groups": {
+        "talking": "Talking",
+        "writing": "Writing",
+        "vobi": "Vobi"
+      },
+      "dictionary": {
+        "title": "Dictionary",
+        "one": "1 word Vobi always spells right",
+        "many": "{{count}} words Vobi always spells right",
+        "open": "Edit"
+      },
+      "idle": {
+        "label": "Show Vobi when idle",
+        "description": "Keep the little cloud on screen between dictations"
+      }
+    }
   }
 }

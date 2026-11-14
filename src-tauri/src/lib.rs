@@ -732,6 +732,8 @@ pub fn run(cli_args: CliArgs) {
             shortcut::suspend_all_bindings,
             shortcut::resume_all_bindings,
             shortcut::change_mute_while_recording_setting,
+            shortcut::change_show_idle_vobi_setting,
+            shortcut::update_snippets,
             shortcut::change_append_trailing_space_setting,
             shortcut::change_lazy_stream_close_setting,
             shortcut::change_vad_enabled_setting,
@@ -1018,35 +1020,30 @@ pub fn run(cli_args: CliArgs) {
                 tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("/".into()))
                     .title("Vobi")
                     .inner_size(utils::MAIN_WINDOW_SIZE.0, utils::MAIN_WINDOW_SIZE.1)
-                    .min_inner_size(utils::MAIN_WINDOW_SIZE.0, utils::MAIN_WINDOW_SIZE.1)
+                    .min_inner_size(utils::MAIN_WINDOW_MIN_SIZE.0, utils::MAIN_WINDOW_MIN_SIZE.1)
                     .resizable(true)
                     .maximizable(true)
                     .visible(false);
+
+            // macOS: the page runs under a transparent title bar, so the traffic
+            // lights sit inside Vobi's sidebar like a native app.
+            #[cfg(target_os = "macos")]
+            {
+                win_builder = win_builder
+                    .title_bar_style(tauri::TitleBarStyle::Overlay)
+                    .hidden_title(true);
+            }
 
             if let Some(data_dir) = portable::data_dir() {
                 win_builder = win_builder.data_directory(data_dir.join("webview"));
             }
 
-            // Only used on macOS (to size it) and Windows (to disable WebView2
-            // browser accelerators).
+            // Only used on Windows (to disable WebView2 browser accelerators).
             #[cfg_attr(
-                not(any(target_os = "macos", target_os = "windows")),
+                not(target_os = "windows"),
                 allow(unused_variables)
             )]
             let main_window = win_builder.build()?;
-
-            // macOS draws the title bar inside the inner size; grow the window to fit it.
-            #[cfg(target_os = "macos")]
-            {
-                let bar = utils::measure_title_bar(&main_window);
-                if bar > 0.0 {
-                    let (width, height) = utils::MAIN_WINDOW_SIZE;
-                    let size = tauri::LogicalSize::new(width, height + bar);
-                    let _ = main_window.set_min_size(Some(size));
-                    let _ = main_window.set_size(size);
-                    let _ = main_window.center();
-                }
-            }
 
             // Disable WebView2 browser accelerators (F5, F6, Ctrl+F, F12, ...).
             // A settings window has no use for them, and pressing F6 while
@@ -1075,11 +1072,10 @@ pub fn run(cli_args: CliArgs) {
             let mut settings = get_settings(app.handle());
 
             // Apply the persisted appearance theme to the native title bar before
-            // the window is shown, so it matches the in-app palette without a flash
-            // of the wrong theme. See `apply_window_theme` for what this does per
-            // platform.
+            // the window is shown. Vobi is light only, so the persisted theme is
+            // ignored. See `apply_window_theme` for what this does per platform.
             #[cfg(any(target_os = "windows", target_os = "macos"))]
-            shortcut::apply_window_theme(app.handle(), settings.theme);
+            shortcut::apply_window_theme(app.handle(), settings::Theme::Light);
 
             // CLI --debug flag overrides debug_mode and log level (runtime-only, not persisted)
             if cli_args.debug {

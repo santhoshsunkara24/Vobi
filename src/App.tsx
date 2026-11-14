@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-  useRef,
-  type ReactNode,
-} from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { platform } from "@tauri-apps/plugin-os";
 import {
@@ -13,8 +6,6 @@ import {
   checkMicrophonePermission,
 } from "tauri-plugin-macos-permissions-api";
 import "./App.css";
-import SecureInputWarning from "./components/SecureInputWarning";
-import Footer from "./components/footer";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
 import ModelMigration from "./components/onboarding/ModelMigration";
 import {
@@ -25,11 +16,7 @@ import {
   clearOnboardingProgress,
   type OnboardingStep as OnboardingPreviewStep,
 } from "./components/onboarding/onboardingStore";
-import { DebugSettings, ModelsSettings } from "./components/settings";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { FileDropOverlay } from "./components/FileDropOverlay";
-import { Sidebar, SidebarSection, SECTIONS_CONFIG } from "./components/Sidebar";
-import { WhatsNewGate } from "./components/whats-new";
+import { AppShell } from "./components/app/AppShell";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
 import { commands } from "@/bindings";
@@ -45,33 +32,6 @@ type OnboardingStep =
   | "replaceModel"
   | "done";
 
-const renderSettingsContent = (
-  section: SidebarSection,
-  onPreviewOnboarding: (step: OnboardingPreviewStep) => void,
-  onRunOnboarding: () => void,
-  onRunModelMigration: () => void,
-  onSectionChange: (section: SidebarSection) => void,
-) => {
-  if (section === "models") {
-    return (
-      <ModelsSettings onChangeLanguages={() => onSectionChange("general")} />
-    );
-  }
-  if (section === "debug") {
-    return (
-      <DebugSettings
-        onPreviewOnboarding={onPreviewOnboarding}
-        onRunOnboarding={onRunOnboarding}
-        onRunModelMigration={onRunModelMigration}
-      />
-    );
-  }
-
-  const ActiveComponent =
-    SECTIONS_CONFIG[section]?.component || SECTIONS_CONFIG.general.component;
-  return <ActiveComponent />;
-};
-
 function App() {
   const { t, i18n } = useTranslation();
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep | null>(
@@ -82,9 +42,6 @@ function App() {
   // Set when a returning user's selected model is a retired (ONNX) model that
   // is still on disk: they must update it before the app can transcribe.
   const [migrationModelId, setMigrationModelId] = useState<string | null>(null);
-  const [currentSection, setCurrentSection] =
-    useState<SidebarSection>("general");
-  const showHistory = useCallback(() => setCurrentSection("history"), []);
   const { settings, updateSetting } = useSettings();
   const direction = getLanguageDirection(i18n.language);
   const refreshAudioDevices = useSettingsStore(
@@ -94,11 +51,6 @@ function App() {
     (state) => state.refreshOutputDevices,
   );
   const hasCompletedPostOnboardingInit = useRef(false);
-  const settingsScrollRef = useRef<HTMLDivElement>(null);
-  // Reset the scroll position whenever the active section changes.
-  useLayoutEffect(() => {
-    settingsScrollRef.current?.scrollTo({ top: 0 });
-  }, [currentSection]);
 
   useEffect(() => {
     checkOnboardingStatus();
@@ -286,7 +238,7 @@ function App() {
         <button
           type="button"
           onClick={() => setOnboardingPreview(null)}
-          className="fixed top-4 end-4 z-50 rounded-lg border border-line bg-background px-4 py-2 text-sm font-medium text-text shadow-lg hover:bg-logo-primary/20 cursor-pointer"
+          className="v-btn v-btn-ink v-btn-sm fixed top-4 end-4 z-50"
         >
           {t("settings.debug.onboardingPreview.exitButton")}
         </button>
@@ -317,42 +269,12 @@ function App() {
     );
   } else {
     content = (
-      <div
-        dir={direction}
-        className="h-screen flex flex-col select-none cursor-default"
-      >
-        <ErrorBoundary context="What's New">
-          <WhatsNewGate />
-        </ErrorBoundary>
-        {/* Main content area that takes remaining space */}
-        <div className="flex-1 flex overflow-hidden">
-          <Sidebar
-            activeSection={currentSection}
-            onSectionChange={setCurrentSection}
-          />
-          {/* Scrollable content area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div ref={settingsScrollRef} className="flex-1 overflow-y-auto">
-              {/* Models fills the window: its table scrolls, not the page. */}
-              <div
-                className={`flex flex-col items-center p-4 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
-              >
-                <SecureInputWarning />
-                {renderSettingsContent(
-                  currentSection,
-                  setOnboardingPreview,
-                  runOnboarding,
-                  runModelMigration,
-                  setCurrentSection,
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Fixed footer at bottom */}
-        <Footer onShowHistory={showHistory} />
-        <FileDropOverlay onDropped={showHistory} />
-      </div>
+      <AppShell
+        direction={direction}
+        onPreviewOnboarding={setOnboardingPreview}
+        onRunOnboarding={runOnboarding}
+        onRunModelMigration={runModelMigration}
+      />
     );
   }
 
