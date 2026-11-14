@@ -105,6 +105,8 @@
   overflow: hidden;
   isolation: isolate;
   color: var(--v-text);
+  /* Keeps white text readable where light pages show through the clear glass. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   background: var(--v-bg);
   border-radius: 999px;
   box-shadow:
@@ -437,6 +439,7 @@
   background: var(--v-fill-hover);
 }
 .vbtn-primary {
+  text-shadow: none;
   background: var(--v-primary);
   box-shadow: var(--v-primary-edge);
   color: var(--v-primary-text);
