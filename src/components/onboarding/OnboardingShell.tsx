@@ -31,15 +31,18 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({
   return (
     <div
       data-onboarding=""
-      className="h-screen w-full flex overflow-hidden bg-background select-none cursor-default"
+      className="v-ob-wall h-screen w-full flex overflow-hidden select-none cursor-default"
     >
-      {/* Disabled buttons go neutral so the only pink one is the next step.
-          The column is capped so a long row truncates instead of widening. */}
-      <div className="relative m-auto grid h-[600px] w-[720px] shrink-0 grid-cols-[minmax(0,1fr)] grid-rows-[48px_1fr_76px] font-ui text-body leading-[1.6] text-text antialiased [&_button:disabled]:border-line [&_button:disabled]:bg-wash [&_button:disabled]:text-ink-3 [&_button:disabled]:opacity-100">
+      {/* macOS: the title bar is transparent; this strip drags the window. */}
+      <div className="v-drag" data-tauri-drag-region aria-hidden="true" />
+      {/* The prototype's onboarding window: a white card with a soft sky
+          wash at the top. The column is capped so a long row truncates
+          instead of widening. */}
+      <div className="v-ob-card relative m-auto grid h-[600px] w-[720px] shrink-0 grid-cols-[minmax(0,1fr)] grid-rows-[52px_1fr_80px] font-ui text-body leading-[1.55] text-text antialiased">
         <div className="relative flex items-center justify-between ps-[28px] pe-[20px]">
           {progress ? (
             <div
-              className="flex gap-[6px]"
+              className="v-steps"
               role="img"
               aria-label={t("onboarding.shell.progress", {
                 step: progress.index + 1,
@@ -49,13 +52,13 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({
               {Array.from({ length: progress.count }, (_, i) => (
                 <i
                   key={i}
-                  className={`h-[4px] rounded-[2px] transition-[width,background-color] duration-300 ease-glide ${
+                  className={
                     i === progress.index
-                      ? "w-[28px] bg-background-ui"
+                      ? "v-on"
                       : i < progress.index
-                        ? "w-[14px] bg-ink-3"
-                        : "w-[14px] bg-line"
-                  }`}
+                        ? "v-done"
+                        : ""
+                  }
                 />
               ))}
             </div>
@@ -65,13 +68,13 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({
           {pill}
         </div>
         <div className="min-h-0">{children}</div>
-        <div className="flex items-center justify-between gap-[16px] px-[28px] pb-[4px]">
+        <div className="flex items-center justify-between gap-[16px] px-[28px] pb-[8px]">
           {left ??
             (onBack ? (
               <button
                 type="button"
                 onClick={onBack}
-                className="-ms-[12px] cursor-pointer rounded-lg border border-transparent px-[12px] py-[7.5px] text-body font-medium text-ink-2 transition-colors hover:bg-wash hover:text-text focus:outline-none focus-visible:ring-1 focus-visible:ring-logo-primary"
+                className="v-btn v-btn-soft"
               >
                 {t("onboarding.shell.back")}
               </button>
@@ -163,7 +166,7 @@ export const ScreenTitle: React.FC<{
   className?: string;
 }> = ({ children, className = "" }) => (
   <h1
-    className={`m-0 font-display leading-[1.15] tracking-[-0.015em] text-balance text-title font-[650] ${className}`}
+    className={`m-0 font-display leading-[1.15] tracking-[-0.025em] text-balance text-title font-semibold ${className}`}
   >
     {children}
   </h1>
@@ -173,7 +176,9 @@ export const ScreenSub: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className = "" }) => (
-  <p className={`mt-[4px] mb-0 text-ink-2 text-pretty ${className}`}>
+  <p
+    className={`mt-[6px] mb-0 text-[14.5px] text-ink-2 text-pretty ${className}`}
+  >
     {children}
   </p>
 );

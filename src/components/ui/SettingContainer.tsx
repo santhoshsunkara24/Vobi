@@ -1,10 +1,10 @@
 import React from "react";
-import { InfoTooltip } from "./InfoTooltip";
 
 interface SettingContainerProps {
   title: string;
   description: string;
   children: React.ReactNode;
+  /** Kept for API compatibility: descriptions always show under the title. */
   descriptionMode?: "inline" | "tooltip";
   grouped?: boolean;
   layout?: "horizontal" | "stacked";
@@ -14,100 +14,55 @@ interface SettingContainerProps {
   grow?: boolean;
 }
 
+/** One setting row: title and quiet description on the left, control on the right. */
 export const SettingContainer: React.FC<SettingContainerProps> = ({
   title,
   description,
   children,
-  descriptionMode = "tooltip",
   grouped = false,
   layout = "horizontal",
   disabled = false,
-  tooltipPosition = "top",
   grow = false,
 }) => {
-  const info = (
-    <InfoTooltip
-      text={description}
-      placement={tooltipPosition === "bottom" ? "below" : "above"}
-    />
+  const frame = grouped ? "" : "v-card px-[18px]";
+  const label = (
+    <div className={disabled ? "opacity-45" : ""}>
+      <h3 className="m-0 text-[14.5px] leading-[1.35] font-semibold text-text">
+        {title}
+      </h3>
+      {description && (
+        <p className="mt-[2px] mb-0 max-w-[520px] text-[13px] leading-[1.45] text-ink-3 text-pretty">
+          {description}
+        </p>
+      )}
+    </div>
   );
 
-  const containerClasses = grouped
-    ? "px-4 p-2"
-    : "px-4 p-2 rounded-lg border border-line";
-
   if (layout === "stacked") {
-    if (descriptionMode === "tooltip") {
-      return (
-        <div className={containerClasses}>
-          <div className="flex items-center gap-2 mb-2">
-            <h3
-              className={`text-sm font-medium ${disabled ? "opacity-50" : ""}`}
-            >
-              {title}
-            </h3>
-            {info}
-          </div>
-          <div className="w-full">{children}</div>
-        </div>
-      );
-    }
-
     return (
-      <div className={containerClasses}>
-        <div className="mb-2">
-          <h3 className={`text-sm font-medium ${disabled ? "opacity-50" : ""}`}>
-            {title}
-          </h3>
-          <p className={`text-sm ${disabled ? "opacity-50" : ""}`}>
-            {description}
-          </p>
-        </div>
+      <div className={`py-[14px] ${frame}`}>
+        <div className="mb-[10px]">{label}</div>
         <div className="w-full">{children}</div>
       </div>
     );
   }
 
-  // Horizontal layout (default)
-  const horizontalContainerClasses = `${
-    grouped
-      ? "flex items-center justify-between min-h-12 px-4 p-2"
-      : "flex items-center justify-between min-h-12 px-4 p-2 rounded-lg border border-line"
-  }${grow ? " gap-4" : ""}`;
-  const titleClasses = grow ? "max-w-2/3 shrink-0" : "max-w-2/3";
-  const controlClasses = grow
-    ? "relative flex min-w-0 flex-1 justify-end"
-    : "relative";
-
-  if (descriptionMode === "tooltip") {
-    return (
-      <div className={horizontalContainerClasses}>
-        <div className={titleClasses}>
-          <div className="flex items-center gap-2">
-            <h3
-              className={`text-sm font-medium ${disabled ? "opacity-50" : ""}`}
-            >
-              {title}
-            </h3>
-            {info}
-          </div>
-        </div>
-        <div className={controlClasses}>{children}</div>
-      </div>
-    );
-  }
-
   return (
-    <div className={horizontalContainerClasses}>
-      <div className={titleClasses}>
-        <h3 className={`text-sm font-medium ${disabled ? "opacity-50" : ""}`}>
-          {title}
-        </h3>
-        <p className={`text-sm ${disabled ? "opacity-50" : ""}`}>
-          {description}
-        </p>
+    <div
+      className={`flex min-h-[62px] items-center justify-between gap-[14px] py-[10px] ${frame}`}
+    >
+      <div className={grow ? "max-w-[50%] shrink-0" : "min-w-0 flex-1"}>
+        {label}
       </div>
-      <div className={controlClasses}>{children}</div>
+      <div
+        className={
+          grow
+            ? "relative flex min-w-0 flex-1 justify-end"
+            : "relative shrink-0"
+        }
+      >
+        {children}
+      </div>
     </div>
   );
 };

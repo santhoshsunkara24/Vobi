@@ -1382,6 +1382,33 @@ pub fn set_post_process_selected_prompt(app: AppHandle, id: String) -> Result<()
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_show_idle_vobi_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.show_idle_vobi = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+/// Replaces the saved snippets, dropping any with an empty trigger or text.
+#[tauri::command]
+#[specta::specta]
+pub fn update_snippets(app: AppHandle, snippets: Vec<settings::Snippet>) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.snippets = snippets
+        .into_iter()
+        .map(|s| settings::Snippet {
+            id: s.id,
+            trigger: s.trigger.trim().to_string(),
+            text: s.text.trim().to_string(),
+        })
+        .filter(|s| !s.trigger.is_empty() && !s.text.is_empty())
+        .collect();
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn change_mute_while_recording_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.mute_while_recording = enabled;

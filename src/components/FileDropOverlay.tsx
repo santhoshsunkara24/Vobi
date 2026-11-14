@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import HandyHand from "./icons/HandyHand";
+import { VobiCloud } from "./vobi/VobiCloud";
 import { transcribeFiles } from "./settings/history/transcribeFiles";
 
 interface FileDropOverlayProps {
@@ -39,10 +39,10 @@ export const FileDropOverlay: React.FC<FileDropOverlayProps> = ({
   if (!dragging) return null;
 
   return (
-    <div className="fixed inset-0 z-50 p-3 bg-background/85 pointer-events-none">
-      <div className="h-full w-full flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-logo-primary text-center">
-        <HandyHand width={44} height={47} />
-        <p className="text-base font-semibold">
+    <div className="fixed inset-0 z-50 p-3 bg-canvas/85 backdrop-blur-[6px] pointer-events-none animate-fade">
+      <div className="h-full w-full flex flex-col items-center justify-center gap-2 rounded-[24px] border-2 border-dashed border-sky-300 bg-accent-soft/60 text-center">
+        <VobiCloud size={72} state="listening" />
+        <p className="text-[17px] font-semibold tracking-[-0.015em]">
           {t("settings.history.dropTitle")}
         </p>
         <p className="text-sm text-ink-2">

@@ -21,35 +21,28 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    "font-medium rounded-lg border focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+    "inline-flex items-center justify-center gap-1.5 font-semibold rounded-full border whitespace-nowrap select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 transition-[background-color,border-color,color,filter,transform] duration-150 ease-glide active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer";
 
   const variantClasses = {
-    primary:
-      "text-white bg-background-ui border-background-ui hover:bg-background-ui/80 hover:border-background-ui/80 focus:ring-1 focus:ring-background-ui",
+    // Ink: the one primary action on a screen.
+    primary: "text-white bg-ink border-transparent hover:brightness-[1.15]",
     "primary-soft":
-      "text-text bg-logo-primary/20 border-transparent hover:bg-logo-primary/20 focus:ring-1 focus:ring-logo-primary",
-    secondary:
-      "bg-wash border-line hover:bg-logo-primary/20 hover:border-logo-primary focus:outline-none",
+      "text-accent-text bg-accent-soft border-transparent hover:bg-sky-100",
+    secondary: "text-text bg-surface-2 border-transparent hover:bg-surface-3",
     // For screens where secondary's grey fill reads as disabled (onboarding)
-    outline:
-      "text-text bg-background border-line-strong hover:border-plum focus-visible:ring-1 focus-visible:ring-logo-primary",
-    // Secondary's neutral resting look, but hover/focus use the semantic
-    // --color-warning token (theme.css) instead of the pink accent — for
-    // buttons sitting on warning surfaces like SecureInputWarning
-    warning:
-      "text-text bg-wash border-line hover:bg-warning-wash hover:border-warning focus:ring-1 focus:ring-warning",
-    danger:
-      "text-background bg-error border-error hover:bg-error/80 hover:border-error/80 focus:ring-1 focus:ring-error",
+    outline: "text-text bg-surface border-line hover:bg-surface-2",
+    // For buttons sitting on warning surfaces like SecureInputWarning
+    warning: "text-text bg-surface border-transparent hover:bg-warning-wash",
+    danger: "text-white bg-error border-transparent hover:brightness-110",
     "danger-ghost":
       "text-error border-transparent hover:bg-error-wash focus:bg-error-wash",
-    ghost:
-      "text-current border-transparent hover:bg-wash hover:border-logo-primary focus:bg-line",
+    ghost: "text-ink-2 border-transparent hover:text-text hover:bg-surface-3",
   };
 
   const sizeClasses = {
-    sm: "px-2 py-1 text-xs",
-    md: "px-4 py-[5px] text-sm",
-    lg: "px-4 py-2 text-base",
+    sm: "h-7 px-3 text-[12.5px]",
+    md: "h-[34px] px-[14px] text-[13.5px]",
+    lg: "h-[42px] px-5 text-[14.5px]",
   };
 
   return (

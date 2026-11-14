@@ -90,16 +90,17 @@ const NoticeCard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     };
   }, [panelOpen, hide]);
 
-  // Over dialogs. Onboarding has no footer, and its Continue button is where
-  // the card would be, so there it sits below the window's top bar.
-  const position = footerShown ? "bottom-9" : "top-14";
+  // Over dialogs. In the main window it rises beside the sidebar's status
+  // card, where the notice chip is. Onboarding has no chip, and its Continue
+  // button is where the card would be, so there it sits below the top bar.
+  const position = footerShown ? "bottom-[18px] start-[240px]" : "top-14 end-4";
 
   return (
     <div
       data-notices
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`fixed ${position} end-4 z-[60] max-h-[60vh] w-80 divide-y divide-line overflow-y-auto rounded-lg border border-line bg-background text-xs text-ink-2 shadow-lg motion-safe:animate-rise`}
+      className={`fixed ${position} z-[60] max-h-[60vh] w-80 divide-y divide-[var(--border)] overflow-y-auto rounded-[16px] bg-surface text-xs text-ink-2 shadow-pop motion-safe:animate-rise`}
     >
       {children}
     </div>
