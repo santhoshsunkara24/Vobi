@@ -13,6 +13,24 @@ export const commands = {
 async setOverlayGlass(x: number, y: number, width: number, height: number, radius: number, alpha: number, visible: boolean) : Promise<boolean> {
     return await TAURI_INVOKE("set_overlay_glass", { x, y, width, height, radius, alpha, visible });
 },
+/**
+ * Preview "Paste": put the refined text in place of the selection.
+ */
+async refineAccept() : Promise<void> {
+    await TAURI_INVOKE("refine_accept");
+},
+/**
+ * Preview "Refine again": ask for a better, different version.
+ */
+async refineAgain() : Promise<void> {
+    await TAURI_INVOKE("refine_again");
+},
+/**
+ * Preview "✕": keep the original text.
+ */
+async refineDismiss() : Promise<void> {
+    await TAURI_INVOKE("refine_dismiss");
+},
 async changeBinding(id: string, binding: string) : Promise<Result<BindingResponse, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_binding", { id, binding }) };

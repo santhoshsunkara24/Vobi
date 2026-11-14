@@ -59,6 +59,10 @@ const OVERLAY_HEIGHT: f64 = 84.0;
 const OVERLAY_STREAM_WIDTH: f64 = 424.0;
 const OVERLAY_STREAM_HEIGHT: f64 = 168.0;
 
+// Refine preview card: 420w x up to ~210h, plus the 14px room around it.
+const OVERLAY_PREVIEW_WIDTH: f64 = 452.0;
+const OVERLAY_PREVIEW_HEIGHT: f64 = 250.0;
+
 const NOTICE_STATE: &str = "notice";
 const LIVE_NOTICE_STATE: &str = "live_notice";
 
@@ -81,6 +85,9 @@ fn notice_state(session_is_live: bool) -> &'static str {
 
 /// Overlay window size (logical) for a given UI state.
 fn overlay_dimensions(state: &str) -> (f64, f64) {
+    if state == "preview" {
+        return (OVERLAY_PREVIEW_WIDTH, OVERLAY_PREVIEW_HEIGHT);
+    }
     if is_live_state(state) {
         (OVERLAY_STREAM_WIDTH, OVERLAY_STREAM_HEIGHT)
     } else {
@@ -804,6 +811,28 @@ struct FixPayload {
     kind: &'static str,
     fixes: Vec<crate::spellfix::SpellFix>,
     words: usize,
+}
+
+#[derive(serde::Serialize, Clone)]
+struct PreviewPayload {
+    text: String,
+    words: usize,
+    busy: bool,
+}
+
+/// Shows the Refine preview card (stays until the user picks an action).
+pub fn show_refine_preview(app_handle: &AppHandle, text: &str, busy: bool) {
+    show_overlay_state(app_handle, "preview");
+    if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
+        let _ = overlay_window.emit(
+            "overlay-preview",
+            PreviewPayload {
+                text: text.to_string(),
+                words: text.split_whitespace().count(),
+                busy,
+            },
+        );
+    }
 }
 
 /// Shows "Refining…" while the AI rewrites a selection.

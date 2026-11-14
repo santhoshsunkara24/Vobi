@@ -4,6 +4,8 @@ mod apple_intelligence;
 mod audio_feedback;
 pub mod audio_toolkit;
 mod autostart;
+#[cfg(target_os = "macos")]
+mod ax_text;
 mod catalog;
 mod chinese_script;
 pub mod cli;
@@ -690,6 +692,9 @@ pub fn run(cli_args: CliArgs) {
     let specta_builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
             glass::set_overlay_glass,
+            fix_selection::refine_accept,
+            fix_selection::refine_again,
+            fix_selection::refine_dismiss,
             shortcut::change_binding,
             shortcut::reset_binding,
             shortcut::change_shortcut_activation_setting,

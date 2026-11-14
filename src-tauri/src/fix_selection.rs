@@ -4,7 +4,9 @@
 use crate::actions::{post_process_transcription, PostProcessOutcome};
 use crate::clipboard::{copy_selection, replace_selection};
 use crate::input::wait_for_modifiers_released;
-use crate::overlay::{show_fix_result, show_refining_overlay, FixResult};
+use crate::overlay::{
+    hide_recording_overlay, show_fix_result, show_refine_preview, show_refining_overlay, FixResult,
+};
 use crate::settings::{
     get_settings, AppSettings, APPLE_INTELLIGENCE_PROVIDER_ID, GROQ_DEFAULT_MODEL,
     VOBI_REFINE_PROMPT_ID,
@@ -12,11 +14,51 @@ use crate::settings::{
 use crate::spellfix;
 use log::{info, warn};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Mutex;
 use std::time::Duration;
 use tauri::AppHandle;
 
 /// One fix at a time: a second press while one is running is ignored.
 static RUNNING: AtomicBool = AtomicBool::new(false);
+
+/// The selected text, and (on macOS) the element it lives in, so it can be
+/// replaced in place without the clipboard.
+struct Grabbed {
+    text: String,
+    #[cfg(target_os = "macos")]
+    focus: Option<crate::ax_text::FocusedText>,
+}
+
+/// Reads the current selection: directly through Accessibility where the app
+/// allows it (macOS), otherwise by copying it.
+fn grab(app: &AppHandle) -> Result<Option<Grabbed>, String> {
+    #[cfg(target_os = "macos")]
+    if let Some((focus, text)) = crate::ax_text::focused_selection() {
+        if !text.trim().is_empty() {
+            return Ok(Some(Grabbed {
+                text,
+                focus: Some(focus),
+            }));
+        }
+    }
+    Ok(copy_selection(app)?.map(|text| Grabbed {
+        text,
+        #[cfg(target_os = "macos")]
+        focus: None,
+    }))
+}
+
+/// Replaces the grabbed selection with `new`, in place where possible.
+fn put(app: &AppHandle, grabbed: &Grabbed, new: &str) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    if let Some(focus) = &grabbed.focus {
+        if crate::ax_text::replace_selection(focus, &grabbed.text, new) {
+            return Ok(());
+        }
+        info!("Selection isn't editable directly here; using the clipboard");
+    }
+    replace_selection(app, new)
+}
 
 pub fn run(app: &AppHandle) {
     if RUNNING.swap(true, Ordering::SeqCst) {
@@ -41,22 +83,22 @@ fn fix(app: &AppHandle) -> FixResult {
     wait_for_modifiers_released(Duration::from_millis(1500));
     std::thread::sleep(Duration::from_millis(40));
 
-    let selected = match copy_selection(app) {
-        Ok(Some(text)) => text,
+    let grabbed = match grab(app) {
+        Ok(Some(g)) => g,
         Ok(None) => return FixResult::NothingSelected,
         Err(e) => {
-            warn!("Fix selection: could not copy the selection: {e}");
+            warn!("Fix selection: could not read the selection: {e}");
             return FixResult::Failed;
         }
     };
 
     let custom_words = get_settings(app).custom_words;
-    let result = spellfix::correct(&selected, &custom_words);
+    let result = spellfix::correct(&grabbed.text, &custom_words);
     if result.fixes.is_empty() {
         return FixResult::Clean;
     }
     info!("Fix selection: {} correction(s)", result.fixes.len());
-    match replace_selection(app, &result.text) {
+    match put(app, &grabbed, &result.text) {
         Ok(()) => FixResult::Fixed(result.fixes),
         Err(e) => {
             warn!("Fix selection: could not replace the selection: {e}");
@@ -65,7 +107,17 @@ fn fix(app: &AppHandle) -> FixResult {
     }
 }
 
-/// "Refine selection": rewrite the selected text with the AI and put it back.
+/// A refined text waiting for the user to approve it in the preview.
+struct Pending {
+    grabbed: Grabbed,
+    refined: String,
+    settings: AppSettings,
+}
+
+static PENDING: Mutex<Option<Pending>> = Mutex::new(None);
+
+/// "Refine selection": rewrite the selected text with the AI and show it as a
+/// preview; the user then pastes it, asks for another try, or closes it.
 pub fn run_refine(app: &AppHandle) {
     if RUNNING.swap(true, Ordering::SeqCst) {
         return;
@@ -74,8 +126,9 @@ pub fn run_refine(app: &AppHandle) {
     let spawned = std::thread::Builder::new()
         .name("refine-selection".into())
         .spawn(move || {
-            let result = refine(&app);
-            show_fix_result(&app, result);
+            if let Some(result) = refine(&app) {
+                show_fix_result(&app, result);
+            }
             RUNNING.store(false, Ordering::SeqCst);
         });
     if let Err(e) = spawned {
@@ -84,43 +137,119 @@ pub fn run_refine(app: &AppHandle) {
     }
 }
 
-fn refine(app: &AppHandle) -> FixResult {
+/// Returns a result to show in the pill, or `None` when the preview is up.
+fn refine(app: &AppHandle) -> Option<FixResult> {
     let Some(settings) = refine_settings(app) else {
-        return FixResult::NoEngine;
+        return Some(FixResult::NoEngine);
     };
     wait_for_modifiers_released(Duration::from_millis(1500));
     std::thread::sleep(Duration::from_millis(40));
 
-    let selected = match copy_selection(app) {
-        Ok(Some(text)) => text,
-        Ok(None) => return FixResult::NothingSelected,
+    let grabbed = match grab(app) {
+        Ok(Some(g)) => g,
+        Ok(None) => return Some(FixResult::NothingSelected),
         Err(e) => {
-            warn!("Refine selection: could not copy the selection: {e}");
-            return FixResult::Failed;
+            warn!("Refine selection: could not read the selection: {e}");
+            return Some(FixResult::Failed);
         }
     };
 
     show_refining_overlay(app);
-    let refined =
-        match tauri::async_runtime::block_on(post_process_transcription(&settings, &selected)) {
-            PostProcessOutcome::Done(text) if !text.trim().is_empty() => text,
-            _ => return FixResult::Failed,
+    let Some(refined) = ask_ai(&settings, &grabbed.text) else {
+        return Some(FixResult::Failed);
+    };
+    if refined.trim() == grabbed.text.trim() {
+        return Some(FixResult::Clean);
+    }
+    show_refine_preview(app, &refined, false);
+    *PENDING.lock().unwrap_or_else(|e| e.into_inner()) = Some(Pending {
+        grabbed,
+        refined,
+        settings,
+    });
+    None
+}
+
+fn ask_ai(settings: &AppSettings, text: &str) -> Option<String> {
+    match tauri::async_runtime::block_on(post_process_transcription(settings, text)) {
+        PostProcessOutcome::Done(t) if !t.trim().is_empty() => Some(t.trim().to_string()),
+        _ => None,
+    }
+}
+
+/// Keeps the selection's surrounding whitespace, so text doesn't jump.
+fn with_original_spacing(original: &str, refined: &str) -> String {
+    let lead = &original[..original.len() - original.trim_start().len()];
+    let trail = &original[original.trim_end().len()..];
+    format!("{lead}{}{trail}", refined.trim())
+}
+
+/// Preview "Paste": put the refined text in place of the selection.
+#[tauri::command]
+#[specta::specta]
+pub fn refine_accept(app: AppHandle) {
+    let Some(pending) = PENDING.lock().unwrap_or_else(|e| e.into_inner()).take() else {
+        hide_recording_overlay(&app);
+        return;
+    };
+    std::thread::spawn(move || {
+        let text = with_original_spacing(&pending.grabbed.text, &pending.refined);
+        let words = text.split_whitespace().count();
+        let result = match put(&app, &pending.grabbed, &text) {
+            Ok(()) => FixResult::Refined(words),
+            Err(e) => {
+                warn!("Refine selection: could not replace the selection: {e}");
+                FixResult::Failed
+            }
         };
-    // Keep the selection's surrounding whitespace, so text doesn't jump.
-    let lead = &selected[..selected.len() - selected.trim_start().len()];
-    let trail = &selected[selected.trim_end().len()..];
-    let refined = format!("{lead}{}{trail}", refined.trim());
-    if refined.trim() == selected.trim() {
-        return FixResult::Clean;
+        show_fix_result(&app, result);
+    });
+}
+
+/// Preview "Refine again": ask for a better, different version.
+#[tauri::command]
+#[specta::specta]
+pub fn refine_again(app: AppHandle) {
+    let (original, previous, mut settings) = {
+        let guard = PENDING.lock().unwrap_or_else(|e| e.into_inner());
+        let Some(p) = guard.as_ref() else {
+            return;
+        };
+        (
+            p.grabbed.text.clone(),
+            p.refined.clone(),
+            p.settings.clone(),
+        )
+    };
+    show_refine_preview(&app, &previous, true);
+    if let Some(prompt) = settings
+        .post_process_prompts
+        .iter_mut()
+        .find(|p| p.id == VOBI_REFINE_PROMPT_ID)
+    {
+        prompt.prompt.push_str(&format!(
+            "\n\nA previous rewrite was:\n<previous>\n{previous}\n</previous>\nThe person wants a better version: clearer, more natural and more concise, and noticeably different from the previous one. Do not repeat it."
+        ));
     }
-    let words = refined.split_whitespace().count();
-    match replace_selection(app, &refined) {
-        Ok(()) => FixResult::Refined(words),
-        Err(e) => {
-            warn!("Refine selection: could not replace the selection: {e}");
-            FixResult::Failed
+    std::thread::spawn(move || {
+        let refined = ask_ai(&settings, &original);
+        let mut guard = PENDING.lock().unwrap_or_else(|e| e.into_inner());
+        let Some(p) = guard.as_mut() else {
+            return; // closed meanwhile
+        };
+        if let Some(text) = refined {
+            p.refined = text;
         }
-    }
+        show_refine_preview(&app, &p.refined, false);
+    });
+}
+
+/// Preview "✕": keep the original text.
+#[tauri::command]
+#[specta::specta]
+pub fn refine_dismiss(app: AppHandle) {
+    PENDING.lock().unwrap_or_else(|e| e.into_inner()).take();
+    hide_recording_overlay(&app);
 }
 
 /// Settings tuned for Refine: the user's own AI if it's set up, otherwise free

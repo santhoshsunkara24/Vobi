@@ -1009,7 +1009,10 @@
     "refining": "Refining…",
     "refined": "Refined",
     "undoHint": "· {{keys}} to undo",
-    "needAiKey": "Add a free AI key in Settings to use Refine"
+    "needAiKey": "Add a free AI key in Settings to use Refine",
+    "paste": "Paste",
+    "refineAgain": "Refine again",
+    "keepOriginal": "Keep original"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} 可能正在阻擋 1 個快捷鍵",

@@ -346,6 +346,94 @@
   white-space: nowrap;
 }
 
+/* ---------------------------------------------------------------- refine preview */
+.vcard.vpreview {
+  width: 420px;
+  border-radius: 24px;
+  padding: 6px 12px 12px 6px;
+  gap: 4px;
+  white-space: normal;
+}
+.vprev-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+}
+.vprev-head .vfix,
+.vprev-head .vshimmer {
+  flex: 1;
+}
+.vprev-x {
+  margin-left: auto;
+}
+.vprev-text {
+  margin: 0 4px 0 12px;
+  max-height: 104px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--v-text);
+  white-space: pre-wrap;
+  transition:
+    opacity 200ms ease-out,
+    filter 200ms ease-out;
+}
+.vprev-text::-webkit-scrollbar {
+  display: none;
+}
+.vprev-text.is-busy {
+  opacity: 0.45;
+  filter: blur(1.5px);
+}
+.vprev-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.vbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  font: 600 13.5px var(--v-font);
+  cursor: pointer;
+  transition:
+    background 120ms ease-out,
+    transform 120ms var(--v-ease),
+    opacity 120ms;
+}
+.vbtn svg {
+  width: 14px;
+  height: 14px;
+}
+.vbtn:active {
+  transform: scale(0.96);
+}
+.vbtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.vbtn-soft {
+  background: rgba(14, 34, 56, 0.07);
+  color: var(--v-text);
+}
+.vbtn-soft:hover {
+  background: rgba(14, 34, 56, 0.12);
+}
+.vbtn-primary {
+  background: #0e1620;
+  color: #fff;
+}
+.vbtn-primary:hover {
+  background: #1d2733;
+}
+
 /* ---------------------------------------------------------------- live card */
 .vcard.live {
   width: var(--v-w-listen);

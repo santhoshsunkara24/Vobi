@@ -25,6 +25,7 @@ type OverlayState =
   | "done"
   | "fix"
   | "refining"
+  | "preview"
   | "notice"
   | "live_notice";
 
@@ -52,6 +53,9 @@ type FixResult = {
   words: number;
 };
 
+// The Refine preview: the rewritten text, waiting for Paste / Refine again.
+type Preview = { text: string; words: number; busy: boolean };
+
 const UNDO_KEYS = /Mac/.test(navigator.userAgent) ? "⌘Z" : "Ctrl+Z";
 
 const RecordingOverlay: React.FC = () => {
@@ -75,6 +79,7 @@ const RecordingOverlay: React.FC = () => {
   const [elapsed, setElapsed] = useState(0);
   const [doneWords, setDoneWords] = useState(0);
   const [fix, setFix] = useState<FixResult | null>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
   const [session, setSession] = useState(0);
   const [position, setPosition] = useState<"top" | "bottom">("bottom");
   const [overflowing, setOverflowing] = useState(false);
@@ -150,6 +155,17 @@ const RecordingOverlay: React.FC = () => {
         setIsVisible(true);
       });
 
+      const unlistenPreview = await listen<Preview>(
+        "overlay-preview",
+        (event) => {
+          clearTimeout(fadeTimerRef.current);
+          setPreview(event.payload);
+          setNotice(null);
+          setState("preview");
+          setIsVisible(true);
+        },
+      );
+
       const unlistenHide = await listen("hide-overlay", () => {
         setIsVisible(false);
         setCaptureReady(false);
@@ -214,6 +230,7 @@ const RecordingOverlay: React.FC = () => {
         unlistenShow();
         unlistenDone();
         unlistenFix();
+        unlistenPreview();
         unlistenHide();
         unlistenReady();
         unlistenLevel();
@@ -502,6 +519,86 @@ const RecordingOverlay: React.FC = () => {
   const dismissNotice = shownNotice
     ? () => commands.dismissOverlayNotice()
     : undefined;
+
+  // ---- Refine preview: read it, then Paste or Refine again ----
+  if (state === "preview" && preview) {
+    return (
+      <div
+        dir={direction}
+        className={`vstage ${position} vfade ${isVisible ? "show" : ""} ${nativeGlass ? "native-glass" : ""}`}
+      >
+        <div ref={cardRef} className="vcard vpreview">
+          <div className="vprev-head">
+            {cloud(preview.busy ? "thinking" : "done")}
+            {preview.busy ? (
+              <span className="vshimmer">{t("overlay.refining")}</span>
+            ) : (
+              <span className="vfix">
+                <b>{t("overlay.refined")}</b>
+                <span className="vfix-list">
+                  <span>{t("overlay.words", { count: preview.words })}</span>
+                </span>
+              </span>
+            )}
+            <button
+              className="vround vprev-x"
+              aria-label={t("overlay.keepOriginal")}
+              title={t("overlay.keepOriginal")}
+              onClick={() => commands.refineDismiss()}
+            >
+              <svg viewBox="0 0 12 12" aria-hidden="true">
+                <path
+                  d="M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <div className={`vprev-text ${preview.busy ? "is-busy" : ""}`}>
+            {preview.text}
+          </div>
+          <div className="vprev-actions">
+            <button
+              className="vbtn vbtn-soft"
+              disabled={preview.busy}
+              onClick={() => commands.refineAgain()}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v2.8h-2.8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              {t("overlay.refineAgain")}
+            </button>
+            <button
+              className="vbtn vbtn-primary"
+              disabled={preview.busy}
+              onClick={() => commands.refineAccept()}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M3.5 8.5l3 3 6-7"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              {t("overlay.paste")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ---- Live overlay: the pill opens upward (or downward) into a text card ----
   const liveNotice = state === "live_notice" ? shownNotice : null;
