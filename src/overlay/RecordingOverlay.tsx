@@ -58,6 +58,12 @@ type Preview = { text: string; words: number; busy: boolean };
 
 const UNDO_KEYS = /Mac/.test(navigator.userAgent) ? "⌘Z" : "Ctrl+Z";
 
+// Windows' Acrylic (glass.rs) draws no rim of its own, so the CSS keeps one.
+document.documentElement.classList.toggle(
+  "vwin",
+  /Windows/.test(navigator.userAgent),
+);
+
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
@@ -89,7 +95,7 @@ const RecordingOverlay: React.FC = () => {
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
   const capRef = useRef<HTMLDivElement>(null);
-  // The pill's card: native glass (macOS) is kept exactly underneath it.
+  // The pill's card: native glass (macOS, Windows 11) is kept exactly underneath it.
   const cardRef = useRef<HTMLDivElement>(null);
   const [nativeGlass, setNativeGlass] = useState(false);
   const pinnedRef = useRef(true);

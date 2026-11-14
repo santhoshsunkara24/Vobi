@@ -129,6 +129,12 @@
 .native-glass .vcard::after {
   display: none;
 }
+/* Windows 11: DWM's Acrylic sits underneath (glass.rs), clipped to the pill.
+   It has no edge highlight, so keep the thin light rim; a drop shadow would
+   be clipped away with the rest of the window. */
+.vwin .native-glass .vcard {
+  box-shadow: var(--v-rim);
+}
 /* A soft sheen across the top half, like light on glass. */
 .vcard::after {
   content: "";
