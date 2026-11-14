@@ -1045,6 +1045,15 @@ pub fn run(cli_args: CliArgs) {
                     .hidden_title(true);
             }
 
+            // Windows: no native title bar either, so the page runs edge to
+            // edge like on macOS; the page draws Windows 11-style caption
+            // buttons (WindowControls.tsx). The shadow keeps the rounded
+            // corners, border and resize edges Windows gives a normal window.
+            #[cfg(target_os = "windows")]
+            {
+                win_builder = win_builder.decorations(false).shadow(true);
+            }
+
             if let Some(data_dir) = portable::data_dir() {
                 win_builder = win_builder.data_directory(data_dir.join("webview"));
             }

@@ -31,6 +31,60 @@
 :root[data-platform="macos"] .v-drag {
   display: block;
 }
+/* Windows: Vobi draws its own title bar (WindowControls), so the page runs
+   edge to edge like on macOS. The strip drags the window, leaving the
+   caption buttons free. */
+:root[data-platform="windows"] .v-drag {
+  display: block;
+  height: 32px;
+  inset-inline-end: 138px;
+}
+.v-caption {
+  position: fixed;
+  top: 0;
+  inset-inline-end: 0;
+  z-index: 60;
+  display: flex;
+  height: 32px;
+}
+.v-caption-btn {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: default;
+  transition: background-color 80ms linear;
+}
+.v-caption-btn svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  shape-rendering: geometricPrecision;
+}
+.v-caption-btn:hover {
+  background: rgba(0, 0, 0, 0.0373);
+}
+.v-caption-btn:active {
+  background: rgba(0, 0, 0, 0.0241);
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+}
+.v-caption-close:hover {
+  background: #c42b1c;
+  color: #fff;
+}
+.v-caption-close:active {
+  background: #c83c31;
+  color: rgba(255, 255, 255, 0.7);
+}
+.v-caption-btn:focus-visible {
+  outline: 2px solid var(--accent, #2fb1f4);
+  outline-offset: -2px;
+}
 
 .v-rail {
   display: flex;
@@ -39,7 +93,8 @@
   padding: 22px 0 18px;
   min-height: 0;
 }
-:root[data-platform="macos"] .v-rail {
+:root[data-platform="macos"] .v-rail,
+:root[data-platform="windows"] .v-rail {
   /* Room for the traffic lights over the transparent title bar. */
   padding-top: 44px;
 }
@@ -139,6 +194,10 @@
 }
 :root[data-platform="macos"] .v-panel {
   margin-top: 12px;
+}
+/* Windows: the panel starts just under the caption buttons. */
+:root[data-platform="windows"] .v-panel {
+  margin-top: 32px;
 }
 [dir="rtl"] .v-panel {
   margin: 10px 0 10px 10px;
@@ -900,9 +959,6 @@ textarea.v-field {
     var(--surface);
   border: 1px solid var(--hairline);
   animation: v-ob-in var(--spring-dur) var(--spring);
-}
-:root[data-platform="windows"] .v-ob-card {
-  border-radius: 12px;
 }
 @keyframes v-ob-in {
   from {

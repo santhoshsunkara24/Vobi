@@ -22,6 +22,8 @@ import { useSettingsStore } from "./stores/settingsStore";
 import { commands } from "@/bindings";
 import { deleteRetiredModel } from "@/lib/models/retired";
 import { NoticePanel } from "@/components/notices/NoticePanel";
+import { WindowControls } from "@/components/app/WindowControls";
+import { currentOsType } from "@/hooks/useOsType";
 import { getLanguageDirection, initializeRTL } from "@/lib/utils/rtl";
 
 // flow is first-run onboarding; the rest are single screens for returning users.
@@ -282,6 +284,8 @@ function App() {
     <>
       {content}
       <NoticePanel />
+      {/* Windows: the window has no native title bar, so Vobi draws its own. */}
+      {currentOsType() === "windows" && <WindowControls />}
     </>
   );
 }

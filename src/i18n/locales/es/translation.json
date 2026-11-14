@@ -1143,5 +1143,11 @@
         "description": "Keep the little cloud on screen between dictations"
       }
     }
+  },
+  "windowControls": {
+    "minimize": "Minimizar",
+    "maximize": "Maximizar",
+    "restore": "Restaurar",
+    "close": "Cerrar"
   }
 }

@@ -257,3 +257,14 @@
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
 }
+/* Windows: show the thumb only while the pointer is over the scrolling area,
+   like macOS's overlay scrollbars, instead of a bar that's always there. */
+:root[data-platform="windows"] ::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+:root[data-platform="windows"] :hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+}
+:root[data-platform="windows"] ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
