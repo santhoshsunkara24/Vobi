@@ -169,6 +169,22 @@
       "cancel": "Hủy",
       "tryIt": "Tự thử xem"
     },
+    "tricks": {
+      "title": "Sửa và trau chuốt những gì bạn đã viết",
+      "subtitle": "Chọn văn bản trong bất kỳ ứng dụng nào, rồi nhấn phím tắt.",
+      "fixTab": "Chính tả",
+      "refineTab": "Trau chuốt",
+      "fixCaption": "Vobi sửa chính tả tiếng Anh ngay tại chỗ, và thanh nhỏ cho bạn biết những gì đã thay đổi. Hoạt động ngoại tuyến.",
+      "refineCaptionMac": "Vobi viết lại rõ ràng hơn và cho bạn xem trước. Dán vào hoặc trau chuốt lại. Miễn phí với Apple Intelligence trên các máy Mac được hỗ trợ.",
+      "refineCaptionOther": "Vobi viết lại rõ ràng hơn và cho bạn xem trước. Dán vào hoặc trau chuốt lại. Thêm khóa Groq miễn phí trong Cài đặt để bật.",
+      "fixLabel": "Một ghi chú có lỗi chính tả được chọn, phím tắt được nhấn, và các từ được sửa ngay tại chỗ.",
+      "refineLabel": "Văn bản lộn xộn được chọn, phím tắt được nhấn, một bản rõ ràng hơn hiện trong phần xem trước và được dán vào.",
+      "fixNoteTitle": "Kế hoạch ăn trưa",
+      "refineNoteTitle": "Cập nhật nhóm",
+      "refineBefore": "kiểu là ra mắt dời sang tuần sau vì thiết kế chưa xong mà test cũng chưa bắt đầu",
+      "refineAfter": "Buổi ra mắt dời sang tuần sau, vì thiết kế chưa xong và việc kiểm thử vẫn chưa bắt đầu.",
+      "fixedThree": "Đã sửa 3"
+    },
     "try": {
       "title": "Thử xem nào!",
       "subtitle": "Vobi ở ngay góc màn hình để hướng dẫn bạn",

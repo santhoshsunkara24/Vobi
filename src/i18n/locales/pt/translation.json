@@ -169,6 +169,22 @@
       "cancel": "Cancelar",
       "tryIt": "Experimente você mesmo"
     },
+    "tricks": {
+      "title": "Corrija e aprimore o que você escreveu",
+      "subtitle": "Selecione um texto em qualquer app e pressione um atalho.",
+      "fixTab": "Ortografia",
+      "refineTab": "Refinar",
+      "fixCaption": "O Vobi corrige a ortografia em inglês direto no texto, e a pílula mostra o que mudou. Funciona offline.",
+      "refineCaptionMac": "O Vobi reescreve com mais clareza e mostra uma prévia primeiro. Cole ou refine de novo. Grátis com a Apple Intelligence em Macs compatíveis.",
+      "refineCaptionOther": "O Vobi reescreve com mais clareza e mostra uma prévia primeiro. Cole ou refine de novo. Adicione uma chave gratuita do Groq em Ajustes para ativar.",
+      "fixLabel": "Uma nota com erros de ortografia é selecionada, o atalho é pressionado e as palavras são corrigidas no lugar.",
+      "refineLabel": "Um texto bagunçado é selecionado, o atalho é pressionado, uma versão mais clara aparece numa prévia e é colada.",
+      "fixNoteTitle": "Almoço",
+      "refineNoteTitle": "Novidades da equipe",
+      "refineBefore": "entao basicamente o lançamento vai pra semana q vem pq o design nao ta pronto e os testes nem começaram",
+      "refineAfter": "O lançamento foi adiado para a próxima semana, porque o design não está pronto e os testes ainda não começaram.",
+      "fixedThree": "3 corrigidas"
+    },
     "try": {
       "title": "Experimente!",
       "subtitle": "O Vobi está no canto para guiar você",

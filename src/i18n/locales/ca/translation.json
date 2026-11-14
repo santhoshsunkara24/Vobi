@@ -169,6 +169,22 @@
       "cancel": "Cancel·la",
       "tryIt": "Proveu-ho vosaltres mateixos"
     },
+    "tricks": {
+      "title": "Corregeix i poleix el que has escrit",
+      "subtitle": "Selecciona text en qualsevol app i prem una drecera.",
+      "fixTab": "Ortografia",
+      "refineTab": "Refina",
+      "fixCaption": "Vobi corregeix l’ortografia anglesa just on és el text, i la píndola et diu què ha canviat. Funciona sense connexió.",
+      "refineCaptionMac": "Vobi el reescriu amb més claredat i primer te’n mostra una previsualització. Enganxa’l o torna’l a refinar. Gratuït amb Apple Intelligence als Mac compatibles.",
+      "refineCaptionOther": "Vobi el reescriu amb més claredat i primer te’n mostra una previsualització. Enganxa’l o torna’l a refinar. Afegeix una clau gratuïta de Groq a Configuració per activar-ho.",
+      "fixLabel": "Se selecciona una nota amb faltes, es prem la drecera i les paraules es corregeixen al seu lloc.",
+      "refineLabel": "Se selecciona un text desordenat, es prem la drecera, apareix una versió més clara en una previsualització i s’enganxa.",
+      "fixNoteTitle": "Dinar",
+      "refineNoteTitle": "Novetats de l’equip",
+      "refineBefore": "doncs bàsicament el llançament passa a la setmana que ve pq el disseny no està i les proves tampoc han començat",
+      "refineAfter": "El llançament passa a la setmana que ve, perquè el disseny no està acabat i les proves encara no han començat.",
+      "fixedThree": "3 corregides"
+    },
     "try": {
       "title": "Proveu-ho!",
       "subtitle": "El Vobi és a la cantonada per guiar-vos",

@@ -1,0 +1,338 @@
+/* "Fix and Refine" (Tricks.tsx): the same drawn laptop as Demo, with the
+   real overlay's pill and Refine card at the screen's scale. */
+
+/* ---------- the two tricks, as tabs that also time the loop ---------- */
+.tricks-tabs {
+  display: inline-flex;
+  align-self: center;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+.tricks-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 6px 0 14px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: transparent;
+  color: var(--color-ink-2);
+  font: 600 13px var(--font-ui, inherit);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
+}
+.tricks-tab:hover {
+  color: var(--color-text);
+}
+.tricks-tab[aria-selected="true"] {
+  background: var(--color-surface, #fff);
+  color: var(--color-text);
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 0.06),
+    0 0 0 1px var(--hairline);
+}
+.tricks-tab:focus-visible {
+  outline: 2px solid var(--color-logo-primary);
+  outline-offset: 2px;
+}
+/* how far this trick's demo has played */
+.tricks-tab-bar {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-logo-primary);
+  opacity: 0.55;
+  transform-origin: left center;
+  animation: tricks-progress linear both;
+}
+[dir="rtl"] .tricks-tab-bar {
+  transform-origin: right center;
+}
+@keyframes tricks-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.tricks-caption {
+  max-width: 470px;
+  margin: 20px auto 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+  animation: demo-swap 360ms var(--ease-glide) both;
+}
+
+/* ---------- the note ---------- */
+.tricks-app {
+  top: 30px;
+}
+.tricks-body {
+  justify-content: flex-start;
+  gap: 5px;
+  min-height: 112px;
+}
+.tricks-text {
+  margin: 0 2.5px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+/* the selection grows across the text, like a drag */
+.tricks-sel {
+  border-radius: 3px;
+  background-image: linear-gradient(
+    rgb(47 177 244 / 0.28),
+    rgb(47 177 244 / 0.28)
+  );
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background-size 0ms;
+}
+.tricks-sel.is-on {
+  background-size: 100% 100%;
+  transition: background-size 850ms var(--ease-glide);
+}
+/* typos: a red squiggle, then the fixed word glows in */
+.tricks-typo {
+  text-decoration: underline wavy rgb(255 92 92 / 0.85);
+  text-decoration-thickness: 1.2px;
+  text-underline-offset: 3px;
+}
+.tricks-typo.is-fixed {
+  text-decoration: none;
+  border-radius: 3px;
+  animation: tricks-fixed 1400ms var(--ease-glide) both;
+}
+@keyframes tricks-fixed {
+  0% {
+    background: rgb(47 177 244 / 0.45);
+    filter: blur(3px);
+    opacity: 0;
+  }
+  30% {
+    filter: blur(0);
+    opacity: 1;
+  }
+  100% {
+    background: rgb(47 177 244 / 0);
+  }
+}
+.tricks-new {
+  animation: tricks-reveal 700ms var(--ease-glide) both;
+}
+@keyframes tricks-reveal {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+  }
+}
+
+/* ---------- the pill: smoky glass, Vobi on the left ---------- */
+.tricks-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px 0 6px;
+  border-radius: 999px;
+  background: rgb(36 37 40 / 0.86);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    0 10px 24px -10px rgb(0 0 0 / 0.5);
+  color: #f5f5f7;
+  font-size: 11.5px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 8px) scale(0.92);
+  transition:
+    opacity 220ms ease,
+    transform 420ms var(--ease-glide);
+}
+.tricks-pill.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.tricks-pill-text {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.tricks-pill-text b {
+  font-weight: 600;
+}
+.tricks-pill-sub {
+  color: rgb(235 235 245 / 0.6);
+  font-weight: 500;
+}
+.tricks-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgb(235 235 245 / 0.6) 0%,
+    #9fd3ff 50%,
+    rgb(235 235 245 / 0.6) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 500;
+  animation: tricks-shimmer 1.6s linear infinite;
+}
+@keyframes tricks-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+
+/* ---------- Refine's preview card ---------- */
+.tricks-card {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  z-index: 3;
+  width: 262px;
+  padding: 4px 8px 8px 4px;
+  border-radius: 18px;
+  background: rgb(36 37 40 / 0.88);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    0 14px 30px -12px rgb(0 0 0 / 0.55);
+  color: #f5f5f7;
+  text-align: start;
+  opacity: 0;
+  transform: translate(-50%, 10px) scale(0.94);
+  filter: blur(3px);
+  pointer-events: none;
+  transition:
+    opacity 220ms ease,
+    transform 460ms var(--ease-glide),
+    filter 300ms ease;
+}
+.tricks-card.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  filter: none;
+}
+.tricks-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  font-size: 11.5px;
+}
+.tricks-card-head b {
+  font-weight: 600;
+}
+.tricks-card-text {
+  min-height: 34px;
+  margin: 0 4px 0 8px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.tricks-word {
+  display: inline;
+  animation: tricks-word 460ms var(--ease-glide) both;
+}
+@keyframes tricks-word {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+  }
+}
+.tricks-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 7px;
+}
+.tricks-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  font-size: 10px;
+  font-weight: 600;
+  transition: transform 120ms var(--ease-glide);
+}
+.tricks-btn.is-primary {
+  background: #fff;
+  color: #1c1c1e;
+}
+.tricks-btn.is-down {
+  transform: scale(0.94);
+}
+
+/* Windows and Linux: above the drawn taskbar, like Demo's pill. */
+.demo-screen:has(.is-task) .tricks-app {
+  top: 20px;
+}
+.demo-screen:has(.is-task) .tricks-pill {
+  bottom: 32px;
+}
+.demo-screen:has(.is-task) .tricks-card {
+  bottom: 30px;
+}
+
+/* the shortcut steps aside once Vobi's pill or card takes over */
+.tricks-keys {
+  transition: opacity 200ms ease;
+}
+.tricks-keys.is-off {
+  opacity: 0;
+}
+
+/* ---------- the pointer ---------- */
+.tricks-pointer {
+  opacity: 0;
+  transition:
+    transform 850ms var(--ease-glide),
+    opacity 260ms ease;
+}
+.tricks-pointer[data-on] {
+  opacity: 1;
+}
+.tricks-pointer[data-drag] {
+  transition:
+    transform 850ms var(--ease-glide),
+    opacity 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tricks-tab-bar,
+  .tricks-shimmer,
+  .tricks-word,
+  .tricks-typo.is-fixed,
+  .tricks-new,
+  .tricks-caption {
+    animation: none;
+  }
+}

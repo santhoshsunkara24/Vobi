@@ -16,6 +16,7 @@ import { Permissions } from "./screens/Permissions";
 import { Model } from "./screens/Model";
 import { Demo } from "./screens/Demo";
 import { TryIt } from "./screens/TryIt";
+import { Tricks } from "./screens/Tricks";
 import { useOsType } from "@/hooks/useOsType";
 import { DownloadStatus } from "./DownloadStatus";
 import { useOnboardingModels } from "./useOnboardingModels";
@@ -223,6 +224,16 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           downloadFailed={downloadNow.state === "failed"}
           download={<DownloadStatus models={models} model={downloaded} />}
           onRetry={() => downloaded && startModel(downloaded.id)}
+          onBack={back}
+          onContinue={next}
+        />
+      );
+    // Fix and Refine, on the same drawn laptop; it zooms into Try it.
+    case "tricks":
+      return (
+        <Tricks
+          progress={progress}
+          os={osType}
           onBack={back}
           onContinue={() => moveScreens("in", next)}
         />

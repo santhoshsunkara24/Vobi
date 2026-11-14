@@ -169,6 +169,22 @@
       "cancel": "Annuleren",
       "tryIt": "Probeer het zelf"
     },
+    "tricks": {
+      "title": "Verbeter en verfijn wat je hebt geschreven",
+      "subtitle": "Selecteer tekst in een willekeurige app en druk op een sneltoets.",
+      "fixTab": "Spelling",
+      "refineTab": "Verfijnen",
+      "fixCaption": "Vobi verbetert Engelse spelling direct in de tekst, en het label laat zien wat er veranderd is. Werkt offline.",
+      "refineCaptionMac": "Vobi herschrijft het duidelijker en laat eerst een voorbeeld zien. Plak het of verfijn opnieuw. Gratis met Apple Intelligence op ondersteunde Macs.",
+      "refineCaptionOther": "Vobi herschrijft het duidelijker en laat eerst een voorbeeld zien. Plak het of verfijn opnieuw. Voeg in Instellingen een gratis Groq-sleutel toe om het aan te zetten.",
+      "fixLabel": "Een notitie met spelfouten wordt geselecteerd, de sneltoets wordt ingedrukt en de woorden worden ter plekke verbeterd.",
+      "refineLabel": "Rommelige tekst wordt geselecteerd, de sneltoets wordt ingedrukt, een duidelijkere versie verschijnt als voorbeeld en wordt geplakt.",
+      "fixNoteTitle": "Lunchplannen",
+      "refineNoteTitle": "Teamupdate",
+      "refineBefore": "dus eigenlijk gaat de launch naar volgende week omdat design nog nie af is en testen ook nog nie begonnen",
+      "refineAfter": "De launch schuift naar volgende week, omdat het ontwerp nog niet af is en het testen nog niet is begonnen.",
+      "fixedThree": "3 verbeterd"
+    },
     "try": {
       "title": "Probeer het maar!",
       "subtitle": "Vobi staat in de hoek om je er doorheen te helpen",

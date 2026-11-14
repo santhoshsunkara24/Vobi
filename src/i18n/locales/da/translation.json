@@ -169,6 +169,22 @@
       "cancel": "Annuller",
       "tryIt": "Prøv selv"
     },
+    "tricks": {
+      "title": "Ret og finpuds det, du har skrevet",
+      "subtitle": "Markér tekst i en hvilken som helst app, og tryk på en genvej.",
+      "fixTab": "Stavning",
+      "refineTab": "Forfin",
+      "fixCaption": "Vobi retter engelsk stavning direkte i teksten, og pillen viser, hvad der blev ændret. Virker offline.",
+      "refineCaptionMac": "Vobi omskriver teksten tydeligere og viser dig først en forhåndsvisning. Indsæt den, eller forfin igen. Gratis med Apple Intelligence på understøttede Mac-computere.",
+      "refineCaptionOther": "Vobi omskriver teksten tydeligere og viser dig først en forhåndsvisning. Indsæt den, eller forfin igen. Tilføj en gratis Groq-nøgle i Indstillinger for at slå det til.",
+      "fixLabel": "En note med stavefejl markeres, genvejen trykkes, og ordene rettes på stedet.",
+      "refineLabel": "Rodet tekst markeres, genvejen trykkes, en tydeligere version vises i en forhåndsvisning og indsættes.",
+      "fixNoteTitle": "Frokostplaner",
+      "refineNoteTitle": "Teamopdatering",
+      "refineBefore": "altså basically bliver lanceringen flyttet til næste uge fordi designet ik er færdigt og test ik er startet",
+      "refineAfter": "Lanceringen flyttes til næste uge, fordi designet ikke er færdigt, og testen ikke er startet endnu.",
+      "fixedThree": "3 rettet"
+    },
     "try": {
       "title": "Giv det et forsøg!",
       "subtitle": "Vobi er i hjørnet og hjælper dig igennem",

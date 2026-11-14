@@ -169,6 +169,22 @@
       "cancel": "Zrušit",
       "tryIt": "Vyzkoušejte si to"
     },
+    "tricks": {
+      "title": "Oprav a vylaď, co jsi napsal",
+      "subtitle": "Označ text v libovolné aplikaci a stiskni zkratku.",
+      "fixTab": "Pravopis",
+      "refineTab": "Vylepšit",
+      "fixCaption": "Vobi opraví anglický pravopis přímo v textu a štítek ti ukáže, co se změnilo. Funguje offline.",
+      "refineCaptionMac": "Vobi text přepíše srozumitelněji a nejdřív ti ukáže náhled. Vlož ho, nebo vylepši znovu. Zdarma s Apple Intelligence na podporovaných Macích.",
+      "refineCaptionOther": "Vobi text přepíše srozumitelněji a nejdřív ti ukáže náhled. Vlož ho, nebo vylepši znovu. Pro zapnutí přidej v Nastavení bezplatný klíč Groq.",
+      "fixLabel": "Poznámka s pravopisnými chybami se označí, stiskne se zkratka a slova se opraví na místě.",
+      "refineLabel": "Neuspořádaný text se označí, stiskne se zkratka, srozumitelnější verze se objeví v náhledu a vloží se.",
+      "fixNoteTitle": "Plány na oběd",
+      "refineNoteTitle": "Novinky týmu",
+      "refineBefore": "takže v podstatě se spuštění posouvá na příští týden protože design neni hotovej a testy taky nezačly",
+      "refineAfter": "Spuštění se posouvá na příští týden, protože design není hotový a testování ještě nezačalo.",
+      "fixedThree": "Opraveno 3"
+    },
     "try": {
       "title": "Zkuste to!",
       "subtitle": "Vobi je v rohu a provede vás tím",

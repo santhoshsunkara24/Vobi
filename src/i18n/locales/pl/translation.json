@@ -169,6 +169,22 @@
       "cancel": "Anuluj",
       "tryIt": "Wypróbuj sam"
     },
+    "tricks": {
+      "title": "Popraw i dopracuj to, co napisałeś",
+      "subtitle": "Zaznacz tekst w dowolnej aplikacji i naciśnij skrót.",
+      "fixTab": "Pisownia",
+      "refineTab": "Dopracuj",
+      "fixCaption": "Vobi poprawia angielską pisownię od razu w tekście, a pigułka pokazuje, co się zmieniło. Działa offline.",
+      "refineCaptionMac": "Vobi przepisuje tekst jaśniej i najpierw pokazuje podgląd. Wklej go albo dopracuj ponownie. Za darmo z Apple Intelligence na obsługiwanych Macach.",
+      "refineCaptionOther": "Vobi przepisuje tekst jaśniej i najpierw pokazuje podgląd. Wklej go albo dopracuj ponownie. Dodaj darmowy klucz Groq w Ustawieniach, aby to włączyć.",
+      "fixLabel": "Notatka z błędami jest zaznaczana, skrót zostaje naciśnięty, a słowa są poprawiane na miejscu.",
+      "refineLabel": "Chaotyczny tekst jest zaznaczany, skrót zostaje naciśnięty, jaśniejsza wersja pojawia się w podglądzie i zostaje wklejona.",
+      "fixNoteTitle": "Plany na lunch",
+      "refineNoteTitle": "Aktualności zespołu",
+      "refineBefore": "no wiec w sumie premiera przesuwa sie na nastepny tydzien bo design nie gotowy i testy tez sie nie zaczely",
+      "refineAfter": "Premiera przesuwa się na przyszły tydzień, bo projekt nie jest gotowy, a testy jeszcze się nie zaczęły.",
+      "fixedThree": "Poprawiono 3"
+    },
     "try": {
       "title": "Spróbuj!",
       "subtitle": "Vobi czeka w rogu i pomoże Ci przejść przez to krok po kroku",

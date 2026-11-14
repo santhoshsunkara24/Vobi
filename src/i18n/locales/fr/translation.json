@@ -169,6 +169,22 @@
       "cancel": "Annuler",
       "tryIt": "Essayez vous-même"
     },
+    "tricks": {
+      "title": "Corrigez et peaufinez ce que vous avez écrit",
+      "subtitle": "Sélectionnez du texte dans n’importe quelle app, puis appuyez sur un raccourci.",
+      "fixTab": "Orthographe",
+      "refineTab": "Reformuler",
+      "fixCaption": "Vobi corrige l’orthographe anglaise directement dans le texte, et la pastille vous indique ce qui a changé. Fonctionne hors ligne.",
+      "refineCaptionMac": "Vobi le réécrit plus clairement et vous montre d’abord un aperçu. Collez-le ou reformulez encore. Gratuit avec Apple Intelligence sur les Mac compatibles.",
+      "refineCaptionOther": "Vobi le réécrit plus clairement et vous montre d’abord un aperçu. Collez-le ou reformulez encore. Ajoutez une clé Groq gratuite dans les Réglages pour l’activer.",
+      "fixLabel": "Une note avec des fautes est sélectionnée, le raccourci est pressé et les mots sont corrigés sur place.",
+      "refineLabel": "Un texte brouillon est sélectionné, le raccourci est pressé, une version plus claire apparaît en aperçu puis est collée.",
+      "fixNoteTitle": "Déjeuner",
+      "refineNoteTitle": "Point d’équipe",
+      "refineBefore": "bon en gros le lancement passe a la semaine pro parce que le design est pas fini et les tests ont pas commencé",
+      "refineAfter": "Le lancement est repoussé à la semaine prochaine, car le design n’est pas terminé et les tests n’ont pas encore commencé.",
+      "fixedThree": "3 corrigés"
+    },
     "try": {
       "title": "À vous de jouer !",
       "subtitle": "Vobi est dans le coin pour vous guider",

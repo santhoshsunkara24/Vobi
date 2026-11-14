@@ -169,6 +169,22 @@
       "cancel": "Abbrechen",
       "tryIt": "Probier es selbst aus"
     },
+    "tricks": {
+      "title": "Korrigiere und verfeinere, was du geschrieben hast",
+      "subtitle": "Markiere Text in einer beliebigen App und drücke ein Tastenkürzel.",
+      "fixTab": "Rechtschreibung",
+      "refineTab": "Verfeinern",
+      "fixCaption": "Vobi korrigiert englische Rechtschreibung direkt im Text, und die Leiste zeigt dir, was sich geändert hat. Funktioniert offline.",
+      "refineCaptionMac": "Vobi formuliert den Text klarer und zeigt dir zuerst eine Vorschau. Füge ihn ein oder verfeinere erneut. Kostenlos mit Apple Intelligence auf unterstützten Macs.",
+      "refineCaptionOther": "Vobi formuliert den Text klarer und zeigt dir zuerst eine Vorschau. Füge ihn ein oder verfeinere erneut. Füge in den Einstellungen einen kostenlosen Groq-Schlüssel hinzu, um es einzuschalten.",
+      "fixLabel": "Eine Notiz mit Rechtschreibfehlern wird markiert, das Tastenkürzel gedrückt, und die Wörter werden direkt korrigiert.",
+      "refineLabel": "Unordentlicher Text wird markiert, das Tastenkürzel gedrückt, eine klarere Fassung erscheint in einer Vorschau und wird eingefügt.",
+      "fixNoteTitle": "Mittagessen",
+      "refineNoteTitle": "Team-Update",
+      "refineBefore": "also der launch geht auf nächste woche weil design nich fertig is und testen hat auch noch nich angefangen",
+      "refineAfter": "Der Launch verschiebt sich auf nächste Woche, da das Design noch nicht fertig ist und die Tests noch nicht begonnen haben.",
+      "fixedThree": "3 korrigiert"
+    },
     "try": {
       "title": "Probier es aus!",
       "subtitle": "Vobi ist in der Ecke und führt dich durch",

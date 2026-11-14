@@ -169,6 +169,22 @@
       "cancel": "Cancelar",
       "tryIt": "Pruébalo tú"
     },
+    "tricks": {
+      "title": "Corrige y pule lo que has escrito",
+      "subtitle": "Selecciona texto en cualquier app y pulsa un atajo.",
+      "fixTab": "Ortografía",
+      "refineTab": "Refinar",
+      "fixCaption": "Vobi corrige la ortografía en inglés justo donde está el texto, y la barra te dice qué cambió. Funciona sin conexión.",
+      "refineCaptionMac": "Vobi lo reescribe con más claridad y primero te muestra una vista previa. Pégalo o vuelve a refinarlo. Gratis con Apple Intelligence en Macs compatibles.",
+      "refineCaptionOther": "Vobi lo reescribe con más claridad y primero te muestra una vista previa. Pégalo o vuelve a refinarlo. Añade una clave gratuita de Groq en Ajustes para activarlo.",
+      "fixLabel": "Se selecciona una nota con faltas de ortografía, se pulsa el atajo y las palabras se corrigen en su sitio.",
+      "refineLabel": "Se selecciona un texto desordenado, se pulsa el atajo, aparece una versión más clara en una vista previa y se pega.",
+      "fixNoteTitle": "Planes para comer",
+      "refineNoteTitle": "Novedades del equipo",
+      "refineBefore": "bueno basicamente el lanzamiento se pasa a la semana que viene xq el diseño no esta y las pruebas tampoco empezaron",
+      "refineAfter": "El lanzamiento se pasa a la semana que viene, porque el diseño no está terminado y las pruebas aún no han empezado.",
+      "fixedThree": "3 corregidas"
+    },
     "try": {
       "title": "¡Pruébalo!",
       "subtitle": "Vobi está en la esquina para guiarte",

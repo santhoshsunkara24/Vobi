@@ -169,6 +169,22 @@
       "cancel": "Batal",
       "tryIt": "Coba sendiri"
     },
+    "tricks": {
+      "title": "Perbaiki dan rapikan tulisanmu",
+      "subtitle": "Pilih teks di aplikasi mana pun, lalu tekan pintasan.",
+      "fixTab": "Ejaan",
+      "refineTab": "Perhalus",
+      "fixCaption": "Vobi memperbaiki ejaan bahasa Inggris langsung di tempat teksnya, dan pil memberi tahu apa yang berubah. Bisa offline.",
+      "refineCaptionMac": "Vobi menulis ulang dengan lebih jelas dan menampilkan pratinjau dulu. Tempel, atau perhalus lagi. Gratis dengan Apple Intelligence di Mac yang didukung.",
+      "refineCaptionOther": "Vobi menulis ulang dengan lebih jelas dan menampilkan pratinjau dulu. Tempel, atau perhalus lagi. Tambahkan kunci Groq gratis di Pengaturan untuk menyalakannya.",
+      "fixLabel": "Catatan dengan salah eja dipilih, pintasan ditekan, dan kata-katanya diperbaiki di tempat.",
+      "refineLabel": "Teks berantakan dipilih, pintasan ditekan, versi yang lebih jelas muncul di pratinjau lalu ditempel.",
+      "fixNoteTitle": "Rencana makan siang",
+      "refineNoteTitle": "Kabar tim",
+      "refineBefore": "jadi intinya peluncurannya mundur ke minggu depan soalnya desain blm beres dan testing jg blm mulai",
+      "refineAfter": "Peluncuran mundur ke minggu depan, karena desain belum selesai dan pengujian belum dimulai.",
+      "fixedThree": "3 diperbaiki"
+    },
     "try": {
       "title": "Coba sekarang!",
       "subtitle": "Vobi ada di pojok untuk memandu Anda",

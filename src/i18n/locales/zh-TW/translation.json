@@ -169,6 +169,22 @@
       "cancel": "取消",
       "tryIt": "親自試試看"
     },
+    "tricks": {
+      "title": "修正並潤飾你寫好的文字",
+      "subtitle": "在任何 App 中選取文字，然後按下快速鍵。",
+      "fixTab": "拼字",
+      "refineTab": "潤飾",
+      "fixCaption": "Vobi 會在原處修正英文拼字，提示條會告訴你改了什麼。不需連網。",
+      "refineCaptionMac": "Vobi 會把文字改寫得更清楚，並先讓你預覽。貼上使用，或再潤飾一次。在支援的 Mac 上搭配 Apple Intelligence 免費使用。",
+      "refineCaptionOther": "Vobi 會把文字改寫得更清楚，並先讓你預覽。貼上使用，或再潤飾一次。在設定中加入免費的 Groq 金鑰即可開啟。",
+      "fixLabel": "選取一則有拼字錯誤的筆記，按下快速鍵，單字就在原處被修正。",
+      "refineLabel": "選取一段雜亂的文字，按下快速鍵，更清楚的版本出現在預覽中並被貼上。",
+      "fixNoteTitle": "午餐計畫",
+      "refineNoteTitle": "團隊動態",
+      "refineBefore": "就是說上線延到下週了 因為設計還沒好 測試也還沒開始",
+      "refineAfter": "由於設計尚未完成、測試也還沒開始，上線延到下週。",
+      "fixedThree": "已修正 3 處"
+    },
     "try": {
       "title": "來試試看吧！",
       "subtitle": "Vobi 就在角落，陪您一步步操作",

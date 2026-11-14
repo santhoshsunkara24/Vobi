@@ -169,6 +169,22 @@
       "cancel": "İptal",
       "tryIt": "Kendiniz deneyin"
     },
+    "tricks": {
+      "title": "Yazdıklarını düzelt ve parlat",
+      "subtitle": "Herhangi bir uygulamada metni seç, sonra bir kısayola bas.",
+      "fixTab": "Yazım",
+      "refineTab": "İyileştir",
+      "fixCaption": "Vobi İngilizce yazımı metnin olduğu yerde düzeltir, hap da neyin değiştiğini gösterir. Çevrimdışı çalışır.",
+      "refineCaptionMac": "Vobi metni daha açık yazar ve önce sana bir önizleme gösterir. Yapıştır ya da yeniden iyileştir. Desteklenen Mac’lerde Apple Intelligence ile ücretsiz.",
+      "refineCaptionOther": "Vobi metni daha açık yazar ve önce sana bir önizleme gösterir. Yapıştır ya da yeniden iyileştir. Açmak için Ayarlar’a ücretsiz bir Groq anahtarı ekle.",
+      "fixLabel": "Yazım hataları olan bir not seçilir, kısayola basılır ve kelimeler yerinde düzeltilir.",
+      "refineLabel": "Dağınık bir metin seçilir, kısayola basılır, daha açık bir sürüm önizlemede belirir ve yapıştırılır.",
+      "fixNoteTitle": "Öğle yemeği",
+      "refineNoteTitle": "Ekip güncellemesi",
+      "refineBefore": "yani aslında lansman haftaya kaldı çünkü tasarım bitmedi testler de başlamadı",
+      "refineAfter": "Lansman gelecek haftaya kaydı, çünkü tasarım henüz bitmedi ve testler daha başlamadı.",
+      "fixedThree": "3 düzeltildi"
+    },
     "try": {
       "title": "Bir deneyin!",
       "subtitle": "Vobi köşede, size yol göstermek için hazır",

@@ -520,7 +520,7 @@ export const Demo: React.FC<DemoProps> = ({
             disabled={!ready}
             onClick={onContinue}
           >
-            {t("onboarding.demo.tryIt")}
+            {t("onboarding.shell.continue")}
           </Button>
         )
       }

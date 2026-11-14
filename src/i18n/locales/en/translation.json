@@ -169,6 +169,22 @@
       "cancel": "Cancel",
       "tryIt": "Try it yourself"
     },
+    "tricks": {
+      "title": "Fix and polish what you’ve written",
+      "subtitle": "Select text in any app, then press a shortcut.",
+      "fixTab": "Fix spelling",
+      "refineTab": "Refine",
+      "fixCaption": "Vobi corrects English spelling right where the text is, and the pill tells you what changed. It works offline.",
+      "refineCaptionMac": "Vobi rewrites it more clearly and shows you a preview first. Paste it in, or refine again. Free with Apple Intelligence on supported Macs.",
+      "refineCaptionOther": "Vobi rewrites it more clearly and shows you a preview first. Paste it in, or refine again. Add a free Groq key in Settings to turn it on.",
+      "fixLabel": "A note with spelling mistakes is selected, the shortcut is pressed, and the words are corrected in place.",
+      "refineLabel": "Messy text is selected, the shortcut is pressed, a clearer version appears in a preview, and it’s pasted in.",
+      "fixNoteTitle": "Lunch plans",
+      "refineNoteTitle": "Team update",
+      "refineBefore": "so basically the launch moves to next week cause design isnt done and testing hasnt started",
+      "refineAfter": "The launch is moving to next week, since design isn’t finished and testing hasn’t started yet.",
+      "fixedThree": "Fixed 3"
+    },
     "try": {
       "title": "Give it a try!",
       "subtitle": "Vobi's in the corner to help walk you through it",

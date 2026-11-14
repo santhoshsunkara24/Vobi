@@ -169,6 +169,22 @@
       "cancel": "Avbryt",
       "tryIt": "Prova själv"
     },
+    "tricks": {
+      "title": "Rätta och finslipa det du har skrivit",
+      "subtitle": "Markera text i valfri app och tryck på ett kortkommando.",
+      "fixTab": "Stavning",
+      "refineTab": "Förfina",
+      "fixCaption": "Vobi rättar engelsk stavning direkt i texten, och pillret visar vad som ändrats. Fungerar offline.",
+      "refineCaptionMac": "Vobi skriver om texten tydligare och visar en förhandsvisning först. Klistra in eller förfina igen. Gratis med Apple Intelligence på Mac-datorer som stöds.",
+      "refineCaptionOther": "Vobi skriver om texten tydligare och visar en förhandsvisning först. Klistra in eller förfina igen. Lägg till en gratis Groq-nyckel i Inställningar för att slå på det.",
+      "fixLabel": "En anteckning med stavfel markeras, kortkommandot trycks och orden rättas på plats.",
+      "refineLabel": "Rörig text markeras, kortkommandot trycks, en tydligare version visas i en förhandsvisning och klistras in.",
+      "fixNoteTitle": "Lunchplaner",
+      "refineNoteTitle": "Teamuppdatering",
+      "refineBefore": "alltså typ lanseringen flyttas till nästa vecka för designen e inte klar och testerna har inte börjat",
+      "refineAfter": "Lanseringen flyttas till nästa vecka, eftersom designen inte är klar och testerna inte har börjat än.",
+      "fixedThree": "3 rättade"
+    },
     "try": {
       "title": "Testa nu!",
       "subtitle": "Vobi finns i hörnet och guidar dig",
