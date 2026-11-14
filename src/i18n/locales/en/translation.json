@@ -348,6 +348,14 @@
           "transcribe_with_post_process": {
             "name": "Post-Processing Hotkey",
             "description": "Optional: A dedicated hotkey that always applies AI post-processing to your transcription."
+          },
+          "fix_selection": {
+            "name": "Fix Selection",
+            "description": "Select text in any app and press this to fix its spelling."
+          },
+          "refine_selection": {
+            "name": "Refine Selection",
+            "description": "Select text in any app and press this to rewrite it clearly with AI."
           }
         },
         "errors": {
@@ -991,7 +999,17 @@
     "pasted": "Pasted",
     "words_one": "· {{count}} word",
     "words_other": "· {{count}} words",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "fixed_one": "Fixed {{count}} word",
+    "fixed_other": "Fixed {{count}} words",
+    "fixMore": "+{{count}} more",
+    "noMistakes": "No spelling mistakes",
+    "selectFirst": "Select some text first",
+    "fixFailed": "Couldn’t fix that text",
+    "refining": "Refining…",
+    "refined": "Refined",
+    "undoHint": "· {{keys}} to undo",
+    "needAiKey": "Add a free AI key in Settings to use Refine"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} may be blocking 1 shortcut",

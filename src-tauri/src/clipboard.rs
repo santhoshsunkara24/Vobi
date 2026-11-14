@@ -137,6 +137,72 @@ fn paste_via_clipboard(
     })
 }
 
+/// Copies the current selection of the frontmost app and returns it, leaving the
+/// user's clipboard as it was. `None` means nothing was selected.
+pub fn copy_selection(app_handle: &AppHandle) -> Result<Option<String>, String> {
+    let _guard = PASTE_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
+    let clipboard = app_handle.clipboard();
+    let saved_text = clipboard.read_text().ok().filter(|t| !t.is_empty());
+    let saved_image = if saved_text.is_none() {
+        clipboard.read_image().ok().map(|image| image.to_owned())
+    } else {
+        None
+    };
+    // A marker no app would ever produce: if it's still there after Cmd+C,
+    // nothing was selected.
+    let marker = format!(
+        "\u{2063}vobi-selection-probe-{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0)
+    );
+    write_text_to_clipboard(app_handle, &marker)?;
+    std::thread::sleep(Duration::from_millis(30));
+
+    let sent = with_enigo(app_handle, |enigo| input::send_copy(enigo, 40));
+    let mut selected = None;
+    if sent.is_ok() {
+        let start = std::time::Instant::now();
+        while start.elapsed() < Duration::from_millis(700) {
+            std::thread::sleep(Duration::from_millis(25));
+            match clipboard.read_text() {
+                Ok(t) if t != marker => {
+                    if !t.trim().is_empty() {
+                        selected = Some(t);
+                    }
+                    break;
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if let Some(text) = saved_text {
+        let _ = write_text_to_clipboard(app_handle, &text);
+    } else if let Some(image) = saved_image {
+        let _ = clipboard.write_image(&image);
+    } else {
+        let _ = clipboard.clear();
+    }
+    sent.map(|_| selected)
+}
+
+/// Replaces the current selection with `text` via the clipboard, restoring the
+/// user's clipboard afterwards. Unlike `paste`, it never adds a trailing space
+/// or presses Enter: the text must land exactly as given.
+pub fn replace_selection(app_handle: &AppHandle, text: &str) -> Result<(), String> {
+    let _guard = PASTE_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
+    let settings = get_settings(app_handle);
+    paste_via_clipboard(
+        text,
+        app_handle,
+        &PasteMethod::CtrlV,
+        settings.paste_delay_ms,
+        settings.paste_delay_after_ms.max(150),
+    )
+}
+
 /// Sends the paste key combination with the first Linux-native tool that works.
 /// A tool that is installed but fails (ydotool without its daemon, wtype on a
 /// compositor without the virtual-keyboard protocol) hands over to the next one.

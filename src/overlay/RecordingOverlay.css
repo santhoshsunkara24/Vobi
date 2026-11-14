@@ -109,6 +109,14 @@
 .vcard.m-done {
   width: var(--v-w-done);
 }
+/* Fix selection: the pill hugs its message (up to the window width). */
+.vcard.m-fix {
+  width: auto;
+  max-width: calc(100vw - 8px);
+}
+.vcard.m-fix .vrow {
+  padding-right: 18px;
+}
 .vstage.top .vcard {
   transform-origin: top center;
 }
@@ -245,6 +253,48 @@
   color: var(--v-text-2);
   font-size: 13px;
   font-weight: 500;
+}
+
+.vfix {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 14px;
+}
+.vfix b {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.vfix b.is-error {
+  color: #ffb1b8;
+}
+.vfix-list {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--v-text-2);
+  font-size: 13px;
+  font-weight: 500;
+}
+.vfix-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+  color: var(--v-text);
+}
+.vfix-item s {
+  color: var(--v-text-2);
+  text-decoration-color: rgba(255, 177, 184, 0.8);
+}
+.vfix-item i {
+  font-style: normal;
+  color: #6ad5f9;
+}
+.vfix-more {
+  white-space: nowrap;
 }
 
 .vnotice {

@@ -10,6 +10,7 @@ pub mod cli;
 mod clipboard;
 mod commands;
 pub mod engine_supervisor;
+mod fix_selection;
 mod helpers;
 mod input;
 mod language_detection;
@@ -25,6 +26,7 @@ mod secure_input;
 mod settings;
 mod shortcut;
 mod signal_handle;
+mod spellfix;
 mod system_languages;
 mod transcription_coordinator;
 mod transcription_hook;
@@ -951,6 +953,8 @@ pub fn run(cli_args: CliArgs) {
         .manage(cli_args.clone())
         .manage(notices::NoticeStore::default())
         .setup(move |app| {
+            // Parse the spelling dictionary in the background for "Fix selection".
+            spellfix::warm_up();
             #[cfg(target_os = "windows")]
             log::info!(
                 "Vulkan layer policy: VK_LOADER_LAYERS_DISABLE={:?}, HANDY_KEEP_VULKAN_IMPLICIT_LAYERS={}",

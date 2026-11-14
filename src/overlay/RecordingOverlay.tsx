@@ -23,6 +23,8 @@ type OverlayState =
   | "transcribing"
   | "processing"
   | "done"
+  | "fix"
+  | "refining"
   | "notice"
   | "live_notice";
 
@@ -42,6 +44,15 @@ const OVERLAY_FADE_MS = 300;
 const NOTICE_PILL_CHROME = 78;
 
 const CLOUD_SIZE = 46;
+
+// What "Fix selection" did (from the backend's `overlay-fix` event).
+type FixResult = {
+  kind: "fixed" | "clean" | "empty" | "failed" | "refined" | "nokey";
+  fixes: { from: string; to: string }[];
+  words: number;
+};
+
+const UNDO_KEYS = /Mac/.test(navigator.userAgent) ? "⌘Z" : "Ctrl+Z";
 
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
@@ -63,6 +74,7 @@ const RecordingOverlay: React.FC = () => {
   const [workKind, setWorkKind] = useState<StreamWorkKind>("transcribing");
   const [elapsed, setElapsed] = useState(0);
   const [doneWords, setDoneWords] = useState(0);
+  const [fix, setFix] = useState<FixResult | null>(null);
   const [session, setSession] = useState(0);
   const [position, setPosition] = useState<"top" | "bottom">("bottom");
   const [overflowing, setOverflowing] = useState(false);
@@ -124,6 +136,14 @@ const RecordingOverlay: React.FC = () => {
         setDoneWords(event.payload ?? 0);
         setNotice(null);
         setState("done");
+        setIsVisible(true);
+      });
+
+      const unlistenFix = await listen<FixResult>("overlay-fix", (event) => {
+        clearTimeout(fadeTimerRef.current);
+        setFix(event.payload);
+        setNotice(null);
+        setState("fix");
         setIsVisible(true);
       });
 
@@ -190,6 +210,7 @@ const RecordingOverlay: React.FC = () => {
         unlistenNotice();
         unlistenShow();
         unlistenDone();
+        unlistenFix();
         unlistenHide();
         unlistenReady();
         unlistenLevel();
@@ -344,6 +365,71 @@ const RecordingOverlay: React.FC = () => {
     </div>
   );
 
+  const fixRow = fix && (
+    <div className="vrow">
+      {cloud(
+        fix.kind === "fixed" || fix.kind === "clean" || fix.kind === "refined"
+          ? "done"
+          : fix.kind === "failed"
+            ? "error"
+            : "idle",
+      )}
+      {fix.kind === "fixed" ||
+      fix.kind === "clean" ||
+      fix.kind === "refined" ? (
+        <svg className="vcheck" viewBox="0 0 22 22" aria-hidden="true">
+          <path
+            d="M5 11.5l4 4 8-9"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ) : null}
+      <span className="vfix">
+        {fix.kind === "refined" ? (
+          <>
+            <b>{t("overlay.refined")}</b>
+            <span className="vfix-list">
+              <span>{t("overlay.words", { count: fix.words })}</span>
+              <span>{t("overlay.undoHint", { keys: UNDO_KEYS })}</span>
+            </span>
+          </>
+        ) : fix.kind === "fixed" ? (
+          <>
+            <b>{t("overlay.fixed", { count: fix.fixes.length })}</b>
+            <span className="vfix-list">
+              {fix.fixes.slice(0, 3).map((f, i) => (
+                <span key={i} className="vfix-item">
+                  <s>{f.from}</s>
+                  <i aria-hidden="true">→</i>
+                  {f.to}
+                </span>
+              ))}
+              {fix.fixes.length > 3 && (
+                <span className="vfix-more">
+                  {t("overlay.fixMore", { count: fix.fixes.length - 3 })}
+                </span>
+              )}
+            </span>
+          </>
+        ) : (
+          <b className={fix.kind === "failed" ? "is-error" : ""}>
+            {fix.kind === "clean"
+              ? t("overlay.noMistakes")
+              : fix.kind === "empty"
+                ? t("overlay.selectFirst")
+                : fix.kind === "nokey"
+                  ? t("overlay.needAiKey")
+                  : t("overlay.fixFailed")}
+          </b>
+        )}
+      </span>
+    </div>
+  );
+
   const noticeRow = shownNotice && (
     <div className="vrow">
       {cloud(shownNotice.level === "error" ? "error" : "idle")}
@@ -427,16 +513,23 @@ const RecordingOverlay: React.FC = () => {
   }
 
   // ---- Compact pill: one row at a time, the pill animates its width ----
-  const working = state === "transcribing" || state === "processing";
+  const working =
+    state === "transcribing" || state === "processing" || state === "refining";
   const workLabel =
-    state === "processing" ? t("overlay.processing") : transcribingLabel;
+    state === "refining"
+      ? t("overlay.refining")
+      : state === "processing"
+        ? t("overlay.processing")
+        : transcribingLabel;
   const mode = shownNotice
     ? "m-notice"
-    : state === "done"
-      ? "m-done"
-      : working
-        ? "m-working"
-        : "m-listening";
+    : state === "fix"
+      ? "m-fix"
+      : state === "done"
+        ? "m-done"
+        : working
+          ? "m-working"
+          : "m-listening";
 
   return (
     <div
@@ -451,11 +544,13 @@ const RecordingOverlay: React.FC = () => {
       >
         {shownNotice
           ? noticeRow
-          : state === "done"
-            ? doneRow
-            : working
-              ? workingRow(workLabel)
-              : listeningRow(true)}
+          : state === "fix" && fixRow
+            ? fixRow
+            : state === "done"
+              ? doneRow
+              : working
+                ? workingRow(workLabel)
+                : listeningRow(true)}
       </div>
     </div>
   );

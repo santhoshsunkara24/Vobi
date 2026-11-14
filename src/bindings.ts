@@ -367,6 +367,14 @@ async resumeAllBindings() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async changeMuteWhileRecordingSetting(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("change_mute_while_recording_setting", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeShowIdleVobiSetting(enabled: boolean) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_show_idle_vobi_setting", { enabled }) };
@@ -381,14 +389,6 @@ async changeShowIdleVobiSetting(enabled: boolean) : Promise<Result<null, string>
 async updateSnippets(snippets: Snippet[]) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("update_snippets", { snippets }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async changeMuteWhileRecordingSetting(enabled: boolean) : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("change_mute_while_recording_setting", { enabled }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1513,11 +1513,11 @@ export type ShortcutActivation =
  * (`hold_threshold_ms`).
  */
 "hold_or_toggle"
+export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
 /**
  * A spoken shortcut: say `trigger`, get `text`.
  */
 export type Snippet = { id: string; trigger: string; text: string }
-export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
 export type SoundTheme = "marimba" | "pop" | "custom"
 /**
  * Phase of the streaming overlay card, emitted to drive its UI state.
