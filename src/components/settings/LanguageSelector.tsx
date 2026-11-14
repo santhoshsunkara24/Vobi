@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { ChevronDown } from "@/components/ui/icons";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { SettingContainer } from "../ui/SettingContainer";
@@ -219,21 +220,12 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             disabled={isUpdating("selected_language")}
           >
             <span className="truncate">{selectedLanguageName}</span>
-            <svg
+            <ChevronDown
+              size={14}
               className={`w-4 h-4 ms-2 transition-transform duration-200 ${
                 isOpen ? "transform rotate-180" : ""
               }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            />
           </button>
 
           {isOpen && !isUpdating("selected_language") && (

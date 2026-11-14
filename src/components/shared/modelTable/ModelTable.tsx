@@ -7,7 +7,7 @@ import React, {
   type SetStateAction,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Search } from "lucide-react";
+import { Search } from "@/components/ui/icons";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { languageName } from "@/lib/constants/languages";
 import { CAPABILITIES, CAPABILITY_KEYS, type Capability } from "./capabilities";
@@ -263,8 +263,10 @@ export const ModelTable: React.FC<ModelTableProps> = ({
     <ModelTableContext.Provider value={{ grading, actions, highlighted }}>
       <div
         ref={panelRef}
-        className={`group/list flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-panel bg-background text-start ${
-          thinEdge ? "border border-line" : "border-[1.5px] border-line-strong"
+        className={`group/list flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background text-start ${
+          thinEdge
+            ? "rounded-[24px] border border-[var(--hairline)]"
+            : "rounded-panel border-[1.5px] border-line-strong"
         }`}
       >
         {/* The magnifier and input align with the marks and names columns. */}

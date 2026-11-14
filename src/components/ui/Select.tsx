@@ -1,6 +1,9 @@
 import React from "react";
 import SelectComponent from "react-select";
 import CreatableSelect from "react-select/creatable";
+import { components as selectParts } from "react-select";
+import type { DropdownIndicatorProps } from "react-select";
+import { ChevronDown } from "./icons";
 import type {
   ActionMeta,
   Props as ReactSelectProps,
@@ -115,6 +118,15 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
 };
 
+// Bicon's chevron in place of react-select's own.
+const DropdownIndicator = (
+  props: DropdownIndicatorProps<SelectOption, false>,
+) => (
+  <selectParts.DropdownIndicator {...props}>
+    <ChevronDown size={14} />
+  </selectParts.DropdownIndicator>
+);
+
 export const Select: React.FC<SelectProps> = React.memo(
   ({
     value,
@@ -156,6 +168,7 @@ export const Select: React.FC<SelectProps> = React.memo(
       onBlur,
       isClearable,
       styles: selectStyles,
+      components: { DropdownIndicator },
     };
 
     if (isCreatable) {

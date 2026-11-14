@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
+import { X } from "@/components/ui/icons";
 import { useTranslation } from "react-i18next";
 import { isComposingKeyEvent } from "@/lib/utils/keyboard";
 import {
@@ -12,20 +13,7 @@ import { cjkSubsetFont } from "@/lib/utils/cjkFont";
 
 /** Spoken-language picker pieces shared by onboarding's Welcome and the Preferred Languages setting. */
 
-const RemoveIcon = () => (
-  <svg
-    width="10"
-    height="10"
-    viewBox="0 0 10 10"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    aria-hidden="true"
-  >
-    <path d="M2 2l6 6M8 2L2 8" />
-  </svg>
-);
+const RemoveIcon = () => <X size={10} strokeWidth={2} />;
 
 interface LanguageChipProps {
   code: string;

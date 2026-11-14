@@ -1,7 +1,7 @@
 import React from "react";
 import { Trans } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink } from "@/components/ui/icons";
 import { TextLink } from "../ui/TextLink";
 
 const LINUX_SETUP_URL = "https://handy.computer/docs/linux";

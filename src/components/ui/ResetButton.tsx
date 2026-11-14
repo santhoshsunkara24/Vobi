@@ -1,5 +1,5 @@
 import React from "react";
-import ResetIcon from "../icons/ResetIcon";
+import { RotateCcw } from "./icons";
 
 interface ResetButtonProps {
   onClick: () => void;
@@ -14,15 +14,15 @@ export const ResetButton: React.FC<ResetButtonProps> = React.memo(
     <button
       type="button"
       aria-label={ariaLabel}
-      className={`p-1 rounded-md border border-transparent transition-all duration-150 ${
+      className={`grid size-[32px] place-items-center rounded-full transition-[background-color,color,transform] duration-150 ${
         disabled
           ? "opacity-50 cursor-not-allowed text-ink-3"
-          : "hover:bg-logo-primary/20 active:bg-logo-primary/50 active:translate-y-[1px] hover:cursor-pointer hover:border-logo-primary text-text"
+          : "cursor-pointer text-ink-2 hover:bg-surface-2 hover:text-text active:scale-90"
       } ${className}`}
       onClick={onClick}
       disabled={disabled}
     >
-      {children ?? <ResetIcon />}
+      {children ?? <RotateCcw size={18} />}
     </button>
   ),
 );

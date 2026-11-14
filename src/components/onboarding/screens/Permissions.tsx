@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { relaunch } from "@tauri-apps/plugin-process";
-import { Keyboard, Mic } from "lucide-react";
+import { Keyboard, Mic } from "@/components/ui/icons";
 import { Button } from "../../ui/Button";
 import { Spinner } from "../../ui/Spinner";
 import { TextLink } from "../../ui/TextLink";

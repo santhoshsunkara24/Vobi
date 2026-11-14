@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown } from "@/components/ui/icons";
 
 /**
  * Marks something not downloaded yet; turns solid while its `group` row is

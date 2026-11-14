@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause } from "@/components/ui/icons";
 import { useTranslation } from "react-i18next";
 
 const revokeBlobSource = (src: string | null) => {
@@ -311,9 +311,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? (
-          <Pause width={20} height={20} fill="currentColor" />
+          <Pause size={20} variant="solid" />
         ) : (
-          <Play width={20} height={20} fill="currentColor" />
+          <Play size={20} variant="solid" />
         )}
       </button>
 

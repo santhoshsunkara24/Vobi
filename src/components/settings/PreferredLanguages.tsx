@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Check, Plus, Search } from "@/components/ui/icons";
 import { useTranslation } from "react-i18next";
 import { SettingContainer } from "../ui/SettingContainer";
 import { LanguageChip, useLanguagePicker } from "../shared/LanguagePicker";
@@ -16,52 +17,11 @@ interface PreferredLanguagesProps {
 
 type Picker = ReturnType<typeof useLanguagePicker>;
 
-const PlusIcon = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2.2}
-    strokeLinecap="round"
-    aria-hidden="true"
-  >
-    <path d="M12 5v14M5 12h14" />
-  </svg>
-);
+const PlusIcon = () => <Plus size={14} strokeWidth={1.8} />;
 
-const SearchIcon = () => (
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    aria-hidden="true"
-  >
-    <circle cx="11" cy="11" r="6.5" />
-    <path d="M16 16l4 4" />
-  </svg>
-);
+const SearchIcon = () => <Search size={15} strokeWidth={1.7} />;
 
-const CheckIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2.2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M5 12.5l4.5 4.5L19 7.5" />
-  </svg>
-);
+const CheckIcon = () => <Check size={16} strokeWidth={1.8} />;
 
 // Matches the row's gap-1.
 const CHIP_GAP = 4;

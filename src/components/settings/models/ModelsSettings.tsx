@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RefreshCw } from "lucide-react";
+import { Refresh as RefreshCw } from "@/components/ui/icons";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useModelStore } from "@/stores/modelStore";
 import {
@@ -136,11 +136,13 @@ export const ModelsSettings: React.FC<ModelsSettingsProps> = ({
       ];
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col">
+    <div className="flex min-h-0 w-full flex-1 flex-col">
       {/* The title, and across from it where to change the languages the
           grades are for. */}
-      <div className="mb-[16px] flex flex-none items-center justify-between gap-[12px] px-[12px]">
-        <h1 className="text-xl font-semibold">{t("settings.models.title")}</h1>
+      <div className="mb-[10px] flex flex-none items-center justify-between gap-[12px] ps-[6px]">
+        <h2 className="m-0 text-[13px] font-medium text-ink-3">
+          {t("settings.models.title")}
+        </h2>
         {onChangeLanguages && (
           <button
             type="button"

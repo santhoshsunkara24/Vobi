@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown } from "@/components/ui/icons";
 import { useTranslation } from "react-i18next";
 
 export interface DropdownOption {
@@ -98,19 +99,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
         aria-expanded={isOpen}
       >
         <span className="truncate">{selectedOption?.label || placeholder}</span>
-        <svg
+        <ChevronDown
+          size={14}
           className={`w-3.5 h-3.5 text-ink-3 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        />
       </button>
       {isOpen && !disabled && (
         <div
@@ -152,20 +144,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                     )}
                   </span>
                   {isChosen && (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2.2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                      className="shrink-0 text-accent"
-                    >
-                      <path d="M5 12.5l4.5 4.5L19 7.5" />
-                    </svg>
+                    <Check size={16} className="shrink-0 text-accent" />
                   )}
                 </button>
               );

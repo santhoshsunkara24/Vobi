@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { NoticeBadgeIcon } from "@/components/icons/NoticeBadgeIcon";
+import { AlertCircle } from "@hexline/bicon/react";
 import { useNoticeStore } from "@/stores/noticeStore";
 
 /** Counts the active notices and opens the panel that lists them. */
@@ -50,7 +50,8 @@ const NoticeChip: React.FC = () => {
       onClick={panelOpen ? hide : openPanel}
       className="flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-sm text-ink-2 transition-colors hover:text-text aria-expanded:text-text focus:outline-none focus-visible:ring-1 focus-visible:ring-logo-primary"
     >
-      <NoticeBadgeIcon
+      <AlertCircle
+        variant="solid"
         className={`h-3 w-3 ${errors > 0 ? "text-error" : "text-warning"}`}
       />
       {chipText}

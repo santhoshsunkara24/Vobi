@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { ExternalLink, TriangleAlert, X } from "lucide-react";
+import {
+  ExternalLink,
+  AlertTriangle as TriangleAlert,
+  X,
+} from "@/components/ui/icons";
 import { commands, type SecureInputStatus } from "@/bindings";
 
 // Detailed remediation steps live in the docs rather than in the banner

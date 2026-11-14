@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X } from "lucide-react";
+import { X } from "@/components/ui/icons";
 import type { NoticeLevel } from "@/bindings";
-import { NoticeBadgeIcon } from "@/components/icons/NoticeBadgeIcon";
+import { AlertCircle } from "@hexline/bicon/react";
 import { noticeDisplay } from "@/lib/notices";
 import { type LocalNotice, useNoticeStore } from "@/stores/noticeStore";
 
@@ -31,7 +31,10 @@ const NoticeRow: React.FC<NoticeRowProps> = ({
 
   return (
     <div className="flex items-start gap-2.5 px-3 py-2.5">
-      <NoticeBadgeIcon className={`mt-[3px] h-3.5 w-3.5 shrink-0 ${color}`} />
+      <AlertCircle
+        variant="solid"
+        className={`mt-[3px] h-3.5 w-3.5 shrink-0 ${color}`}
+      />
       <div className="min-w-0 flex-1 select-text break-words">
         <p className="text-sm font-medium text-text">{title}</p>
         {explanation && <p className="mt-0.5">{explanation}</p>}
@@ -90,10 +93,10 @@ const NoticeCard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     };
   }, [panelOpen, hide]);
 
-  // Over dialogs. In the main window it rises beside the sidebar's status
-  // card, where the notice chip is. Onboarding has no chip, and its Continue
+  // Over dialogs. In the main window it drops below the header, where the
+  // notice chip is. Onboarding has no chip, and its Continue
   // button is where the card would be, so there it sits below the top bar.
-  const position = footerShown ? "bottom-[18px] start-[240px]" : "top-14 end-4";
+  const position = footerShown ? "top-[100px] end-[28px]" : "top-14 end-4";
 
   return (
     <div

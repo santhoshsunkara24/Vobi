@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { RefreshCcw } from "lucide-react";
+import { Refresh as RefreshCcw } from "@/components/ui/icons";
 import { commands, type PostProcessApiFormat } from "@/bindings";
 
 import { Alert } from "../../ui/Alert";

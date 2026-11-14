@@ -1,5 +1,10 @@
 import React from "react";
-import { AlertCircle, AlertTriangle, Info, CheckCircle } from "lucide-react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  InfoCircle as Info,
+  CheckCircle,
+} from "@/components/ui/icons";
 
 type AlertVariant = "error" | "warning" | "info" | "success";
 

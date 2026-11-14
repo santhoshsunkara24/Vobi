@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { notify } from "@/stores/noticeStore";
-import { Loader2, Trash2, TriangleAlert } from "lucide-react";
+import {
+  Loader as Loader2,
+  Trash as Trash2,
+  AlertTriangle as TriangleAlert,
+} from "@/components/ui/icons";
 import { Button } from "../../ui/Button";
 import { commands, type RetiredModel } from "@/bindings";
 import { useModelStore } from "@/stores/modelStore";
