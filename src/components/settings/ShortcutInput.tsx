@@ -105,11 +105,11 @@ export const ShortcutInput: React.FC<ShortcutInputProps> = ({
       disabled={disabled}
       layout="horizontal"
     >
-      <div className="flex items-center space-x-1">
+      <div className="flex w-[248px] max-w-full items-center gap-[6px]">
         {capturing ? (
           <div
             ref={shortcutRef}
-            className="px-2 py-1 text-sm font-semibold border border-logo-primary bg-logo-primary/20 rounded-md"
+            className="flex h-9 min-w-0 flex-1 items-center justify-center truncate rounded-full bg-[var(--accent-soft)] px-[14px] text-[13.5px] font-semibold text-[var(--accent-text)] shadow-[0_0_0_1.5px_var(--sky-300)]"
           >
             {partial
               ? formatKeyCombination(partial, osType)
@@ -117,7 +117,7 @@ export const ShortcutInput: React.FC<ShortcutInputProps> = ({
           </div>
         ) : (
           <div
-            className="px-2 py-1 text-sm font-semibold bg-wash border border-line-strong hover:bg-logo-primary/10 rounded-md cursor-pointer hover:border-logo-primary"
+            className="flex h-9 min-w-0 flex-1 cursor-pointer items-center justify-center truncate rounded-full bg-surface-2 px-[14px] text-[13.5px] font-semibold transition-colors duration-200 hover:bg-surface-3"
             onClick={start}
           >
             {formatKeyCombination(binding.current_binding, osType)}

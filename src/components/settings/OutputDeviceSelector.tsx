@@ -52,8 +52,9 @@ export const OutputDeviceSelector: React.FC<OutputDeviceSelectorProps> =
           grouped={grouped}
           disabled={disabled}
         >
-          <div className="flex items-center space-x-1">
+          <div className="flex w-[248px] max-w-full items-center gap-[6px]">
             <Dropdown
+              className="min-w-0 flex-1"
               options={outputDeviceOptions}
               selectedValue={selectedOutputDevice}
               onSelect={handleOutputDeviceSelect}

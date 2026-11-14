@@ -207,14 +207,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       descriptionMode={descriptionMode}
       grouped={grouped}
     >
-      <div className="flex items-center space-x-1">
-        <div className="relative" ref={dropdownRef}>
+      <div className="flex w-[248px] max-w-full items-center gap-[6px]">
+        <div className="relative min-w-0 flex-1" ref={dropdownRef}>
           <button
             type="button"
-            className={`px-2 py-1 text-sm font-semibold bg-wash border border-line-strong rounded min-w-[200px] text-start flex items-center justify-between transition-all duration-150 ${
+            className={`flex h-9 w-full items-center justify-between rounded-full bg-surface-2 ps-[14px] pe-[12px] text-start text-[13.5px] font-semibold transition-colors duration-200 ${
               isUpdating("selected_language")
                 ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-logo-primary/10 cursor-pointer hover:border-logo-primary"
+                : "cursor-pointer hover:bg-surface-3"
             }`}
             onClick={handleToggle}
             disabled={isUpdating("selected_language")}

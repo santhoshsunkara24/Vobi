@@ -44,6 +44,7 @@ export const MicrophoneDropdown: React.FC<{
 
   return (
     <Dropdown
+      className="min-w-0 flex-1"
       options={microphoneOptions}
       selectedValue={selectedMicrophone}
       onSelect={handleMicrophoneSelect}
@@ -80,7 +81,7 @@ export const MicrophoneSelector: React.FC<MicrophoneSelectorProps> = React.memo(
         descriptionMode={descriptionMode}
         grouped={grouped}
       >
-        <div className="flex items-center space-x-1">
+        <div className="flex w-[248px] max-w-full items-center gap-[6px]">
           <MicrophoneDropdown />
           <ResetButton
             ariaLabel={t("common.resetSetting", {

@@ -84,14 +84,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <div
-      className={`relative ${className}`}
+      className={`relative ${className || "w-[248px] max-w-full"}`}
       ref={dropdownRef}
       onKeyDown={handleKeyDown}
     >
       <button
         type="button"
         ref={triggerRef}
-        className={`h-9 ps-[14px] pe-[12px] text-[13.5px] font-semibold bg-surface-2 rounded-full min-w-[200px] w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-colors duration-200 ${
+        className={`h-9 ps-[14px] pe-[12px] text-[13.5px] font-semibold bg-surface-2 rounded-full w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-colors duration-200 ${
           disabled ? "opacity-50 cursor-not-allowed" : `${hover} cursor-pointer`
         }`}
         onClick={handleToggle}

@@ -100,6 +100,7 @@ export const PasteMethodSetting: React.FC<PasteMethodProps> = React.memo(
           />
           {selectedMethod === "external_script" && (
             <Input
+              className="w-[248px] max-w-full"
               type="text"
               value={externalScriptPath}
               onChange={(e) =>

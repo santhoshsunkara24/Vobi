@@ -292,7 +292,6 @@
 
 .v-body {
   padding: 24px 32px 40px;
-  max-width: 1120px;
   animation: v-page-in var(--dur-3) var(--ease-out);
 }
 @keyframes v-page-in {
