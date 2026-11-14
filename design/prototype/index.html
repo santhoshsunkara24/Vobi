@@ -50,28 +50,6 @@
   --chrome: rgba(255,255,255,.62);
   color-scheme: light;
 }
-:root[data-theme="dark"] {
-  --wall: radial-gradient(900px 600px at 15% 10%, rgba(47,177,244,.16) 0%, transparent 60%), radial-gradient(800px 600px at 90% 90%, rgba(58,123,245,.16) 0%, transparent 60%), #070B10;
-  --bg: #0C1117;
-  --surface: #121A22;
-  --surface-2: #18212B;
-  --surface-3: #212C37;
-  --border: rgba(255,255,255,.06);
-  --border-2: rgba(255,255,255,.11);
-  --text: #EBF1F6;
-  --text-2: #9AA7B5;
-  --text-3: #66727F;
-  --accent: var(--sky-400);
-  --accent-soft: rgba(61,184,244,.12);
-  --accent-text: var(--sky-300);
-  --ink: #EBF1F6; --on-ink: #0C1117;
-  --shadow-card: 0 1px 2px rgba(0,0,0,.3);
-  --shadow-win: 0 40px 100px -20px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.07);
-  --pill-bg: #141C25;
-  --chrome: rgba(16,22,30,.6);
-  --grad-soft: linear-gradient(135deg, rgba(47,177,244,.14), rgba(58,123,245,.14));
-  color-scheme: dark;
-}
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
@@ -587,7 +565,6 @@ html[data-os="win"] .proto { top: 14px; }
   <!-- ===================== PROTOTYPE CONTROLS (not part of the app) ===================== -->
   <div class="proto" id="proto">
     <div class="proto-h"><span id="proto-blob"></span>Prototype<button id="proto-min" aria-label="Collapse">›</button></div>
-    <div class="r">Theme <div class="seg" id="theme"><span class="thumb"></span><button data-v="light" aria-pressed="true">Light</button><button data-v="dark" aria-pressed="false">Dark</button></div></div>
     <div class="r">Platform <div class="seg" id="os"><span class="thumb"></span><button data-v="mac" aria-pressed="true">Mac</button><button data-v="win" aria-pressed="false">Windows</button></div></div>
     <div class="r">Pill state <select class="select" id="state-sel" style="height:30px;font-size:12.5px"><option value="idle">Idle</option><option value="listening">Listening</option><option value="thinking">Thinking</option><option value="done">Done</option><option value="error">Error</option></select></div>
     <div class="btns"><button id="replay">Replay first run</button><button id="mic-btn">Use real mic</button><button id="tokens-btn" style="grid-column:span 2">Design tokens</button></div>
@@ -641,73 +618,104 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const root = document.documentElement;
 
-/* ---------- THE BLOB ---------- */
+/* ---------- VOBI: the Ocean Marshmallow cloud ---------- */
+const NAVY = "#14304C";
+const CLOUD = { puffs: [[-21, -2, 17], [-2, -14, 22], [21, -6, 18], [33, 8, 11]], base: [-42, 4, 84, 34], o: [0, 10] };
+function cloudPoints(puffs, base, ox, oy, smooth, N) {
+  const circles = puffs.slice(), [bx, by, bw, bh] = base, br = bh / 2;
+  for (let x = bx + br; x <= bx + bw - br + .01; x += Math.max(4, (bw - bh) / 6)) circles.push([x, by + br, br]);
+  const R = new Array(N);
+  for (let i = 0; i < N; i++) {
+    const a = i / N * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a); let best = 0;
+    for (const [cx, cy, r] of circles) { const px = cx - ox, py = cy - oy, b = dx * px + dy * py, c = px * px + py * py - r * r, disc = b * b - c; if (disc >= 0) { const t = b + Math.sqrt(disc); if (t > best) best = t; } }
+    R[i] = best;
+  }
+  for (let k = 0; k < smooth; k++) { const c = R.slice(); for (let i = 0; i < N; i++) R[i] = (c[(i - 1 + N) % N] + 2 * c[i] + c[(i + 1) % N]) / 4; }
+  return "M" + R.map((r, i) => { const a = i / N * Math.PI * 2; return (ox + Math.cos(a) * r).toFixed(2) + "," + (oy + Math.sin(a) * r).toFixed(2); }).join("L") + "Z";
+}
 let blobN = 0;
 class VobiBlob {
   constructor(mount, size = 40, o = {}) {
-    this.id = ++blobN; this.state = "idle"; this.level = 0; this.targetLevel = 0; this.t = Math.random() * 10; this.mono = !!o.mono;
+    this.id = "v" + (++blobN); this.mono = !!o.mono; this.small = size < 70; this.state = "idle"; this.level = 0; this.targetLevel = 0; this.t = Math.random() * 10;
     const S = (x = 1) => ({ x, v: 0, to: x });
-    this.sy = S(); this.sx = S(); this.ty = S(0); this.eyeH = S(); this.lookX = S(0); this.lookY = S(0); this.happy = S(0); this.flat = S(0);
-    this.nextBlink = performance.now() + 1200 + Math.random() * 3000;
-    const g = "g" + this.id, h = "h" + this.id;
-    const fill = this.mono ? "currentColor" : `url(#${g})`;
-    const eye = this.mono ? "var(--eye,#000)" : "#fff";
+    this.sy = S(); this.sx = S(); this.ty = S(0); this.open = S(); this.happy = S(0); this.err = S(0); this.lx = S(0); this.ly = S(0); this.big = S(1);
+    this.nextBlink = performance.now() + 900 + Math.random() * 3000;
+    const G = this.id, sm = this.small;
+    const body = this.mono
+      ? `<path class="body" fill="currentColor"/>`
+      : `<path class="body" fill="url(#${G}f)" filter="url(#${G}soft)"/>
+         <g clip-path="url(#${G}clip)"><ellipse cx="0" cy="46" rx="60" ry="24" fill="url(#${G}ao)"/><ellipse cx="0" cy="30" rx="30" ry="9" fill="url(#${G}glow)"/><ellipse cx="-12" cy="-22" rx="34" ry="18" fill="url(#${G}hi)" opacity=".9"/></g>
+         <path class="rim" fill="none" stroke="url(#${G}rim)" stroke-width="2"/>
+         <ellipse cx="-14" cy="-18" rx="6" ry="3.4" fill="#fff" opacity=".9" transform="rotate(-25 -14 -18)"/>`;
+    const eyeC = this.mono ? "var(--eye,#fff)" : NAVY;
     mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">
-      <defs><linearGradient id="${g}" x1="0" y1="-1" x2=".35" y2="1"><stop offset="0" stop-color="#8FE6FC"/><stop offset=".5" stop-color="#34B3F4"/><stop offset="1" stop-color="#3A72F0"/></linearGradient>
-      <radialGradient id="${h}"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
-      ${o.shadow ? `<ellipse class="sh" cx="0" cy="50" rx="30" ry="4" fill="#0B2A4A" opacity=".16"/>` : ""}
-      <g class="bg"><path class="body" fill="${fill}"/>${this.mono ? "" : `<ellipse cx="-16" cy="-22" rx="13" ry="8" fill="url(#${h})" transform="rotate(-20 -16 -22)"/>`}
-      <rect class="el" fill="${eye}"/><rect class="er" fill="${eye}"/>
-      <path class="hl" fill="none" stroke="${eye}" stroke-width="4.5" stroke-linecap="round" opacity="0"/><path class="hr" fill="none" stroke="${eye}" stroke-width="4.5" stroke-linecap="round" opacity="0"/></g></svg>`;
+      <defs>
+        <linearGradient id="${G}f" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#DDF7FF"/><stop offset=".55" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></linearGradient>
+        <radialGradient id="${G}hi"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${G}ao"><stop offset="0" stop-color="#1B44C9" stop-opacity=".55"/><stop offset="1" stop-color="#1B44C9" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${G}glow"><stop offset="0" stop-color="#9EEBFF" stop-opacity=".85"/><stop offset="1" stop-color="#9EEBFF" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${G}bl"><stop offset="0" stop-color="#FF7EAA" stop-opacity=".75"/><stop offset="1" stop-color="#FF7EAA" stop-opacity="0"/></radialGradient>
+        <linearGradient id="${G}rim" x1="0" y1="-40" x2="0" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <filter id="${G}soft" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="${sm ? 1 : 5}" stdDeviation="${sm ? 1.4 : 5}" flood-color="#1B44C9" flood-opacity=".32"/></filter>
+        <clipPath id="${G}clip"><path class="clipP"/></clipPath>
+      </defs>
+      ${o.shadow ? `<ellipse class="sh" cx="0" cy="52" rx="34" ry="4" fill="#0B2A4A" opacity=".12"/>` : ""}
+      <g class="b">${body}
+        <g class="face">
+          ${this.mono ? "" : `<ellipse class="bl" rx="6" ry="3.4" fill="url(#${G}bl)"/><ellipse class="br" rx="6" ry="3.4" fill="url(#${G}bl)"/>`}
+          <ellipse class="el" fill="${eyeC}"/><ellipse class="er" fill="${eyeC}"/>
+          ${this.mono || sm ? "" : `<circle class="g1" r="1.7" fill="#fff"/><circle class="g2" r="1.7" fill="#fff"/><circle class="g3" r=".8" fill="#fff"/><circle class="g4" r=".8" fill="#fff"/>`}
+          <path class="al" fill="none" stroke="${eyeC}" stroke-width="${this.mono ? 4.5 : 3}" stroke-linecap="round"/><path class="ar" fill="none" stroke="${eyeC}" stroke-width="${this.mono ? 4.5 : 3}" stroke-linecap="round"/>
+          ${this.mono ? "" : `<path class="sm" fill="none" stroke="${NAVY}" stroke-width="2.2" stroke-linecap="round"/><ellipse class="mo" fill="#0E2238"/>`}
+        </g></g></svg>`;
     const q = s => mount.querySelector(s);
-    this.e = { body: q(".body"), g: q(".bg"), el: q(".el"), er: q(".er"), hl: q(".hl"), hr: q(".hr"), sh: q(".sh") };
+    this.r = { b: q(".b"), body: q(".body"), clipP: q(".clipP"), rim: q(".rim"), sh: q(".sh"), el: q(".el"), er: q(".er"), al: q(".al"), ar: q(".ar"),
+      g: [...mount.querySelectorAll(".g1,.g2,.g3,.g4")], sm: q(".sm"), mo: q(".mo"), bl: q(".bl"), br: q(".br") };
     requestAnimationFrame(n => this.frame(n));
   }
   setState(s) {
     if (s === this.state) return; const p = this.state; this.state = s;
-    this.happy.to = s === "done" ? 1 : 0; this.flat.to = s === "error" ? 1 : 0; this.lookY.to = s === "listening" ? -2.5 : 0;
-    if (s === "done") this.kick(-.22, .14, -14);
-    if (s === "listening" && p !== "listening") this.kick(.12, -.06, -4);
-    if (s === "error") this.kick(.1, 0, 0);
+    this.happy.to = s === "done" ? 1 : 0; this.err.to = s === "error" ? 1 : 0; this.big.to = s === "listening" ? 1.12 : 1;
+    if (s === "done") { this.sy.v -= 2.8; this.sx.v += 1.8; this.ty.v -= 200; }
+    if (s === "listening" && p !== "listening") { this.sy.v += 1.5; this.sx.v -= .8; this.ty.v -= 60; }
+    if (s === "error") { this.sy.v += 1.2; }
   }
-  kick(dy, dx, j) { this.sy.v += dy * 12; this.sx.v += dx * 12; this.ty.v += j * 14; }
   st(s, k, c, dt) { s.v += (-k * (s.x - s.to) - c * s.v) * dt; s.x += s.v * dt; }
   frame(now) {
     const dt = Math.min(.033, (now - (this.last || now)) / 1000 || .016); this.last = now; this.t += dt;
-    const st = this.state, tl = st === "listening" ? this.targetLevel : 0;
-    this.level += (tl - this.level) * (tl > this.level ? .45 : .12); const L = this.level;
-    if (now > this.nextBlink && st !== "done" && st !== "error") { this.eyeH.x = .1; this.eyeH.v = 0; this.nextBlink = now + 2600 + Math.random() * 3200; }
-    this.lookX.to = st === "thinking" ? Math.sin(this.t * 2.4) * 5 : 0;
-    const br = reduceMotion ? 0 : Math.sin(this.t * (st === "idle" ? 1.6 : 2.6)) * (st === "idle" ? .025 : .018);
-    this.sy.to = 1 + br + L * .16; this.sx.to = 1 - br * .6 + L * .05;
-    this.st(this.sy, 260, 13, dt); this.st(this.sx, 260, 13, dt); this.st(this.ty, 220, 16, dt); this.st(this.eyeH, 300, 22, dt);
-    this.st(this.lookX, 120, 14, dt); this.st(this.lookY, 160, 18, dt); this.st(this.happy, 260, 24, dt); this.st(this.flat, 260, 24, dt);
-    const N = 10, R = 36, pts = [];
-    const sp = st === "listening" ? 3.2 + L * 6 : st === "thinking" ? 2.2 : 1.1;
-    const amp = reduceMotion ? 0 : st === "listening" ? .035 + L * .13 : st === "thinking" ? .05 : .03, tt = this.t * sp;
-    for (let i = 0; i < N; i++) {
-      const a = i / N * Math.PI * 2 - Math.PI / 2;
-      const r = R * (1 + amp * Math.sin(3 * a + tt) + amp * .6 * Math.sin(5 * a - tt * 1.3 + 1.7) + (st === "thinking" ? .06 * Math.sin(a - this.t * 3) : 0));
-      let x = Math.cos(a) * r * 1.04, y = Math.sin(a) * r; if (y > 0) y *= .9;
-      pts.push([x * this.sx.x, y * this.sy.x - (this.sy.x - 1) * 26]);
+    const r = this.r, st = this.state, t = reduceMotion ? 0 : this.t;
+    const tl = st === "listening" ? this.targetLevel : 0; this.level += (tl - this.level) * (tl > this.level ? .45 : .12); const L = this.level;
+    if (now > this.nextBlink && st !== "done" && st !== "error") { this.open.x = .08; this.open.v = 0; this.nextBlink = now + 2400 + Math.random() * 3400; }
+    this.lx.to = st === "thinking" ? 3.5 * Math.sign(Math.sin(this.t * 1.3)) : 0; this.ly.to = st === "thinking" ? -2.5 : st === "listening" ? -1 : st === "error" ? 1.5 : 0;
+    const br = reduceMotion ? 0 : Math.sin(this.t * (st === "idle" ? 1.3 : 2.4)) * (st === "idle" ? .022 : .015);
+    this.sy.to = 1 + br + L * .1 - this.err.x * .04; this.sx.to = 1 - br * .5 + L * .05;
+    for (const [s, k, c] of [[this.sy, 260, 13], [this.sx, 260, 13], [this.ty, 220, 16], [this.open, 300, 22], [this.happy, 240, 22], [this.err, 240, 22], [this.lx, 140, 16], [this.ly, 140, 16], [this.big, 220, 18]]) this.st(s, k, c, dt);
+    const hap = Math.max(0, Math.min(1, this.happy.x)), er = Math.max(0, Math.min(1, this.err.x)), ty = Math.min(0, this.ty.x);
+    const puffs = CLOUD.puffs.map(([cx, cy, rr], i) => {
+      const ph = i * 1.9; let d = Math.sin(t * (1.1 + i * .17) + ph) * .9;
+      if (st === "listening") d += Math.max(0, Math.sin(t * 9 + ph * 1.4)) * L * 5.5;
+      if (st === "thinking") d += Math.max(0, Math.sin(t * 4.2 - i * .9)) * 2.6;
+      return [cx, cy, rr + d - er * 1.2];
+    });
+    const d = cloudPoints(puffs, CLOUD.base, CLOUD.o[0], CLOUD.o[1], 3, this.small ? 80 : 140);
+    r.body.setAttribute("d", d); if (r.clipP) r.clipP.setAttribute("d", d); if (r.rim) r.rim.setAttribute("d", d);
+    const baseY = 42;
+    r.b.setAttribute("transform", `translate(0 ${ty.toFixed(2)}) translate(0 ${baseY}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-baseY})`);
+    if (r.sh) r.sh.setAttribute("opacity", (.12 * (1 + ty / 45)).toFixed(3));
+    // face
+    const gap = this.mono ? 13 : 12, rx = this.mono ? 5.5 : 4.6, ry = this.mono ? 7.5 : 6.2, y0 = this.mono ? 15 : 16;
+    const lx = this.lx.x, ly = this.ly.x, big = this.big.x, ey = y0 + ly;
+    const eyeOpen = Math.max(.06, this.open.x) * (1 - hap) * (1 - er * .7);
+    [[r.el, -1], [r.er, 1]].forEach(([e, s]) => { e.setAttribute("cx", (s * gap + lx).toFixed(2)); e.setAttribute("cy", ey.toFixed(2)); e.setAttribute("rx", (rx * big * (1 + er * .25)).toFixed(2)); e.setAttribute("ry", Math.max(.6, ry * big * eyeOpen).toFixed(2)); e.setAttribute("opacity", hap > .85 ? 0 : 1); });
+    [[r.al, -1], [r.ar, 1]].forEach(([p, s]) => { const cx = s * gap + lx, w = rx * 1.25; p.setAttribute("d", `M${(cx - w).toFixed(2)},${(ey + 1.5).toFixed(2)} Q${cx.toFixed(2)},${(ey - 4.2).toFixed(2)} ${(cx + w).toFixed(2)},${(ey + 1.5).toFixed(2)}`); p.setAttribute("opacity", (hap > .5 ? Math.min(1, (hap - .5) * 3) : 0).toFixed(2)); });
+    if (r.g.length) { const vis = eyeOpen > .55 ? 1 : 0; r.g.forEach((g, i) => { const s = i % 2 ? 1 : -1, sm = i > 1; g.setAttribute("cx", (s * gap + lx + (sm ? -1.6 : 1.5) * big).toFixed(2)); g.setAttribute("cy", (ey + (sm ? 2.4 : -2.2) * big).toFixed(2)); g.setAttribute("opacity", vis); }); }
+    if (r.bl) { r.bl.setAttribute("cx", (-gap - 9 + lx * .5).toFixed(2)); r.br.setAttribute("cx", (gap + 9 + lx * .5).toFixed(2)); [r.bl, r.br].forEach(b => { b.setAttribute("cy", (ey + 6).toFixed(2)); b.setAttribute("opacity", ((.7 + hap * .3) * (1 - er * .6)).toFixed(2)); }); }
+    if (r.sm) {
+      const talk = st === "listening" ? L : 0, my = ey + 7.5, mx = lx * .6;
+      r.mo.setAttribute("cx", mx.toFixed(2)); r.mo.setAttribute("cy", (my + 1).toFixed(2)); r.mo.setAttribute("rx", (2.6 + talk * .8).toFixed(2)); r.mo.setAttribute("ry", (.5 + talk * 3.6).toFixed(2)); r.mo.setAttribute("opacity", talk > .06 ? 1 : 0);
+      const w = 2.6 + hap * 2.2, dp = 1.8 + hap * 2.6 - er * 4.2;
+      r.sm.setAttribute("d", `M${(mx - w).toFixed(2)},${(my + er * 1.5).toFixed(2)} Q${mx.toFixed(2)},${(my + dp + er * 1.5).toFixed(2)} ${(mx + w).toFixed(2)},${(my + er * 1.5).toFixed(2)}`); r.sm.setAttribute("opacity", talk > .06 ? 0 : 1);
     }
-    let d = "";
-    for (let i = 0; i < N; i++) {
-      const p0 = pts[(i - 1 + N) % N], p1 = pts[i], p2 = pts[(i + 1) % N], p3 = pts[(i + 2) % N];
-      if (!i) d += `M${p1[0].toFixed(2)},${p1[1].toFixed(2)}`;
-      d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(2)},${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(2)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(2)},${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)}`;
-    }
-    this.e.body.setAttribute("d", d + "Z");
-    const ty = Math.min(0, this.ty.x); this.e.g.setAttribute("transform", `translate(0 ${ty.toFixed(2)})`);
-    if (this.e.sh) this.e.sh.setAttribute("rx", (30 * (1 + ty / 60) * this.sx.x).toFixed(2));
-    const hap = Math.max(0, Math.min(1, this.happy.x)), fl = Math.max(0, Math.min(1, this.flat.x));
-    const ew = 7.4 + fl * 4, eh = Math.max(1.6, (13 + L * 2) * Math.max(.08, this.eyeH.x) * (1 - fl * .82) * (1 - hap));
-    const ey = -4 - (this.sy.x - 1) * 26 + this.lookY.x, lx = this.lookX.x;
-    for (const [el, s] of [[this.e.el, -1], [this.e.er, 1]]) {
-      el.setAttribute("x", (s * 14 - ew / 2 + lx).toFixed(2)); el.setAttribute("y", (ey - eh / 2).toFixed(2));
-      el.setAttribute("width", ew.toFixed(2)); el.setAttribute("height", eh.toFixed(2)); el.setAttribute("rx", (Math.min(ew, eh) / 2).toFixed(2)); el.setAttribute("opacity", (1 - hap).toFixed(2));
-    }
-    for (const [el, s] of [[this.e.hl, -1], [this.e.hr, 1]]) { const cx = s * 14 + lx, cy = ey + 2; el.setAttribute("d", `M${cx - 6},${cy} Q${cx},${cy - 8} ${cx + 6},${cy}`); el.setAttribute("opacity", hap.toFixed(2)); }
     if (document.hidden) setTimeout(() => requestAnimationFrame(n => this.frame(n)), 400); else requestAnimationFrame(n => this.frame(n));
   }
 }
@@ -728,20 +736,19 @@ const tick = () => { const d = new Date(); $$(".clock").forEach(c => c.innerHTML
 setInterval(tick, 15000);
 
 /* ---------- blobs ---------- */
-new VobiBlob($("#brand-blob"), 28);
-new VobiBlob($("#hero-blob"), 46);
+new VobiBlob($("#brand-blob"), 32);
+new VobiBlob($("#hero-blob"), 58);
 new VobiBlob($("#proto-blob"), 18);
-new VobiBlob($("#tm-blob"), 30);
-const trayMac = new VobiBlob($("#tray-blob-mac"), 17, { mono: true });
-const trayWin = new VobiBlob($("#tray-blob-win"), 17, { mono: true });
-$("#tray-blob-mac").style.cssText = "color:var(--text);--eye:var(--bg)";
-$("#tray-blob-win").style.cssText = "color:var(--text);--eye:var(--bg)";
-const obBlob = new VobiBlob($("#ob-hero"), 150, { shadow: true });
-const pillBlob = new VobiBlob($("#pill-blob"), 40);
+new VobiBlob($("#tm-blob"), 34);
+const trayMac = new VobiBlob($("#tray-blob-mac"), 22, { mono: true });
+const trayWin = new VobiBlob($("#tray-blob-win"), 22, { mono: true });
+$("#tray-blob-mac").style.cssText = "color:#1A2230;--eye:#EEF3F7";
+$("#tray-blob-win").style.cssText = "color:#1A2230;--eye:#EEF3F7";
+const obBlob = new VobiBlob($("#ob-hero"), 180, { shadow: true });
+const pillBlob = new VobiBlob($("#pill-blob"), 48);
 
 /* ---------- theme & OS ---------- */
 const HOTKEY = { mac: "fn", win: "Right Ctrl" };
-initSeg($("#theme"), v => root.dataset.theme = v);
 function applyOS(os) {
   root.dataset.os = os;
   $$("[data-hotkey]").forEach(e => e.textContent = HOTKEY[os]);
