@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { type } from "@tauri-apps/plugin-os";
+import { currentOsType } from "@/hooks/useOsType";
 import { SettingContainer } from "../../ui/SettingContainer";
 import { Dropdown, type DropdownOption } from "../../ui/Dropdown";
 import { useSettings } from "../../../hooks/useSettings";
@@ -12,7 +12,7 @@ const KEYBOARD_IMPLEMENTATION_OPTIONS: DropdownOption[] = [
   { value: "handy_keys", label: "Handy Keys" },
   // Linux only: for Wayland, where the compositor owns keybindings and
   // triggers Handy via `handy --toggle-transcription`.
-  ...(type() === "linux" ? [{ value: "none", label: "None" }] : []),
+  ...(currentOsType() === "linux" ? [{ value: "none", label: "None" }] : []),
 ];
 
 interface KeyboardImplementationSelectorProps {

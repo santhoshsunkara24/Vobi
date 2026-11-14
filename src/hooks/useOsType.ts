@@ -2,15 +2,24 @@ import { type } from "@tauri-apps/plugin-os";
 import { type OSType } from "../lib/utils/keyboard";
 
 /**
- * Get the current OS type for keyboard handling.
- * This is a simple wrapper - type() is synchronous.
+ * The OS, for keyboard handling and platform differences. `type()` is
+ * synchronous, but throws outside Tauri (a plain browser), so this falls
+ * back to "unknown" there.
  */
-export function useOsType(): OSType {
-  const osType = type();
-  // type() returns "macos" | "windows" | "linux" | "ios" | "android"
-  // OSType expects "macos" | "windows" | "linux" | "unknown"
-  if (osType === "macos" || osType === "windows" || osType === "linux") {
-    return osType;
+export function currentOsType(): OSType {
+  try {
+    // type() returns "macos" | "windows" | "linux" | "ios" | "android"
+    const osType = type();
+    if (osType === "macos" || osType === "windows" || osType === "linux") {
+      return osType;
+    }
+  } catch {
+    // Not running in Tauri.
   }
   return "unknown";
+}
+
+/** Get the current OS type for keyboard handling. */
+export function useOsType(): OSType {
+  return currentOsType();
 }

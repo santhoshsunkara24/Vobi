@@ -1,31 +1,9 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { platform } from "@tauri-apps/plugin-os";
-import App from "./App";
-import { installCompatShims } from "./lib/compat";
-import "@fontsource-variable/instrument-sans";
+// The main window's entry. In a plain browser (`bun run dev` opened outside
+// Tauri) a dev-only mock stands in for the backend so the UI can be reviewed;
+// production builds drop that branch entirely.
+const ready =
+  import.meta.env.DEV && !("__TAURI_INTERNALS__" in window)
+    ? import("./dev/browserMock")
+    : Promise.resolve();
 
-installCompatShims();
-
-// Set platform before render so CSS can scope per-platform (e.g. scrollbar styles)
-document.documentElement.dataset.platform = platform();
-
-// Vobi is light only.
-document.documentElement.dataset.theme = "light";
-
-// Initialize i18n
-import "./i18n";
-
-// Initialize model store (loads models and sets up event listeners)
-import { useModelStore } from "./stores/modelStore";
-import { useNoticeStore } from "./stores/noticeStore";
-import { useTranscriptionJobsStore } from "./stores/transcriptionJobsStore";
-useModelStore.getState().initialize();
-useTranscriptionJobsStore.getState().initialize();
-useNoticeStore.getState().initialize();
-
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+ready.then(() => import("./boot"));
