@@ -367,6 +367,25 @@ async resumeAllBindings() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async changeShowIdleVobiSetting(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("change_show_idle_vobi_setting", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replaces the saved snippets, dropping any with an empty trigger or text.
+ */
+async updateSnippets(snippets: Snippet[]) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_snippets", { snippets }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeMuteWhileRecordingSetting(enabled: boolean) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_mute_while_recording_setting", { enabled }) };
@@ -1185,7 +1204,17 @@ language_detection_window_secs?: number;
  * not gated on this — that follows model capability. Migrated from the old
  * `overlay_position` (position `none` → style `None`).
  */
-overlay_style?: OverlayStyle }
+overlay_style?: OverlayStyle; 
+/**
+ * Keep Vobi on screen as a small floating pill while not dictating.
+ * Persisted only for now: the idle pill itself is a follow-up.
+ */
+show_idle_vobi?: boolean; 
+/**
+ * Short spoken phrases that expand to longer text. Stored only for now:
+ * expanding them in transcriptions is a follow-up.
+ */
+snippets?: Snippet[] }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AutoUnavailableReason = 
@@ -1484,6 +1513,10 @@ export type ShortcutActivation =
  * (`hold_threshold_ms`).
  */
 "hold_or_toggle"
+/**
+ * A spoken shortcut: say `trigger`, get `text`.
+ */
+export type Snippet = { id: string; trigger: string; text: string }
 export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
 export type SoundTheme = "marimba" | "pop" | "custom"
 /**
