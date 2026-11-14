@@ -112,6 +112,41 @@ struct Pending {
     grabbed: Grabbed,
     refined: String,
     settings: AppSettings,
+    /// The app the text came from, handed focus back after a click on the card.
+    front: Option<i32>,
+}
+
+/// Clicking the preview card can make macOS bring Vobi (and its window) to
+/// the front. These keep the app the person was writing in frontmost.
+#[cfg(target_os = "macos")]
+mod front_app {
+    use objc2_app_kit::{NSApplicationActivationOptions, NSRunningApplication, NSWorkspace};
+
+    pub fn current() -> Option<i32> {
+        NSWorkspace::sharedWorkspace()
+            .frontmostApplication()
+            .map(|app| app.processIdentifier())
+    }
+
+    /// Re-activates `pid` if Vobi took the front in the meantime.
+    #[allow(deprecated)]
+    pub fn restore(pid: Option<i32>) {
+        let Some(pid) = pid else { return };
+        if current() != Some(std::process::id() as i32) {
+            return;
+        }
+        if let Some(app) = NSRunningApplication::runningApplicationWithProcessIdentifier(pid) {
+            app.activateWithOptions(NSApplicationActivationOptions::empty());
+        }
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+mod front_app {
+    pub fn current() -> Option<i32> {
+        None
+    }
+    pub fn restore(_pid: Option<i32>) {}
 }
 
 static PENDING: Mutex<Option<Pending>> = Mutex::new(None);
@@ -154,6 +189,7 @@ fn refine(app: &AppHandle) -> Option<FixResult> {
         }
     };
 
+    let front = front_app::current();
     show_refining_overlay(app);
     let Some(refined) = ask_ai(&settings, &grabbed.text) else {
         return Some(FixResult::Failed);
@@ -166,6 +202,7 @@ fn refine(app: &AppHandle) -> Option<FixResult> {
         grabbed,
         refined,
         settings,
+        front,
     });
     None
 }
@@ -193,6 +230,9 @@ pub fn refine_accept(app: AppHandle) {
         return;
     };
     std::thread::spawn(move || {
+        // Back to the app the text lives in before writing into it.
+        front_app::restore(pending.front);
+        std::thread::sleep(Duration::from_millis(60));
         let text = with_original_spacing(&pending.grabbed.text, &pending.refined);
         let words = text.split_whitespace().count();
         let result = match put(&app, &pending.grabbed, &text) {
@@ -210,7 +250,7 @@ pub fn refine_accept(app: AppHandle) {
 #[tauri::command]
 #[specta::specta]
 pub fn refine_again(app: AppHandle) {
-    let (original, previous, mut settings) = {
+    let (original, previous, mut settings, front) = {
         let guard = PENDING.lock().unwrap_or_else(|e| e.into_inner());
         let Some(p) = guard.as_ref() else {
             return;
@@ -219,8 +259,10 @@ pub fn refine_again(app: AppHandle) {
             p.grabbed.text.clone(),
             p.refined.clone(),
             p.settings.clone(),
+            p.front,
         )
     };
+    front_app::restore(front);
     show_refine_preview(&app, &previous, true);
     if let Some(prompt) = settings
         .post_process_prompts
@@ -248,7 +290,9 @@ pub fn refine_again(app: AppHandle) {
 #[tauri::command]
 #[specta::specta]
 pub fn refine_dismiss(app: AppHandle) {
-    PENDING.lock().unwrap_or_else(|e| e.into_inner()).take();
+    if let Some(p) = PENDING.lock().unwrap_or_else(|e| e.into_inner()).take() {
+        front_app::restore(p.front);
+    }
     hide_recording_overlay(&app);
 }
 

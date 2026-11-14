@@ -16,7 +16,9 @@ use tauri::WebviewWindowBuilder;
 use tauri::WebviewUrl;
 
 #[cfg(target_os = "macos")]
-use tauri_nspanel::{tauri_panel, CollectionBehavior, PanelBuilder, PanelLevel, StyleMask};
+use tauri_nspanel::{
+    tauri_panel, CollectionBehavior, ManagerExt, PanelBuilder, PanelLevel, StyleMask,
+};
 
 #[cfg(target_os = "linux")]
 use crate::utils;
@@ -29,6 +31,7 @@ tauri_panel! {
     panel!(RecordingOverlayPanel {
         config: {
             can_become_key_window: false,
+            becomes_key_only_if_needed: true,
             is_floating_panel: true
         }
     })
@@ -621,6 +624,16 @@ fn show_overlay_state_on_main(app_handle: &AppHandle, state: &str) {
             let pos_calc_elapsed = pos_started.elapsed() - set_pos_elapsed;
 
             let show_started = std::time::Instant::now();
+            // macOS: order the panel front without making it key or touching
+            // the app's activation, so the app you're typing in keeps focus.
+            #[cfg(target_os = "macos")]
+            match app_handle.get_webview_panel("recording_overlay") {
+                Ok(panel) => panel.show(),
+                Err(_) => {
+                    let _ = overlay_window.show();
+                }
+            }
+            #[cfg(not(target_os = "macos"))]
             let _ = overlay_window.show();
             let show_elapsed = show_started.elapsed();
 
