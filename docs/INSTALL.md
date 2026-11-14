@@ -24,7 +24,7 @@ Not sure which Mac you have? Apple menu → About This Mac → look at "Chip".
    - **Accessibility**, so it can type where your cursor is.
 5. Pick a speech model when asked (it downloads once).
 
-Default shortcuts: **fn** to talk · **Option + Shift + F** to fix spelling of
+Default shortcuts: **Option + Space** to talk · **Option + Shift + F** to fix spelling of
 selected text · **Option + Shift + R** to refine selected text with AI.
 
 **After an update**, if a shortcut stops working: System Settings → Privacy &
