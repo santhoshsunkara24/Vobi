@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Structured</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --font: "Instrument Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --text: #0E1620; --text-2: #5A6675; --text-3: #97A2AF; --surface-2: #F3F7FA; --surface-3: #E7EDF2;
+  --shadow: 0 1px 2px rgba(18,38,58,.04), 0 14px 36px -12px rgba(18,38,58,.12);
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 14.5px/1.5 var(--font); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; background: #F4F7FA; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; }
+.sub { color: var(--text-2); margin: 6px 0 0; max-width: 600px; }
+.spacer { flex: 1; }
+.seg { position: relative; display: inline-flex; padding: 4px; gap: 2px; background: #fff; border-radius: 999px; box-shadow: var(--shadow); }
+.seg button { position: relative; z-index: 1; height: 34px; padding: 0 15px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--text-2); transition: color .2s; }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg .thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: #0E1620; transition: transform .45s var(--ease), width .45s var(--ease); }
+.hint { font-size: 12.5px; color: var(--text-3); margin-top: 8px; text-align: right; }
+.kbd { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; background: #fff; border: 1px solid rgba(18,38,58,.14); border-bottom-width: 2px; font-size: 11.5px; font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card { background: #fff; border-radius: 26px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: transform .25s var(--ease), box-shadow .25s; }
+.card:hover { transform: translateY(-2px); }
+.card.picked { box-shadow: var(--shadow), 0 0 0 2px #2FB1F4, 0 0 0 7px rgba(47,177,244,.15); }
+.stage { position: relative; height: 250px; display: grid; place-items: center; background: radial-gradient(260px 170px at 50% 55%, #fff, transparent 72%), linear-gradient(180deg, #F5FAFD, #E8F1F8); }
+.num { position: absolute; top: 14px; left: 16px; font-size: 12px; font-weight: 600; color: var(--text-3); }
+.body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.title { display: flex; align-items: baseline; gap: 8px; }
+.title b { font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.title span { font-size: 13px; color: var(--text-3); }
+.desc { color: var(--text-2); font-size: 13.5px; margin: 0 0 6px; }
+.row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: auto; }
+figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+figcaption { font-size: 11px; color: var(--text-3); }
+.pill { height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 4px; border-radius: 999px; background: #0E1620; box-shadow: 0 10px 22px -8px rgba(6,12,22,.45); }
+.pill .slot { width: 44px; height: 44px; display: grid; place-items: center; }
+.pill .lbl { color: #93A0AF; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(160deg, #F7FCFF, #D3EAFB); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 4px 10px -4px rgba(30,90,150,.3); }
+.mono { width: 30px; height: 24px; display: grid; place-items: center; border-radius: 6px; background: #E9EEF3; color: #111; }
+.pick { align-self: center; margin-left: auto; white-space: nowrap; height: 36px; padding: 0 16px; border-radius: 999px; background: var(--surface-2); font-size: 13px; font-weight: 600; transition: background .15s, transform .12s var(--ease), color .15s; }
+.pick:hover { background: var(--surface-3); } .pick:active { transform: scale(.96); }
+.card.picked .pick { background: #0E1620; color: #fff; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 660px) { .grid { grid-template-columns: 1fr; } .hint { text-align: left; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Vobi · structured characters</h1>
+      <p class="sub">Built from precise shapes (dots, capsules, rings, a squircle) instead of slime. Personality comes from crisp, springy motion: each one listens, thinks, celebrates and worries in its own way.</p></div>
+    <div class="spacer"></div>
+    <div><div class="seg" id="states"><span class="thumb"></span>
+      <button data-s="idle" aria-pressed="true">Idle</button><button data-s="listening" aria-pressed="false">Listening</button><button data-s="thinking" aria-pressed="false">Thinking</button><button data-s="done" aria-pressed="false">Done</button><button data-s="error" aria-pressed="false">Error</button></div>
+      <div class="hint">or hold <span class="kbd">Space</span> to talk</div></div>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NAVY = "#14304C";
+const lerp = (a, b, k) => a + (b - a) * k;
+
+/* Each concept returns target geometry for its items every frame.
+   rect items: {x, y, w, h, rot, o}  -> drawn as a rounded rect with rx = min(w,h)/2 (dot <-> capsule morph)
+   ring items: {x, y, r, sw, o} */
+const C = [
+  {
+    key: "quartet", name: "Quartet", tag: "four dots, one voice",
+    desc: "Four glossy dots. They breathe in a gentle wave, rise into capsules with your voice, chase each other while thinking, line up into a smile when done.",
+    items: Array(4).fill({ t: "rect", f: "grad" }),
+    targets(s, t, b, L, blink) {
+      const xs = [-36, -12, 12, 36];
+      return xs.map((x, i) => {
+        if (s === "listening") return { x, y: 0, w: 17, h: 17 + b[i] * 44, rot: 0, o: 1 };
+        if (s === "thinking") return { x, y: Math.sin(t * 5.2 - i * .95) * 9, w: 15, h: 15, rot: 0, o: 1 };
+        if (s === "done") { const sm = [[-30, -6], [-11, 7], [11, 7], [30, -6]][i]; return { x: sm[0], y: sm[1] - 2, w: 15, h: 15, rot: 0, o: 1 }; }
+        if (s === "error") return { x: x * .72, y: 12 + Math.sin(t * 22 + i) * (t % 2.6 < .35 ? 1.6 : 0), w: 19, h: 11, rot: 0, o: .85 };
+        return { x, y: Math.sin(t * 1.7 - i * .7) * 2.2, w: 17 * (1 + Math.sin(t * 1.7 - i * .7) * .04), h: 17, rot: 0, o: 1 };
+      });
+    }
+  },
+  {
+    key: "pebble", name: "Pebble", tag: "a calm little face",
+    desc: "A soft squircle with two pill eyes and a tiny mouth. The eyes become level meters when it listens, glance up while thinking, squeeze shut with joy.",
+    items: [{ t: "rect", f: "grad" }, { t: "rect", f: "navy" }, { t: "rect", f: "navy" }, { t: "rect", f: "navy" }],
+    targets(s, t, b, L, blink) {
+      const br = Math.sin(t * 1.5) * .02;
+      let body = { x: 0, y: 0, w: 88 * (1 - br), h: 78 * (1 + br), rot: 0, o: 1 };
+      let ex = 15, ey = -4, ew = 10, eh = 15 * (1 - blink), look = 0, mouth = { w: 10, h: 4, y: 16 };
+      let e1h = eh, e2h = eh;
+      if (s === "listening") { e1h = 10 + b[1] * 20; e2h = 10 + b[2] * 20; mouth = { w: 8 + L * 6, h: 4 + L * 9, y: 18 }; body.h *= 1 + L * .05; }
+      if (s === "thinking") { look = 5; ey = -9; e1h = 13 * (1 - blink); e2h = 9; mouth = { w: 6, h: 4, y: 16 }; body.rot = 5; }
+      if (s === "done") { ew = 15; e1h = e2h = 5; ey = -3; mouth = { w: 16, h: 9, y: 16 }; body.y = 0; }
+      if (s === "error") { body = { x: 0, y: 6, w: 94, h: 66, rot: 0, o: 1 }; ey = 4; e1h = e2h = 8; ew = 8; look = 0; mouth = { w: 9, h: 3.5, y: 20 }; }
+      return [body,
+        { x: -ex + look + body.x, y: ey + body.y, w: ew, h: e1h, rot: body.rot, o: 1 },
+        { x: ex + look + body.x, y: ey + body.y, w: ew, h: e2h, rot: body.rot, o: 1 },
+        { x: look * .6 + body.x, y: mouth.y + body.y, w: mouth.w, h: mouth.h, rot: body.rot, o: 1 }];
+    }
+  },
+  {
+    key: "twins", name: "Twins", tag: "two capsules",
+    desc: "Two tall capsules, like a pause button come alive. They bounce with low and high tones, take turns while thinking, lean together when something’s wrong.",
+    items: [{ t: "rect", f: "grad" }, { t: "rect", f: "grad" }],
+    targets(s, t, b, L, blink) {
+      const base = (i, extra) => Object.assign({ x: i ? 17 : -17, y: 0, w: 24, h: 52, rot: 0, o: 1 }, extra);
+      if (s === "listening") return [base(0, { h: 30 + b[0] * 44 }), base(1, { h: 30 + b[3] * 44 })];
+      if (s === "thinking") return [base(0, { y: Math.sin(t * 4.6) * 10, h: 44 }), base(1, { y: -Math.sin(t * 4.6) * 10, h: 44 })];
+      if (s === "done") return [base(0, { x: -14, h: 24, w: 24, y: 6, rot: 0 }), base(1, { x: 14, h: 24, w: 24, y: 6 })];
+      if (s === "error") return [base(0, { x: -11, rot: 14, h: 44, y: 6 }), base(1, { x: 11, rot: -14, h: 44, y: 6 })];
+      return [base(0, { h: 52 + Math.sin(t * 1.6) * 2 }), base(1, { h: 52 + Math.sin(t * 1.6 + 1.2) * 2 })];
+    }
+  },
+  {
+    key: "orbit", name: "Orbit", tag: "a ring and its dot",
+    desc: "A glowing ring with a dot inside. Your voice sends ripples out of the ring; while thinking the dot circles inside; when done the ring closes around it.",
+    items: [{ t: "ring", f: "grad" }, { t: "ring", f: "grad" }, { t: "ring", f: "grad" }, { t: "rect", f: "grad" }],
+    targets(s, t, b, L, blink) {
+      let ring = { x: 0, y: 0, r: 30 + Math.sin(t * 1.6) * .8, sw: 7, o: 1 }, dot = { x: 0, y: 0, w: 18, h: 18, rot: 0, o: 1 };
+      const ripple = k => { const f = ((t * .9 + k * .5) % 1); return { x: 0, y: 0, r: 30 + f * 22, sw: 4 * (1 - f) + .5, o: s === "listening" ? (1 - f) * (.25 + L * .9) : 0 }; };
+      if (s === "listening") { ring.r = 30 + L * 6; dot.w = dot.h = 18 + L * 8; }
+      if (s === "thinking") { const a = t * 3.2; dot = { x: Math.cos(a) * 15, y: Math.sin(a) * 15, w: 11, h: 11, rot: 0, o: 1 }; }
+      if (s === "done") { ring = { x: 0, y: 0, r: 17, sw: 12, o: 1 }; dot.w = dot.h = 10; }
+      if (s === "error") { ring = { x: 0, y: 4, r: 28, sw: 5, o: .8 }; dot = { x: 0, y: 18, w: 14, h: 10, rot: 0, o: 1 }; }
+      return [ring, ripple(0), ripple(1), dot];
+    }
+  },
+  {
+    key: "bloom", name: "Bloom", tag: "petals that open",
+    desc: "Six dots around a centre, like a flower. It opens wider the more you speak, spins softly while thinking, bursts open when done, folds in when worried.",
+    items: Array(7).fill({ t: "rect", f: "grad" }),
+    targets(s, t, b, L, blink) {
+      let R = 24 + Math.sin(t * 1.4) * 1, spin = t * .25, size = 13, cs = 16;
+      const out = [];
+      for (let i = 0; i < 6; i++) {
+        let r = R, sz = size;
+        if (s === "listening") { r = 22 + b[i % 4] * 16; sz = 13 + b[(i + 1) % 4] * 4; }
+        if (s === "thinking") { spin = t * 2.2; r = 22 + Math.max(0, Math.sin(t * 5 - i)) * 6; }
+        if (s === "done") { r = 30; sz = 15; }
+        if (s === "error") { r = 12; sz = 10; }
+        const a = spin + i / 6 * Math.PI * 2;
+        out.push({ x: Math.cos(a) * r, y: Math.sin(a) * r + (s === "error" ? 8 : 0), w: sz, h: sz, rot: 0, o: s === "error" ? .7 : 1 });
+      }
+      if (s === "listening") cs = 16 + L * 6; if (s === "done") cs = 22; if (s === "error") cs = 12;
+      out.push({ x: 0, y: s === "error" ? 8 : 0, w: cs, h: cs, rot: 0, o: 1 });
+      return out;
+    }
+  },
+  {
+    key: "lines", name: "Lines", tag: "your words, taking shape",
+    desc: "Three soft bars, like lines of text. They stretch with your voice as words form, shimmer while being polished, then fold into a tick when your text lands.",
+    items: Array(3).fill({ t: "rect", f: "grad" }),
+    targets(s, t, b, L, blink) {
+      const rows = [-20, 0, 20], ws = [62, 48, 34];
+      if (s === "listening") return rows.map((y, i) => ({ x: -(62 - (26 + b[i] * 40)) / 2, y, w: 26 + b[i] * 40, h: 12, rot: 0, o: 1 }));
+      if (s === "thinking") return rows.map((y, i) => { const w = ws[i] * (.75 + Math.max(0, Math.sin(t * 4 - i * .8)) * .3); return { x: -(62 - w) / 2, y, w, h: 12, rot: 0, o: 1 }; });
+      if (s === "done") return [{ x: -13, y: 6, w: 32, h: 12, rot: 45, o: 1 }, { x: 10, y: -2, w: 56, h: 12, rot: -48, o: 1 }, { x: 0, y: 4, w: 12, h: 12, rot: 0, o: 0 }];
+      if (s === "error") return [{ x: -6, y: -14, w: 54, h: 12, rot: 6, o: .9 }, { x: 4, y: 4, w: 42, h: 12, rot: -9, o: .9 }, { x: -2, y: 22, w: 30, h: 12, rot: 4, o: .9 }];
+      return rows.map((y, i) => ({ x: -(62 - ws[i]) / 2, y: y + Math.sin(t * 1.5 - i * .6) * 1.2, w: ws[i], h: 12, rot: 0, o: 1 }));
+    }
+  },
+];
+
+/* ---------- engine ---------- */
+let NID = 0;
+class Char {
+  constructor(mount, concept, size, opts = {}) {
+    this.c = concept; this.size = size; this.mono = !!opts.mono; this.id = "z" + (++NID); this.small = size < 70;
+    this.state = "idle"; this.t = Math.random() * 10; this.blink = 0; this.nextBlink = performance.now() + 1500 + Math.random() * 3000;
+    this.cur = null; this.vel = null; this.hop = { x: 0, v: 0 };
+    const sw = this.small ? 1 : 1;
+    mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">
+      <defs>
+        <radialGradient id="${this.id}g" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#E4F9FF"/><stop offset=".45" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></radialGradient>
+        <linearGradient id="${this.id}r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8FE6FC"/><stop offset=".5" stop-color="#34B3F4"/><stop offset="1" stop-color="#2F6FEE"/></linearGradient>
+        <filter id="${this.id}s" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="${this.small ? 1 : 4}" stdDeviation="${this.small ? 1.2 : 4}" flood-color="#1B44C9" flood-opacity="${this.mono ? 0 : .28}"/></filter>
+      </defs>
+      ${this.small ? "" : `<ellipse class="shadow" cx="0" cy="52" rx="34" ry="4" fill="#0B2A4A" opacity=".1"/>`}
+      <g class="root" filter="url(#${this.id}s)">${concept.items.map((it, i) => it.t === "ring"
+        ? `<circle data-i="${i}" fill="none" stroke="${this.mono ? "currentColor" : `url(#${this.id}r)`}"/>`
+        : `<rect data-i="${i}" fill="${this.mono ? (it.f === "navy" ? "#E9EEF3" : "currentColor") : it.f === "navy" ? NAVY : `url(#${this.id}g)`}"/>`).join("")}
+      </g></svg>`;
+    this.els = [...mount.querySelectorAll("[data-i]")]; this.root = mount.querySelector(".root"); this.shadow = mount.querySelector(".shadow");
+    Char.all.push(this);
+  }
+  setState(s) { if (s === this.state) return; this.state = s; if (s === "done") this.hop.v -= 210; if (s === "listening") this.hop.v -= 70; }
+  frame(now, dt, bands, L) {
+    this.t += dt; const t = reduce ? 0 : this.t;
+    if (now > this.nextBlink) { this.blinkT = now; this.nextBlink = now + 2600 + Math.random() * 3400; }
+    this.blink = this.blinkT && now - this.blinkT < 150 ? Math.sin((now - this.blinkT) / 150 * Math.PI) : 0;
+    const tg = this.c.targets(this.state, t, bands, L, this.blink);
+    if (!this.cur) { this.cur = tg.map(o => ({ ...o })); this.vel = tg.map(o => Object.fromEntries(Object.keys(o).map(k => [k, 0]))); }
+    const k = 190, c = 17;
+    tg.forEach((o, i) => { for (const key in o) { const v = this.vel[i]; const a = -k * (this.cur[i][key] - o[key]) - c * v[key]; v[key] += a * dt; this.cur[i][key] += v[key] * dt; } });
+    this.hop.v += (-200 * this.hop.x - 15 * this.hop.v) * dt; this.hop.x += this.hop.v * dt; const hy = Math.min(0, this.hop.x);
+    this.root.setAttribute("transform", `translate(0 ${hy.toFixed(2)})`);
+    if (this.shadow) { this.shadow.setAttribute("opacity", (.1 * (1 + hy / 50)).toFixed(3)); this.shadow.setAttribute("rx", (34 * (1 + hy / 80)).toFixed(2)); }
+    this.cur.forEach((o, i) => {
+      const el = this.els[i];
+      if (this.c.items[i].t === "ring") { el.setAttribute("cx", o.x.toFixed(2)); el.setAttribute("cy", o.y.toFixed(2)); el.setAttribute("r", Math.max(.1, o.r).toFixed(2)); el.setAttribute("stroke-width", Math.max(.1, o.sw * (this.small ? 1.3 : 1)).toFixed(2)); el.setAttribute("opacity", Math.max(0, Math.min(1, o.o)).toFixed(2)); return; }
+      const w = Math.max(1, o.w), h = Math.max(1, o.h);
+      el.setAttribute("x", (o.x - w / 2).toFixed(2)); el.setAttribute("y", (o.y - h / 2).toFixed(2));
+      el.setAttribute("width", w.toFixed(2)); el.setAttribute("height", h.toFixed(2));
+      el.setAttribute("rx", (Math.min(w, h) / 2).toFixed(2)); el.setAttribute("opacity", Math.max(0, Math.min(1, o.o)).toFixed(2));
+      el.setAttribute("transform", o.rot ? `rotate(${o.rot.toFixed(2)} ${o.x.toFixed(2)} ${o.y.toFixed(2)})` : "");
+    });
+  }
+}
+Char.all = [];
+
+/* ---------- cards ---------- */
+const grid = document.getElementById("grid"), pills = [];
+C.forEach((c, i) => {
+  const el = document.createElement("article"); el.className = "card";
+  el.innerHTML = `<div class="stage"><span class="num">0${i + 1}</span><div class="big"></div></div>
+    <div class="body"><div class="title"><b>${c.name}</b><span>${c.tag}</span></div><p class="desc">${c.desc}</p>
+      <div class="row">
+        <figure><div class="pill"><div class="slot"></div><span class="lbl">Ready</span></div><figcaption>pill</figcaption></figure>
+        <figure><div class="icon"></div><figcaption>app icon</figcaption></figure>
+        <figure><div class="mono"></div><figcaption>menu bar</figcaption></figure>
+        <button class="pick">Pick</button>
+      </div></div>`;
+  grid.append(el);
+  new Char(el.querySelector(".big"), c, 190);
+  new Char(el.querySelector(".slot"), c, 40);
+  new Char(el.querySelector(".icon"), c, 40);
+  new Char(el.querySelector(".mono"), c, 22, { mono: true });
+  pills.push(el.querySelector(".lbl"));
+  el.querySelector(".pick").addEventListener("click", () => {
+    const on = !el.classList.contains("picked");
+    document.querySelectorAll(".card").forEach(x => { x.classList.toggle("picked", on && x === el); x.querySelector(".pick").textContent = on && x === el ? "Picked ✓" : "Pick"; });
+  });
+});
+
+/* ---------- states ---------- */
+let state = "idle", doneT;
+const seg = document.getElementById("states"), thumb = seg.querySelector(".thumb"), btns = [...seg.querySelectorAll("button")];
+function place() { const on = btns.find(b => b.getAttribute("aria-pressed") === "true"); thumb.style.width = on.offsetWidth + "px"; thumb.style.transform = `translateX(${on.offsetLeft - 4}px)`; }
+function setAll(s) {
+  state = s; clearTimeout(doneT); btns.forEach(b => b.setAttribute("aria-pressed", b.dataset.s === s)); place();
+  Char.all.forEach(c => c.setState(s));
+  pills.forEach(l => l.textContent = { idle: "Ready", listening: "Listening", thinking: "Polishing…", done: "Pasted ✓", error: "Can’t hear you" }[s]);
+  if (s === "done") doneT = setTimeout(() => setAll("idle"), 1900);
+}
+btns.forEach(b => b.addEventListener("click", () => setAll(b.dataset.s)));
+document.fonts && document.fonts.ready.then(place); addEventListener("resize", place);
+let sp = false;
+addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat) { e.preventDefault(); sp = true; setAll("listening"); } });
+addEventListener("keyup", e => { if (e.code === "Space" && sp) { sp = false; setAll("thinking"); setTimeout(() => { if (state === "thinking") setAll("done"); }, 1300); } });
+
+/* ---------- voice simulation: 4 frequency bands ---------- */
+const bands = [0, 0, 0, 0];
+function updateBands(t) {
+  const env = Math.max(0, Math.sin(t * 1.3) * .5 + .55);
+  for (let i = 0; i < 4; i++) {
+    const raw = Math.max(0, Math.sin(t * (9 + i * 3.1) + i * 1.7) * .6 + Math.sin(t * (5.3 + i * 1.9) + i) * .4) * env * (.75 + Math.random() * .3);
+    bands[i] += (raw - bands[i]) * (raw > bands[i] ? .5 : .15);
+  }
+}
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(.033, (now - last) / 1000); last = now;
+  if (state === "listening") updateBands(now / 1000); else for (let i = 0; i < 4; i++) bands[i] *= .85;
+  const L = Math.min(1, (bands[0] + bands[1] + bands[2] + bands[3]) / 2.6);
+  Char.all.forEach(c => c.frame(now, dt, bands, L));
+  requestAnimationFrame(loop);
+}
+setAll("idle"); requestAnimationFrame(loop);
+</script>
+</body>
+</html>
