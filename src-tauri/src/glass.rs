@@ -162,7 +162,7 @@ mod mac {
     /// How dark the smoke over the glass is. Bare glass takes on whatever is
     /// behind it; a dark tint keeps the pill one even, smoky pane over any app
     /// so its white text always reads.
-    const SMOKE: f64 = 0.62;
+    const SMOKE: f64 = 0.46;
 
     /// Apple's Liquid Glass (macOS 26+): the "regular" style, which draws its
     /// own refraction, edge highlight and shadow, smoked dark for legibility.
