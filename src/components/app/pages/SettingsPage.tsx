@@ -44,6 +44,7 @@ import {
   type BiconIcon,
 } from "@hexline/bicon/react";
 import { ChipButton, PageFrame } from "../PageFrame";
+import { RefineSetup } from "../RefineSetup";
 import type { Page } from "../nav";
 
 export type SettingsTab =
@@ -190,6 +191,8 @@ const GeneralTab: React.FC<{ onNavigate: (page: Page) => void }> = ({
         <PreferredLanguages grouped />
         {speaksChinese && <ChineseScriptSetting grouped />}
       </SettingsGroup>
+
+      <RefineSetup />
 
       <ModelSettingsCard />
 

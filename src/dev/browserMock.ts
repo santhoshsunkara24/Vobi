@@ -222,6 +222,14 @@ const handlers: Record<string, (args: Record<string, unknown>) => unknown> = {
     settings.filler_word_removal_enabled = a.enabled as boolean;
     return null;
   },
+  change_post_process_api_key_setting: (a) => {
+    settings.post_process_api_keys = {
+      ...settings.post_process_api_keys,
+      [a.providerId as string]: a.apiKey as string,
+    };
+    return null;
+  },
+  check_apple_intelligence_available: () => false,
   "plugin:macos-permissions|check_accessibility_permission": () => true,
   "plugin:macos-permissions|check_microphone_permission": () => true,
   "plugin:app|version": () => "0.1.0",

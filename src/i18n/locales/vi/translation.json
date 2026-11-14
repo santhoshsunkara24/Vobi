@@ -1010,7 +1010,7 @@
     "refining": "Refining…",
     "refined": "Refined",
     "undoHint": "· {{keys}} to undo",
-    "needAiKey": "Add a free AI key in Settings to use Refine",
+    "needAiKey": "Add a free Groq key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
     "keepOriginal": "Keep original"
@@ -1141,6 +1141,22 @@
       "idle": {
         "label": "Show Vobi when idle",
         "description": "Keep the little cloud on screen between dictations"
+      },
+      "refineAi": {
+        "group": "Refine",
+        "title": "Refine needs a free AI key",
+        "body": "Refine rewrites your text with AI. On this computer it uses Groq, which is free: no card needed, and the free plan easily covers everyday writing. It takes about a minute.",
+        "step1": "Sign in to Groq with Google or email.",
+        "open": "Open Groq",
+        "step2": "Choose Create API Key, give it any name, and copy it.",
+        "step3": "Paste it below and save.",
+        "placeholder": "Paste your Groq key (starts with gsk_)",
+        "save": "Save key",
+        "invalid": "That doesn't look like a Groq key. Groq keys start with gsk_.",
+        "privacy": "Text you refine is sent to Groq to rewrite. Fix Selection never leaves your computer.",
+        "readyTitle": "Refine is ready",
+        "readyBody": "Using your free Groq key.",
+        "remove": "Remove key"
       }
     }
   }
