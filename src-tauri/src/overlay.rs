@@ -848,6 +848,11 @@ pub fn show_refine_preview(app_handle: &AppHandle, text: &str, busy: bool) {
     }
 }
 
+/// Shows "Fixing spelling…" while "Fix selection" checks the text.
+pub fn show_fixing_overlay(app_handle: &AppHandle) {
+    show_overlay_state(app_handle, "fixing");
+}
+
 /// Shows "Refining…" while the AI rewrites a selection.
 pub fn show_refining_overlay(app_handle: &AppHandle) {
     show_overlay_state(app_handle, "refining");

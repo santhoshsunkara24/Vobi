@@ -26,6 +26,7 @@ type OverlayState =
   | "done"
   | "fix"
   | "refining"
+  | "fixing"
   | "preview"
   | "notice"
   | "live_notice";
@@ -719,18 +720,25 @@ const RecordingOverlay: React.FC = () => {
 
   // ---- Compact pill: one row at a time, the pill animates its width ----
   const working =
-    state === "transcribing" || state === "processing" || state === "refining";
+    state === "transcribing" ||
+    state === "processing" ||
+    state === "refining" ||
+    state === "fixing";
   const workLabel =
     state === "refining"
       ? t("overlay.refining")
-      : state === "processing"
-        ? t("overlay.processing")
-        : transcribingLabel;
+      : state === "fixing"
+        ? t("overlay.fixing")
+        : state === "processing"
+          ? t("overlay.processing")
+          : transcribingLabel;
   // Refine and post-processing are the AI at work; plain transcription reads.
   const workFace: CloudState =
     state === "refining" || state === "processing"
       ? "refining"
-      : transcribingFace;
+      : state === "fixing"
+        ? "fixing"
+        : transcribingFace;
   const mode = shownNotice
     ? "m-notice"
     : state === "fix"

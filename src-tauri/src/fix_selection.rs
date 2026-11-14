@@ -5,7 +5,8 @@ use crate::actions::{post_process_transcription, PostProcessOutcome};
 use crate::clipboard::{copy_selection, replace_selection};
 use crate::input::wait_for_modifiers_released;
 use crate::overlay::{
-    hide_recording_overlay, show_fix_result, show_refine_preview, show_refining_overlay, FixResult,
+    hide_recording_overlay, show_fix_result, show_fixing_overlay, show_refine_preview,
+    show_refining_overlay, FixResult,
 };
 use crate::settings::{
     get_settings, AppSettings, APPLE_INTELLIGENCE_PROVIDER_ID, GROQ_DEFAULT_MODEL,
@@ -15,7 +16,7 @@ use crate::spellfix;
 use log::{info, warn};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tauri::AppHandle;
 
 /// One fix at a time: a second press while one is running is ignored.
@@ -68,7 +69,13 @@ pub fn run(app: &AppHandle) {
     let spawned = std::thread::Builder::new()
         .name("fix-selection".into())
         .spawn(move || {
-            let result = fix(&app);
+            let mut fixing_since = None;
+            let result = fix(&app, &mut fixing_since);
+            // The fix itself is instant; keep "Fixing spelling…" up long
+            // enough to be seen before the result replaces it.
+            if let Some(since) = fixing_since {
+                std::thread::sleep(MIN_FIXING_SHOWN.saturating_sub(since.elapsed()));
+            }
             show_fix_result(&app, result);
             RUNNING.store(false, Ordering::SeqCst);
         });
@@ -78,7 +85,11 @@ pub fn run(app: &AppHandle) {
     }
 }
 
-fn fix(app: &AppHandle) -> FixResult {
+/// How long the pill shows "Fixing spelling…" at least, so Vobi's face reads.
+const MIN_FIXING_SHOWN: Duration = Duration::from_millis(650);
+
+/// Sets `fixing_since` once a selection was found and the pill shows it.
+fn fix(app: &AppHandle, fixing_since: &mut Option<Instant>) -> FixResult {
     // Let go of the shortcut's keys first, so our Cmd+C isn't Cmd+Shift+Option+C.
     wait_for_modifiers_released(Duration::from_millis(1500));
     std::thread::sleep(Duration::from_millis(40));
@@ -91,6 +102,9 @@ fn fix(app: &AppHandle) -> FixResult {
             return FixResult::Failed;
         }
     };
+
+    show_fixing_overlay(app);
+    *fixing_since = Some(Instant::now());
 
     let custom_words = get_settings(app).custom_words;
     let result = spellfix::correct(&grabbed.text, &custom_words);

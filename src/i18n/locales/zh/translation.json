@@ -1008,6 +1008,7 @@
     "selectFirst": "Select some text first",
     "fixFailed": "Couldn’t fix that text",
     "refining": "Refining…",
+    "fixing": "Fixing spelling…",
     "refined": "Refined",
     "undoHint": "· {{keys}} to undo",
     "needAiKey": "Add a free AI key in Settings to use Refine",
