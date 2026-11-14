@@ -127,7 +127,7 @@ export const DictionaryPage: React.FC<{ autoFocus?: boolean }> = ({
 
         <section className="v-card flex items-center gap-[16px] px-[28px] py-[20px]">
           <span className="v-badge" aria-hidden="true">
-            <SpellCheck size={20} strokeWidth={1.5} />
+            <SpellCheck variant="3d" size={28} />
           </span>
           <div>
             <b className="block text-[16px] font-medium">
