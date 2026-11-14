@@ -23,7 +23,7 @@ interface PermissionRowProps {
   onRequest: () => void;
 }
 
-/** One permission row; the status column's min width stops text re-wrapping. */
+/** One permission row, as the prototype's `.perm`: icon, why, then its action. */
 const PermissionRow: React.FC<PermissionRowProps> = ({
   icon,
   title,
@@ -36,31 +36,46 @@ const PermissionRow: React.FC<PermissionRowProps> = ({
 }) => {
   const { t } = useTranslation();
   const waiting = status === "waiting";
+  const granted = status === "granted";
   return (
-    <div className="grid grid-cols-[46px_1fr_minmax(112px,auto)] items-center gap-[18px] py-[18px] [&+&]:border-t [&+&]:border-line">
-      {/* A label, not a key: neutral, and "Allowed" alone shows the grant. */}
-      <span className="grid size-[46px] place-items-center rounded-[11px] bg-wash text-ink-2">
+    <div
+      className={`v-perm ${granted ? "v-ok" : next || waiting ? "" : "v-idle"}`}
+    >
+      <span className="v-ico" aria-hidden="true">
         {icon}
       </span>
-      <div>
-        <b className="block font-display text-row font-[650] leading-[1.3]">
+      <div className="min-w-0 flex-1">
+        <b className="block text-[14.5px] font-semibold leading-[1.3]">
           {title}
         </b>
         <p
-          className={`mt-[2px] mb-0 text-small leading-[1.45] text-pretty ${
-            waiting && instruction ? "text-text" : "text-ink-2"
+          className={`mt-[2px] mb-0 text-[13px] leading-[1.45] text-pretty ${
+            waiting && instruction ? "text-text" : "text-ink-3"
           }`}
         >
           {(waiting && instruction) || why}
         </p>
       </div>
-      {status === "granted" ? (
-        <span className="inline-flex items-center justify-self-end gap-[6px] text-small font-semibold text-moss">
-          <DoneMark />
+      {granted ? (
+        <span className="inline-flex shrink-0 items-center gap-[6px] text-small font-semibold text-moss">
+          <svg
+            className="v-check"
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+            fill="none"
+            stroke="var(--green)"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 11.5l4 4 8-9" />
+          </svg>
           {t("onboarding.permissions.allowed")}
         </span>
       ) : waiting ? (
-        <span className="inline-flex items-center justify-self-end gap-[6px] text-small text-ink-3">
+        <span className="inline-flex shrink-0 items-center gap-[6px] text-small text-ink-3">
           <Spinner className="shrink-0" />
           {t("onboarding.permissions.waiting")}
         </span>
@@ -70,7 +85,7 @@ const PermissionRow: React.FC<PermissionRowProps> = ({
           size="md"
           disabled={!next}
           onClick={onRequest}
-          className="justify-self-end"
+          className="shrink-0"
         >
           {action}
         </Button>
@@ -167,9 +182,9 @@ export const Permissions: React.FC<PermissionsProps> = ({
           />
         }
       >
-        <div className="flex w-full flex-col rounded-panel border border-line-strong px-[22px] py-[4px] text-start">
+        <div className="flex w-full max-w-[520px] flex-col text-start">
           <PermissionRow
-            icon={<Mic size={20} aria-hidden="true" />}
+            icon={<Mic size={18} strokeWidth={1.8} aria-hidden="true" />}
             title={t("onboarding.permissions.microphone.name")}
             why={t("onboarding.permissions.microphone.why")}
             status={permissions.microphone}
@@ -187,7 +202,7 @@ export const Permissions: React.FC<PermissionsProps> = ({
           />
           {isMac && (
             <PermissionRow
-              icon={<Keyboard size={20} aria-hidden="true" />}
+              icon={<Keyboard size={18} strokeWidth={1.8} aria-hidden="true" />}
               title={t("onboarding.permissions.accessibility.name")}
               why={t("onboarding.permissions.accessibility.why")}
               status={permissions.accessibility}

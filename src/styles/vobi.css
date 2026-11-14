@@ -24,13 +24,19 @@
   /* Room for the traffic lights over the transparent title bar. */
   padding-top: 40px;
 }
+/* Only macOS draws the page under the title bar; elsewhere the native
+   title bar drags the window, so the strip must not cover the page. */
 .v-drag {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 36px;
   z-index: 30;
+}
+:root[data-platform="macos"] .v-drag {
+  display: block;
 }
 .v-brand {
   display: flex;
@@ -869,6 +875,96 @@ textarea.v-field {
 .v-toast.v-show {
   transform: translate(-50%, 0) scale(1);
   opacity: 1;
+}
+
+/* ---------------------------------------------------------------- onboarding */
+.v-ob-wall {
+  background: var(--wall);
+}
+.v-ob-card {
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      520px 180px at 50% -40px,
+      rgba(173, 226, 252, 0.55),
+      transparent 70%
+    ),
+    var(--surface);
+  box-shadow: var(--shadow-win);
+  animation: v-ob-in var(--spring-dur) var(--spring);
+}
+:root[data-platform="windows"] .v-ob-card {
+  border-radius: 12px;
+}
+@keyframes v-ob-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+.v-steps {
+  display: flex;
+  gap: 6px;
+}
+.v-steps i {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--surface-3);
+  transition:
+    width var(--spring-dur) var(--spring),
+    background var(--dur-2);
+}
+.v-steps i.v-on {
+  width: 22px;
+  background: var(--accent);
+}
+.v-steps i.v-done {
+  background: var(--sky-300);
+}
+.v-perm {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--surface-2);
+  text-align: start;
+  transition: background var(--dur-2);
+}
+.v-perm + .v-perm {
+  margin-top: 10px;
+}
+.v-perm .v-ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--grad);
+  flex: none;
+  transition: background var(--dur-2);
+}
+.v-perm.v-ok {
+  background: color-mix(in srgb, var(--green) 9%, var(--surface));
+}
+.v-perm.v-ok .v-ico {
+  background: var(--green);
+}
+.v-perm.v-idle .v-ico {
+  background: var(--surface-3);
+  color: var(--text-3);
+}
+.v-check path {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  transition: stroke-dashoffset 360ms var(--ease-out) 80ms;
+}
+.v-ok .v-check path,
+.v-check.v-on path {
+  stroke-dashoffset: 0;
 }
 
 /* A disclosure for the Advanced area. */

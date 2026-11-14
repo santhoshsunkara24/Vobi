@@ -108,7 +108,7 @@ const DemoPill: React.FC<{ state: PillState; still: boolean }> = ({
 
   const close = (
     <span className="flex items-center justify-self-end">
-      <span className="grid size-[22px] place-items-center rounded-full bg-line text-[14px] leading-none text-ink-3">
+      <span className="grid size-[22px] place-items-center rounded-full bg-white/10 text-[14px] leading-none text-[#93a0af]">
         ×
       </span>
     </span>
@@ -127,7 +127,7 @@ const DemoPill: React.FC<{ state: PillState; still: boolean }> = ({
                 ref={(el) => {
                   bars.current[i] = el;
                 }}
-                className="h-[3px] w-[4px] rounded-[2px] bg-logo-primary transition-[height] duration-[80ms] ease-linear"
+                className="h-[3px] w-[4px] rounded-[2px] bg-[linear-gradient(#7fdbfa,#3a86f5)] transition-[height] duration-[80ms] ease-linear"
               />
             ))}
           </span>
@@ -137,7 +137,7 @@ const DemoPill: React.FC<{ state: PillState; still: boolean }> = ({
           <span className="flex ps-[5px]">
             <span className="demo-pill-spin" />
           </span>
-          <span className="whitespace-nowrap px-[8px] text-ink-2">
+          <span className="whitespace-nowrap px-[8px] text-[#93a0af]">
             {t("overlay.transcribing")}
           </span>
           {close}

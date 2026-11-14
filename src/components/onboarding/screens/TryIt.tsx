@@ -9,7 +9,7 @@ import { prefersReducedMotion } from "@/lib/utils/motion";
 import { Button } from "../../ui/Button";
 import { TextLink } from "../../ui/TextLink";
 import { CapturedKeys, captureHintKey, Keycaps } from "../../shared/Keycaps";
-import { Mascot } from "../../shared/Mascot";
+import { VobiCloud, type CloudState } from "../../vobi/VobiCloud";
 import TrayIcon from "../../icons/TrayIcon";
 import { DesktopBar } from "../DesktopBar";
 import { WindowBar } from "../WindowBar";
@@ -503,7 +503,12 @@ export const TryIt: React.FC<TryItProps> = ({
     ""
   );
   const primary = after ? (
-    <Button variant="primary" size="lg" onClick={onDone}>
+    <Button
+      variant="primary"
+      size="lg"
+      onClick={onDone}
+      className="v-btn-grad border-transparent"
+    >
       {t("onboarding.done.finish")}
     </Button>
   ) : stage !== "try" || !e.todo ? null : (
@@ -517,6 +522,27 @@ export const TryIt: React.FC<TryItProps> = ({
   );
 
   const isMac = os === "macos";
+
+  // Vobi's face follows the glove's mood: listening while they talk, happy
+  // on a high five, worried when something went wrong.
+  const mood =
+    stage === "windup"
+      ? "windup"
+      : moving
+        ? "cheer"
+        : e.phase === "idle"
+          ? say.mood
+          : "listen";
+  const cloudState: CloudState =
+    fived || stage === "windup" || mood === "cheer"
+      ? "done"
+      : mood === "listen"
+        ? e.phase === "typing"
+          ? "thinking"
+          : "listening"
+        : mood === "oops"
+          ? "error"
+          : "idle";
 
   return (
     <OnboardingShell
@@ -613,15 +639,7 @@ export const TryIt: React.FC<TryItProps> = ({
                 ref={glove}
                 type="button"
                 className="try-glove"
-                data-mood={
-                  stage === "windup"
-                    ? "windup"
-                    : moving
-                      ? "cheer"
-                      : e.phase === "idle"
-                        ? say.mood
-                        : "listen"
-                }
+                data-mood={mood}
                 data-how={how}
                 aria-label={t("onboarding.done.highFiveLabel")}
                 onMouseDown={(ev) => ev.preventDefault()}
@@ -631,11 +649,7 @@ export const TryIt: React.FC<TryItProps> = ({
                 }
               >
                 <span className="try-pose">
-                  <Mascot
-                    key={fived ? "finale" : e.fives}
-                    size={88}
-                    animation={fived || e.fives ? "slap" : "wave"}
-                  />
+                  <VobiCloud size={88} state={cloudState} />
                 </span>
                 {(fived || e.fives > 0) && (
                   <span

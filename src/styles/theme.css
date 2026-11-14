@@ -178,9 +178,4 @@
   --demo-wallpaper: var(--wall);
   --demo-pill-shadow:
     0 0 0 1px rgba(18, 38, 58, 0.08), 0 10px 26px -10px rgba(6, 12, 22, 0.45);
-
-  /* Illustration colours. */
-  --color-wordmark: var(--accent);
-  --color-wordmark-stroke: var(--ink);
-  --color-mascot-line: var(--ink);
 }

@@ -17,7 +17,6 @@
   --color-plum: var(--color-plum);
   --color-plum-pick: var(--color-plum-pick);
   --color-demo-window: var(--color-demo-window);
-  --color-mascot-line: var(--color-mascot-line);
   --color-wash: var(--color-wash);
   --color-moss-wash: var(--color-moss-wash);
   --color-warning-wash: var(--color-warning-wash);
@@ -65,7 +64,7 @@
     "Handy CJK Subset", -apple-system, "Segoe UI Variable Text", "Segoe UI",
     system-ui, sans-serif;
 
-  --text-title: 26px; /* screen titles */
+  --text-title: 28px; /* screen titles */
   --text-name: 15px; /* the model name on Model's Full card */
   --text-row: 17px; /* row titles */
   --text-body: 15px; /* body, subtitles */
@@ -73,8 +72,8 @@
   --text-label: 12px; /* labels */
   --text-tag: 11px; /* tags, column codes, small grade chips */
 
-  --radius-panel: 16px; /* panels, the selected card */
-  --radius-card: 12px;
+  --radius-panel: 20px; /* panels, the selected card */
+  --radius-card: 16px;
   --radius-control: 10px; /* buttons, fields, table rows */
   --radius-chip: 6px; /* grade chips */
 
@@ -257,14 +256,4 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
-}
-
-.logo-primary {
-  fill: var(--color-wordmark);
-}
-
-.logo-stroke {
-  fill: var(--color-wordmark-stroke);
-  stroke: var(--color-wordmark-stroke);
-  stroke-width: 1;
 }

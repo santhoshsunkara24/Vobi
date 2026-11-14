@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/Button";
 import { Radio } from "../../ui/Radio";
-import { Mascot } from "../../shared/Mascot";
+import { VobiCloud } from "../../vobi/VobiCloud";
 import {
   LanguageOptions,
   LanguageSearchField,
   useLanguagePicker,
 } from "../../shared/LanguagePicker";
-import HandyTextLogo from "../../icons/HandyTextLogo";
 import { OnboardingShell, ScreenHeader } from "../OnboardingShell";
 import { AppLanguageMenu } from "../AppLanguageMenu";
 import { useOnboardingStore } from "../onboardingStore";
@@ -19,7 +18,7 @@ import { getSupportedLanguage } from "@/i18n";
 import { languageList } from "@/lib/constants/languages";
 import { useSettings } from "@/hooks/useSettings";
 
-// The mascot waves on the first visit only.
+// Vobi says hello on the first visit only.
 let waved = false;
 
 interface WelcomeProps {
@@ -45,7 +44,13 @@ export const Welcome: React.FC<WelcomeProps> = ({ progress, onContinue }) => {
       });
     },
   });
-  const [wave] = useState(() => !waved);
+  // A happy hop hello on the first visit, then Vobi settles.
+  const [wave, setWave] = useState(() => !waved);
+  useEffect(() => {
+    if (!wave) return;
+    const id = setTimeout(() => setWave(false), 1400);
+    return () => clearTimeout(id);
+  }, []);
   useEffect(() => {
     waved = true;
     const id = setTimeout(
@@ -93,19 +98,18 @@ export const Welcome: React.FC<WelcomeProps> = ({ progress, onContinue }) => {
       }
     >
       <div className="flex h-full min-h-0 flex-col items-center px-gutter pt-[6px] pb-[4px] text-center">
-        <div className="mb-[10px] inline-flex items-end gap-[8px] leading-none">
-          <Mascot size={54} animation={wave ? "wave" : null} />
-          <HandyTextLogo width={112} className="mb-[4px] block" />
+        <div className="mb-[6px] leading-none">
+          <VobiCloud size={64} state={wave ? "done" : "idle"} />
         </div>
         <ScreenHeader
           title={t("onboarding.welcome.title")}
           sub={t("onboarding.welcome.subtitle")}
         />
 
-        <div className="mt-lead flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-panel border-[1.5px] border-line-strong bg-background">
+        <div className="mt-lead flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[18px] bg-surface-2">
           <LanguageSearchField
             picker={picker}
-            className="border-b border-line"
+            className="border-b border-[var(--border-2)]"
             inputClassName="min-w-[120px] text-body"
           />
           <div
@@ -144,10 +148,10 @@ export const Welcome: React.FC<WelcomeProps> = ({ progress, onContinue }) => {
                     role="radio"
                     aria-checked={picked}
                     onClick={() => set({ script: s.id })}
-                    className={`inline-flex h-[34px] cursor-pointer items-center gap-[8px] rounded-control border-[1.5px] bg-background ps-[10px] pe-[14px] text-small font-semibold text-text ${
+                    className={`inline-flex h-[34px] cursor-pointer items-center gap-[8px] rounded-full border-[1.5px] ps-[10px] pe-[14px] text-small font-semibold text-text transition-colors ${
                       picked
-                        ? "border-plum-pick"
-                        : "border-line-strong hover:border-ink-3"
+                        ? "border-sky-300 bg-accent-soft"
+                        : "border-transparent bg-surface-2 hover:bg-surface-3"
                     }`}
                   >
                     <Radio checked={picked} />

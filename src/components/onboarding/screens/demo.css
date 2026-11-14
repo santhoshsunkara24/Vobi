@@ -1,14 +1,14 @@
-/* Demo's drawing (Demo.tsx): the recording pill is a copy of the overlay's
-   compact pill (src/overlay/RecordingOverlay.css), at full size. */
+/* Demo's drawing (Demo.tsx): the recording pill echoes Vobi's overlay pill
+   (src/overlay/RecordingOverlay.css): ink, with sky-blue waves. */
 .demo-pill {
   position: relative;
   display: flex;
   flex-direction: column;
   width: 172px;
   border-radius: 24px;
-  background: var(--color-background);
+  background: var(--ink);
   box-shadow: var(--demo-pill-shadow);
-  color: var(--color-text);
+  color: #f2f6fa;
   font-size: 12px;
   overflow: hidden;
   transition:
@@ -44,13 +44,12 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--color-logo-primary);
+  background: #6ad5f9;
   animation: demo-pill-pulse 1.9s infinite;
 }
 @keyframes demo-pill-pulse {
   0% {
-    box-shadow: 0 0 0 0
-      color-mix(in srgb, var(--color-background-ui) 22%, transparent);
+    box-shadow: 0 0 0 0 rgba(106, 213, 249, 0.35);
   }
   70% {
     box-shadow: 0 0 0 7px transparent;
@@ -60,8 +59,8 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 2px solid var(--color-line);
-  border-top-color: var(--color-logo-primary);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  border-top-color: #6ad5f9;
   animation: demo-spin 0.7s linear infinite;
 }
 @keyframes demo-spin {
