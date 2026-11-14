@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Cloud Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --font: "Instrument Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --bg: #EEF3F7; --surface: #fff; --surface-2: #F3F7FA; --surface-3: #E7EDF2;
+  --text: #0E1620; --text-2: #5A6675; --text-3: #97A2AF;
+  --grad: linear-gradient(135deg, #6AD5F9 0%, #2FB1F4 42%, #3A7BF5 100%);
+  --shadow: 0 1px 2px rgba(18,38,58,.04), 0 12px 32px -10px rgba(18,38,58,.10);
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font: 14.5px/1.5 var(--font); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background: radial-gradient(900px 500px at 10% 0%, #DCF1FC, transparent 60%), radial-gradient(800px 500px at 100% 100%, #DFE9FB, transparent 60%), var(--bg);
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 32px 24px 80px; }
+header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; }
+.sub { color: var(--text-2); margin: 6px 0 0; max-width: 560px; }
+.spacer { flex: 1; }
+.seg { position: relative; display: inline-flex; padding: 4px; gap: 2px; background: var(--surface); border-radius: 999px; box-shadow: var(--shadow); }
+.seg button { position: relative; z-index: 1; height: 34px; padding: 0 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--text-2); transition: color .2s; }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg .thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: #0E1620; transition: transform .45s var(--ease), width .45s var(--ease); }
+.hint { font-size: 12.5px; color: var(--text-3); margin-top: 8px; text-align: right; }
+.kbd { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; background: var(--surface); border: 1px solid rgba(18,38,58,.14); border-bottom-width: 2px; font-size: 11.5px; font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card { position: relative; background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+.card:hover { transform: translateY(-2px); }
+.card.picked { box-shadow: var(--shadow), 0 0 0 2px #2FB1F4, 0 0 0 7px rgba(47,177,244,.15); }
+.stage { position: relative; height: 230px; display: grid; place-items: center; background: radial-gradient(240px 160px at 50% 60%, #FFFFFF, transparent 70%), linear-gradient(180deg, #EAF4FB, #DDEBF6); }
+.num { position: absolute; top: 14px; left: 16px; font-size: 12px; font-weight: 600; color: var(--text-3); }
+.body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.title { display: flex; align-items: baseline; gap: 8px; }
+.title b { font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.title span { font-size: 13px; color: var(--text-3); }
+.desc { color: var(--text-2); font-size: 13.5px; margin: 0; }
+.row { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+.pill { height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 4px; border-radius: 999px; background: #0E1620; box-shadow: 0 10px 22px -8px rgba(6,12,22,.45); }
+.pill .slot { width: 40px; height: 40px; display: grid; place-items: center; }
+.pill .wave { display: flex; gap: 2.5px; align-items: center; height: 22px; }
+.pill .wave i { width: 2.5px; height: 20px; border-radius: 2px; background: linear-gradient(#7FDBFA, #3A86F5); transform: scaleY(.15); }
+.pill .lbl { color: #93A0AF; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(160deg, #E6F6FE, #CBE6FB); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 4px 10px -4px rgba(30,90,150,.3); flex: none; }
+.icon.dark { background: var(--grad); }
+.mono { width: 28px; height: 22px; display: grid; place-items: center; color: #0E1620; border-radius: 6px; background: var(--surface-2); flex: none; }
+.pick { align-self: center; margin-left: auto; white-space: nowrap; height: 36px; padding: 0 16px; border-radius: 999px; background: var(--surface-2); font-size: 13px; font-weight: 600; transition: background .15s, transform .12s var(--ease), color .15s; }
+.pick:hover { background: var(--surface-3); } .pick:active { transform: scale(.96); }
+.card.picked .pick { background: #0E1620; color: #fff; }
+figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+figcaption { font-size: 11px; color: var(--text-3); }
+.mono { margin: 12px 0; }
+.legend { font-size: 11.5px; color: var(--text-3); display: flex; gap: 14px; margin-top: -2px; }
+.picked-bar { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 90px); z-index: 10; display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 18px; border-radius: 999px; background: #0E1620; color: #fff; font-weight: 600; font-size: 14px; box-shadow: 0 18px 40px -12px rgba(6,12,22,.5); transition: transform .5s var(--ease); }
+.picked-bar.show { transform: translate(-50%, 0); }
+.picked-bar span { color: #93A0AF; font-weight: 500; }
+@media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .wrap { padding: 24px 16px 80px; } .hint { text-align: left; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Vobi as a cloud</h1>
+      <p class="sub">Six takes on the cloud: different shapes, faces and colours, each with its own way of reacting. Below each: the pill, the app icon (two backgrounds) and the menu-bar icon.</p>
+    </div>
+    <div class="spacer"></div>
+    <div>
+      <div class="seg" id="states"><span class="thumb"></span>
+        <button data-s="idle" aria-pressed="true">Idle</button><button data-s="listening" aria-pressed="false">Listening</button><button data-s="thinking" aria-pressed="false">Thinking</button><button data-s="done" aria-pressed="false">Done</button>
+      </div>
+      <div class="hint">or hold <span class="kbd">Space</span> to talk</div>
+    </div>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="picked-bar" id="bar"><span>Your pick:</span><b id="bar-name"></b></div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NAVY = "#12304D";
+
+/* ---------- cloud variants ---------- */
+const V = [
+  { key: "puff", name: "Puff", tag: "the classic",
+    desc: "Three soft puffs, white fading to ice blue, little navy eyes and rosy cheeks. Gentle and familiar.",
+    base: [-42, -4, 84, 40], puffs: [[-20, -6, 18], [4, -16, 24], [25, -2, 16]],
+    fill: ["#FFFFFF", "#E6F6FE", "#A9DDFB"], eye: { c: NAVY, gap: 12, y: 10, w: 6.5, h: 9 }, blush: [22, 20], shadow: .22 },
+  { key: "cumulus", name: "Cumulus", tag: "big-eyed & round",
+    desc: "Taller and rounder, with four puffs and big shiny eyes. The cutest. It looks right at you.",
+    base: [-40, 2, 80, 36], puffs: [[-24, 6, 16], [-8, -12, 20], [14, -16, 22], [30, 2, 14]],
+    fill: ["#FFFFFF", "#EAF7FF", "#B3E1FB"], eye: { c: NAVY, gap: 12, y: 14, w: 8.5, h: 11, glossy: true }, blush: [23, 24], smile: [0, 23], shadow: .22 },
+  { key: "sky", name: "Sky", tag: "brand-blue cloud",
+    desc: "The cloud filled with Vobi’s sky-to-blue gradient and white eyes. Bold, matches the app, and pops on light UI.",
+    base: [-42, -4, 84, 40], puffs: [[-20, -6, 18], [4, -16, 24], [25, -2, 16]],
+    fill: ["#9BE7FD", "#34B3F4", "#3A72F0"], eye: { c: "#fff", gap: 12, y: 10, w: 7, h: 10 }, gloss: true, shadow: .3 },
+  { key: "echo", name: "Echo", tag: "hears in waves",
+    desc: "Puff, plus little sound waves that ripple out from its sides while you talk, and sparkles when it’s done.",
+    base: [-42, -4, 84, 40], puffs: [[-20, -6, 18], [4, -16, 24], [25, -2, 16]],
+    fill: ["#FFFFFF", "#E2F4FE", "#9FD8FA"], eye: { c: NAVY, gap: 12, y: 10, w: 6.5, h: 9 }, blush: [22, 20], waves: true, sparkles: true, shadow: .22 },
+  { key: "mist", name: "Mist", tag: "quiet & minimal",
+    desc: "A low, simple cloud with only two dot eyes. No cheeks, no extras. The calmest and most icon-like.",
+    base: [-40, 0, 80, 34], puffs: [[-16, -4, 17], [8, -14, 21], [27, 2, 13]],
+    fill: ["#FFFFFF", "#F2F9FE", "#CFEAFB"], eye: { c: NAVY, gap: 11, y: 14, w: 6, h: 6 }, shadow: .2 },
+  { key: "drizzle", name: "Drizzle", tag: "catches your words",
+    desc: "While you talk, tiny drops fall from it like words being caught. It finishes with a small happy shake.",
+    base: [-40, -10, 80, 36], puffs: [[-19, -12, 17], [4, -22, 22], [24, -8, 15]],
+    fill: ["#FFFFFF", "#E4F5FE", "#A3DAFA"], eye: { c: NAVY, gap: 12, y: 3, w: 6.5, h: 9 }, blush: [21, 13], drops: true, shadow: .22 },
+];
+
+function buildSVG(v, id, small) {
+  const [bx, by, bw, bh] = v.base;
+  const eye = v.eye;
+  const eyes = `<g class="eyes"><rect class="el" fill="${eye.c}"/><rect class="er" fill="${eye.c}"/>
+      <path class="hl" fill="none" stroke="${eye.c}" stroke-width="3.6" stroke-linecap="round"/><path class="hr" fill="none" stroke="${eye.c}" stroke-width="3.6" stroke-linecap="round"/>
+      ${eye.glossy ? `<circle class="gl" r="2" fill="#fff"/><circle class="gr" r="2" fill="#fff"/>` : ""}</g>`;
+  return `<defs>
+      <linearGradient id="${id}g" x1="0" y1="-44" x2="0" y2="${by + bh}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${v.fill[0]}"/><stop offset=".55" stop-color="${v.fill[1]}"/><stop offset="1" stop-color="${v.fill[2]}"/></linearGradient>
+      <radialGradient id="${id}h"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <filter id="${id}s" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="${small ? 1.5 : 4}" stdDeviation="${small ? 1.5 : 4}" flood-color="#2E7BC4" flood-opacity="${v.shadow}"/></filter></defs>
+    ${small ? "" : `<ellipse class="sh" cx="0" cy="${by + bh + 9}" rx="34" ry="3.5" fill="#0B2A4A" opacity=".1"/>`}
+    ${v.waves ? `<g class="waves" fill="none" stroke="#5FC4F7" stroke-width="3" stroke-linecap="round">${[0, 1].map(k => `<path class="wl${k}"/><path class="wr${k}"/>`).join("")}</g>` : ""}
+    ${v.drops ? `<g class="drops" fill="#6CC9F7">${[0, 1, 2].map(k => `<ellipse class="d${k}" rx="2.4" ry="3.4"/>`).join("")}</g>` : ""}
+    <g class="b">
+      <g filter="url(#${id}s)" fill="url(#${id}g)"><rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${bh / 2}"/>${v.puffs.map((_, i) => `<circle class="p${i}"/>`).join("")}</g>
+      ${v.gloss ? `<ellipse cx="-2" cy="-24" rx="14" ry="6" fill="url(#${id}h)"/>` : ""}
+      ${v.blush ? `<ellipse cx="${-v.blush[0]}" cy="${v.blush[1]}" rx="5" ry="2.8" fill="#FF9EC1" opacity=".5"/><ellipse cx="${v.blush[0]}" cy="${v.blush[1]}" rx="5" ry="2.8" fill="#FF9EC1" opacity=".5"/>` : ""}
+      ${eyes}
+      ${v.smile ? `<path class="smile" fill="none" stroke="${NAVY}" stroke-width="2.4" stroke-linecap="round"/><ellipse class="mouth" cx="${v.smile[0]}" cy="${v.smile[1]}" rx="3.4" fill="${NAVY}"/>` : ""}
+    </g>
+    ${v.sparkles ? `<g class="sparks" fill="#3DB8F4">${[0, 1, 2].map(k => `<path class="s${k}" d="M0,-5 Q0,0 5,0 Q0,0 0,5 Q0,0 -5,0 Q0,0 0,-5Z"/>`).join("")}</g>` : ""}`;
+}
+
+/* ---------- engine ---------- */
+let N = 0;
+class Cloud {
+  constructor(mount, v, size, opts = {}) {
+    this.v = v; this.id = "k" + (++N); this.state = "idle"; this.t = Math.random() * 10; this.level = 0; this.target = 0; this.mono = opts.mono;
+    const S = (x = 1) => ({ x, v: 0, to: x });
+    this.sy = S(); this.sx = S(); this.ty = S(0); this.rot = S(0); this.open = S(); this.happy = S(0); this.look = S(0);
+    this.nextBlink = performance.now() + 800 + Math.random() * 3000;
+    let inner = buildSVG(v, this.id, size < 60);
+    if (opts.mono) inner = `<g class="b">${`<rect x="${v.base[0]}" y="${v.base[1]}" width="${v.base[2]}" height="${v.base[3]}" rx="${v.base[3] / 2}" fill="currentColor"/>` + v.puffs.map((_, i) => `<circle class="p${i}" fill="currentColor"/>`).join("")}
+      <g class="eyes"><rect class="el" fill="#fff"/><rect class="er" fill="#fff"/><path class="hl" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path class="hr" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g></g>`;
+    mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">${inner}</svg>`;
+    this.r = {}; mount.querySelectorAll("[class]").forEach(e => e.getAttribute("class").split(" ").forEach(c => { if (!this.r[c]) this.r[c] = e; }));
+    Cloud.all.push(this);
+  }
+  setState(s) {
+    if (s === this.state) return; const prev = this.state; this.state = s;
+    this.happy.to = s === "done" ? 1 : 0;
+    if (s === "done") { this.sy.v -= 2.6; this.sx.v += 1.7; this.ty.v -= 190; if (this.v.drops) this.rot.v += 60; }
+    if (s === "listening" && prev !== "listening") { this.sy.v += 1.4; this.sx.v -= .7; this.ty.v -= 50; }
+  }
+  st(s, k, c, dt) { s.v += (-k * (s.x - s.to) - c * s.v) * dt; s.x += s.v * dt; }
+  frame(now, dt) {
+    const v = this.v, r = this.r; this.t += dt; const st = this.state, t = reduce ? 0 : this.t;
+    const tl = st === "listening" ? this.target : 0; this.level += (tl - this.level) * (tl > this.level ? .45 : .12); const L = this.level;
+    if (now > this.nextBlink && st !== "done") { this.open.x = .1; this.open.v = 0; this.nextBlink = now + 2400 + Math.random() * 3400; }
+    this.look.to = st === "thinking" ? Math.sin(this.t * 2.4) * 4.5 : 0;
+    const br = reduce ? 0 : Math.sin(this.t * (st === "idle" ? 1.4 : 2.4)) * (st === "idle" ? .02 : .015);
+    this.sy.to = 1 + br + L * .1; this.sx.to = 1 - br * .5 + L * .05;
+    this.st(this.sy, 260, 13, dt); this.st(this.sx, 260, 13, dt); this.st(this.ty, 220, 16, dt); this.st(this.rot, 180, 9, dt);
+    this.st(this.open, 300, 22, dt); this.st(this.happy, 260, 24, dt); this.st(this.look, 120, 14, dt);
+    const hap = Math.max(0, Math.min(1, this.happy.x)), open = this.open.x, look = this.look.x, ty = Math.min(0, this.ty.x);
+    // puffs
+    v.puffs.forEach(([cx, cy, rr], i) => {
+      const ph = i * 1.7;
+      let d = Math.sin(t * (1.2 + i * .2) + ph) * 1.1;
+      if (st === "listening") d += Math.max(0, Math.sin(t * 9 + ph * 1.5)) * L * 6;
+      if (st === "thinking") d += Math.max(0, Math.sin(t * 4 - i * 1.1)) * 3.2; // ripple left→right
+      const c = r["p" + i]; c.setAttribute("cx", cx); c.setAttribute("cy", (cy - (st === "thinking" ? Math.max(0, Math.sin(t * 4 - i * 1.1)) * 1.5 : 0)).toFixed(2)); c.setAttribute("r", (rr + d).toFixed(2));
+    });
+    const baseY = v.base[1] + v.base[3];
+    r.b.setAttribute("transform", `translate(0 ${ty.toFixed(2)}) rotate(${(Math.sin(this.t * 14) * this.rot.x * .08).toFixed(2)} 0 ${baseY}) translate(0 ${baseY}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-baseY})`);
+    if (r.sh) r.sh.setAttribute("opacity", (.1 * (1 + ty / 50)).toFixed(3));
+    // eyes
+    const e = this.mono ? { gap: 13, y: v.eye.y, w: 8, h: 12 } : v.eye;
+    const eh = Math.max(1.4, e.h * Math.max(.08, open) * (1 - hap));
+    [[r.el, -1], [r.er, 1]].forEach(([el, s]) => { const cx = s * e.gap + look;
+      el.setAttribute("x", (cx - e.w / 2).toFixed(2)); el.setAttribute("y", (e.y - eh / 2).toFixed(2)); el.setAttribute("width", e.w); el.setAttribute("height", eh.toFixed(2)); el.setAttribute("rx", (Math.min(e.w, eh) / 2).toFixed(2)); el.setAttribute("opacity", (1 - hap).toFixed(2)); });
+    [[r.hl, -1], [r.hr, 1]].forEach(([p, s]) => { const cx = s * e.gap + look, cy = e.y + 2, rr = e.w * .75; p.setAttribute("d", `M${cx - rr},${cy} Q${cx},${cy - rr * 1.3} ${cx + rr},${cy}`); p.setAttribute("opacity", hap.toFixed(2)); });
+    if (r.gl) [[r.gl, -1], [r.gr, 1]].forEach(([g, s]) => { g.setAttribute("cx", (s * e.gap + look + 1.6).toFixed(2)); g.setAttribute("cy", (e.y - 2.4).toFixed(2)); g.setAttribute("opacity", open > .6 && hap < .2 ? 1 : 0); });
+    // mouth (Cumulus)
+    if (r.mouth) { const talk = st === "listening" ? L : 0, [mx, my] = v.smile;
+      r.mouth.setAttribute("cx", mx + look); r.mouth.setAttribute("ry", (.6 + talk * 4.5).toFixed(2)); r.mouth.setAttribute("opacity", talk > .05 ? 1 : 0);
+      const w = 3 + hap * 2.5, dp = 2 + hap * 2.5; r.smile.setAttribute("d", `M${mx - w + look},${my - 1} Q${mx + look},${my - 1 + dp} ${mx + w + look},${my - 1}`); r.smile.setAttribute("opacity", talk > .05 ? 0 : 1); }
+    // sound waves (Echo)
+    if (r.waves) [0, 1].forEach(k => {
+      const f = ((t * 1.6 + k * .5) % 1), op = (st === "listening" ? (.25 + L * .9) : 0) * (1 - f), o = 50 + f * 10, h = 10 + f * 6;
+      r["wl" + k].setAttribute("d", `M${-o},${10 - h} Q${-o - 6},10 ${-o},${10 + h}`); r["wr" + k].setAttribute("d", `M${o},${10 - h} Q${o + 6},10 ${o},${10 + h}`);
+      r["wl" + k].setAttribute("opacity", op.toFixed(2)); r["wr" + k].setAttribute("opacity", op.toFixed(2));
+    });
+    // sparkles (Echo)
+    if (r.sparks) [[-44, -30, 1], [46, -24, .8], [38, -46, .6]].forEach(([x, y, s], k) => {
+      const sc = hap * s * (1 + Math.sin(this.t * 8 + k) * .2); r["s" + k].setAttribute("transform", `translate(${x} ${y + ty * .5}) scale(${sc.toFixed(3)}) rotate(${(this.t * 60 + k * 30).toFixed(1)})`);
+    });
+    // drops (Drizzle)
+    if (r.drops) [0, 1, 2].forEach(k => {
+      const f = ((t * 1.3 + k / 3) % 1), on = st === "listening" ? Math.min(1, .3 + L) : 0;
+      const d = r["d" + k]; d.setAttribute("cx", [-14, 2, 18][k]); d.setAttribute("cy", (30 + f * 22).toFixed(2)); d.setAttribute("opacity", (on * (1 - f)).toFixed(2));
+    });
+  }
+}
+Cloud.all = [];
+
+/* ---------- cards ---------- */
+const grid = document.getElementById("grid"), pills = [];
+V.forEach((v, i) => {
+  const c = document.createElement("article"); c.className = "card"; c.dataset.key = v.key;
+  c.innerHTML = `<div class="stage"><span class="num">0${i + 1}</span><div class="big"></div></div>
+    <div class="body"><div class="title"><b>${v.name}</b><span>${v.tag}</span></div><p class="desc">${v.desc}</p>
+      <div class="row">
+        <figure><div class="pill"><div class="slot"></div><div class="wave">${"<i></i>".repeat(10)}</div><span class="lbl"></span></div><figcaption>pill</figcaption></figure>
+        <figure><div style="display:flex;gap:6px"><div class="icon"></div><div class="icon dark"></div></div><figcaption>app icon</figcaption></figure>
+        <figure><div class="mono"></div><figcaption>menu bar</figcaption></figure>
+        <button class="pick">Pick</button>
+      </div>
+    </div>`;
+  grid.append(c);
+  new Cloud(c.querySelector(".big"), v, 180);
+  new Cloud(c.querySelector(".slot"), v, 40);
+  new Cloud(c.querySelector(".icon"), v, 42);
+  new Cloud(c.querySelector(".icon.dark"), v, 42);
+  new Cloud(c.querySelector(".mono"), v, 22, { mono: true });
+  pills.push(c.querySelector(".pill"));
+  c.querySelector(".pick").addEventListener("click", () => {
+    const on = !c.classList.contains("picked");
+    document.querySelectorAll(".card").forEach(x => { x.classList.toggle("picked", on && x === c); x.querySelector(".pick").textContent = on && x === c ? "Picked ✓" : "Pick"; });
+    document.getElementById("bar-name").textContent = v.name; document.getElementById("bar").classList.toggle("show", on);
+    if (on) Cloud.all.filter(k => k.v === v).forEach(k => { k.setState("done"); setTimeout(() => k.setState(current), 1300); });
+  });
+});
+
+/* ---------- states ---------- */
+let current = "idle", doneT;
+const seg = document.getElementById("states"), thumb = seg.querySelector(".thumb"), btns = [...seg.querySelectorAll("button")];
+function placeThumb() { const on = btns.find(b => b.getAttribute("aria-pressed") === "true"); thumb.style.width = on.offsetWidth + "px"; thumb.style.transform = `translateX(${on.offsetLeft - 4}px)`; }
+function setAll(s) {
+  current = s; clearTimeout(doneT); btns.forEach(b => b.setAttribute("aria-pressed", b.dataset.s === s)); placeThumb();
+  Cloud.all.forEach(c => c.setState(s));
+  pills.forEach(p => { p.querySelector(".lbl").textContent = s === "thinking" ? "Polishing…" : s === "done" ? "Pasted ✓" : s === "idle" ? "Ready" : ""; p.querySelector(".wave").style.display = s === "listening" ? "flex" : "none"; });
+  if (s === "done") doneT = setTimeout(() => setAll("idle"), 1700);
+}
+btns.forEach(b => b.addEventListener("click", () => setAll(b.dataset.s)));
+document.fonts && document.fonts.ready.then(placeThumb);
+let sp = false;
+addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat) { e.preventDefault(); sp = true; setAll("listening"); } });
+addEventListener("keyup", e => { if (e.code === "Space" && sp) { sp = false; setAll("thinking"); setTimeout(() => { if (current === "thinking") setAll("done"); }, 900); } });
+
+function synth(t) { const a = Math.max(0, Math.sin(t * 13.5) * .6 + Math.sin(t * 7.1 + 1) * .4), b = Math.max(0, Math.sin(t * 1.3) * .5 + .55); return Math.min(1, a * b * (.75 + Math.random() * .35)); }
+let last = performance.now(), lastWave = 0;
+function loop(now) {
+  const dt = Math.min(.033, (now - last) / 1000); last = now;
+  const L = current === "listening" ? synth(now / 1000) : 0;
+  Cloud.all.forEach(c => { c.target = L; c.frame(now, dt); });
+  if (current === "listening" && now - lastWave > 60) { lastWave = now; pills.forEach(p => { const b = p.querySelectorAll(".wave i"); for (let i = 0; i < b.length - 1; i++) b[i].style.transform = b[i + 1].style.transform; b[b.length - 1].style.transform = `scaleY(${(.15 + L * .85).toFixed(3)})`; }); }
+  requestAnimationFrame(loop);
+}
+setAll("idle"); requestAnimationFrame(loop); addEventListener("resize", placeThumb);
+</script>
+</body>
+</html>

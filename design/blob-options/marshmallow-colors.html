@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marshmallow Colours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --font: "Instrument Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --text: #0E1620; --text-2: #5A6675; --text-3: #97A2AF; --surface-2: #F3F7FA; --surface-3: #E7EDF2;
+  --grad: linear-gradient(135deg, #6AD5F9 0%, #2FB1F4 42%, #3A7BF5 100%);
+  --shadow: 0 1px 2px rgba(18,38,58,.04), 0 14px 36px -12px rgba(18,38,58,.12);
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 14.5px/1.5 var(--font); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background: radial-gradient(900px 500px at 10% 0%, #DCF1FC, transparent 60%), radial-gradient(800px 500px at 100% 100%, #DFE9FB, transparent 60%), #EEF3F7; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 90px; }
+header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; }
+.sub { color: var(--text-2); margin: 6px 0 0; max-width: 580px; }
+.spacer { flex: 1; }
+.seg { position: relative; display: inline-flex; padding: 4px; gap: 2px; background: #fff; border-radius: 999px; box-shadow: var(--shadow); }
+.seg button { position: relative; z-index: 1; height: 34px; padding: 0 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--text-2); transition: color .2s; }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg .thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: #0E1620; transition: transform .45s var(--ease), width .45s var(--ease); }
+.hint { font-size: 12.5px; color: var(--text-3); margin-top: 8px; text-align: right; }
+.kbd { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; background: #fff; border: 1px solid rgba(18,38,58,.14); border-bottom-width: 2px; font-size: 11.5px; font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card { background: #fff; border-radius: 26px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+.card:hover { transform: translateY(-2px); }
+.card.picked { box-shadow: var(--shadow), 0 0 0 2px #2FB1F4, 0 0 0 7px rgba(47,177,244,.15); }
+.stage { position: relative; height: 260px; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(260px 170px at 50% 58%, #fff, transparent 72%), linear-gradient(180deg, #F4F9FD, #E6F0F8); }
+.num { position: absolute; top: 14px; left: 16px; font-size: 12px; font-weight: 600; color: var(--text-3); }
+.body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.title { display: flex; align-items: baseline; gap: 8px; }
+.title b { font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.title span { font-size: 13px; color: var(--text-3); }
+.desc { color: var(--text-2); font-size: 13.5px; margin: 0 0 6px; }
+.row { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-top: auto; }
+figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+figcaption { font-size: 11px; color: var(--text-3); }
+.pill { height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 4px; border-radius: 999px; background: #0E1620; box-shadow: 0 10px 22px -8px rgba(6,12,22,.45); }
+.pill .slot { width: 40px; height: 40px; display: grid; place-items: center; }
+.pill .wave { display: flex; gap: 2.5px; align-items: center; height: 22px; }
+.pill .wave i { width: 2.5px; height: 20px; border-radius: 2px; background: linear-gradient(#7FDBFA, #3A86F5); transform: scaleY(.15); }
+.pill .lbl { color: #93A0AF; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.icons { display: flex; gap: 6px; }
+.icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(160deg, #F2FAFF, #CFE8FB); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 4px 10px -4px rgba(30,90,150,.3); }
+.icon.blue { background: var(--grad); }
+.pick { align-self: center; margin-left: auto; white-space: nowrap; height: 36px; padding: 0 16px; border-radius: 999px; background: var(--surface-2); font-size: 13px; font-weight: 600; transition: background .15s, transform .12s var(--ease), color .15s; }
+.pick:hover { background: var(--surface-3); } .pick:active { transform: scale(.96); }
+.card.picked .pick { background: #0E1620; color: #fff; }
+.bar { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 90px); z-index: 10; padding: 10px 18px; border-radius: 999px; background: #0E1620; color: #fff; font-weight: 600; box-shadow: 0 18px 40px -12px rgba(6,12,22,.5); transition: transform .5s var(--ease); }
+.bar.show { transform: translate(-50%, 0); } .bar span { color: #93A0AF; font-weight: 500; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 660px) { .grid { grid-template-columns: 1fr; } .wrap { padding: 24px 16px 90px; } .hint { text-align: left; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Marshmallow · colour</h1>
+      <p class="sub">Same Marshmallow shape and face in six brighter colour treatments. Look at the big one, the pill and the icons together.</p></div>
+    <div class="spacer"></div>
+    <div><div class="seg" id="states"><span class="thumb"></span>
+      <button data-s="idle" aria-pressed="true">Idle</button><button data-s="listening" aria-pressed="false">Listening</button><button data-s="thinking" aria-pressed="false">Thinking</button><button data-s="done" aria-pressed="false">Done</button></div>
+      <div class="hint">or hold <span class="kbd">Space</span> to talk</div></div>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="bar" id="bar"><span>Your pick: </span><b id="bar-name"></b></div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NAVY = "#14304C";
+
+/* ---------- geometry: exact cloud silhouette from puffs (polar union, softened) ---------- */
+function cloudPoints(puffs, base, ox, oy, smooth, N = 150) {
+  const circles = puffs.slice();
+  const [bx, by, bw, bh] = base, br = bh / 2;
+  for (let x = bx + br; x <= bx + bw - br + .01; x += Math.max(4, (bw - bh) / 6)) circles.push([x, by + br, br]);
+  const R = new Array(N);
+  for (let i = 0; i < N; i++) {
+    const a = i / N * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a); let best = 0;
+    for (const [cx, cy, r] of circles) { const px = cx - ox, py = cy - oy, b = dx * px + dy * py, c = px * px + py * py - r * r, disc = b * b - c; if (disc >= 0) { const t = b + Math.sqrt(disc); if (t > best) best = t; } }
+    R[i] = best;
+  }
+  for (let k = 0; k < smooth; k++) { const c = R.slice(); for (let i = 0; i < N; i++) R[i] = (c[(i - 1 + N) % N] + 2 * c[i] + c[(i + 1) % N]) / 4; }
+  return R.map((r, i) => { const a = i / N * Math.PI * 2; return [ox + Math.cos(a) * r, oy + Math.sin(a) * r]; });
+}
+const toPath = pts => "M" + pts.map(p => p[0].toFixed(2) + "," + p[1].toFixed(2)).join("L") + "Z";
+
+/* ---------- styles ---------- */
+const STD = { puffs: [[-21, -2, 17], [-2, -14, 22], [21, -6, 18], [33, 8, 11]], base: [-42, 4, 84, 34], o: [0, 10] };
+const V = [
+  { key: "pop", name: "Sky Pop", tag: "white → vivid cyan",
+    desc: "Bright white top melting into a vivid cyan belly, with a crisp blue shadow. Fresh and cheerful.",
+    geo: STD, look: "clay", fill: ["#FFFFFF", "#BFEBFF", "#45C0FA"], ao: "#1677E6", aoOp: .6, glow: "#E9FBFF", face: { c: NAVY, gap: 12, y: 16, rx: 4.6, ry: 6.2, glossy: true, mouth: true, blush: true } },
+  { key: "ocean", name: "Ocean", tag: "rich mid blue",
+    desc: "A saturated ocean-blue clay with a light aqua top. Deeper colour, still soft and friendly.",
+    geo: STD, look: "clay", fill: ["#DDF7FF", "#5ACCFB", "#2B7FF0"], ao: "#1B44C9", aoOp: .55, glow: "#9EEBFF", face: { c: NAVY, gap: 12, y: 16, rx: 4.6, ry: 6.2, glossy: true, mouth: true, blush: true } },
+  { key: "brand", name: "Brand Blue", tag: "the app’s gradient",
+    desc: "Filled with Vobi’s own sky-to-blue gradient, with white eyes. Matches the buttons and hero card exactly.",
+    geo: STD, look: "clay", fill: ["#A6EEFF", "#30B2F5", "#376AEE"], ao: "#1E36BE", aoOp: .5, glow: "#A9F1FF", face: { c: "#fff", gap: 12, y: 16, rx: 4.8, ry: 6.4, mouth: true, mouthC: "#fff", blush: true } },
+  { key: "ice", name: "Ice Glow", tag: "white with bright rim",
+    desc: "Stays mostly white, but lit by a bright cyan rim and a vivid blue glow underneath, like it’s backlit.",
+    geo: STD, look: "clay", fill: ["#FFFFFF", "#F1FAFF", "#D3F0FF"], ao: "#169BF2", aoOp: .75, rimC: "#5FD3FF", glow: "#7FDCFF", face: { c: NAVY, gap: 12, y: 16, rx: 4.6, ry: 6.2, glossy: true, mouth: true, blush: true } },
+  { key: "twilight", name: "Twilight", tag: "blue with indigo depth",
+    desc: "Cyan top fading into blue with a hint of indigo in the shadows. The richest and most premium.",
+    geo: STD, look: "clay", fill: ["#C8F2FF", "#4FB9FB", "#5662F0"], ao: "#5A3FD6", aoOp: .55, glow: "#A6E9FF", face: { c: "#fff", gap: 12, y: 16, rx: 4.8, ry: 6.4, mouth: true, mouthC: "#fff", blush: true } },
+  { key: "candy", name: "Candy", tag: "sweet & bright",
+    desc: "Light, sugary blue with stronger pink cheeks and a soft lilac rim. The cutest and most playful.",
+    geo: STD, look: "clay", fill: ["#FFFFFF", "#CDEFFF", "#7CC6FF"], ao: "#3A6FF5", aoOp: .55, rimC: "#C9B8FF", glow: "#F2FBFF", blushStrong: true, face: { c: NAVY, gap: 12, y: 16, rx: 4.6, ry: 6.2, glossy: true, mouth: true, blush: true } },
+];
+
+/* ---------- build svg ---------- */
+function build(v, id, small) {
+  const f = v.face, G = id;
+  const face = `<g class="face">
+      ${f.blush ? `<ellipse class="bl" rx="6" ry="3.4" fill="url(#${G}bl)"/><ellipse class="br" rx="6" ry="3.4" fill="url(#${G}bl)"/>` : ""}
+      <ellipse class="el" fill="${f.c}"/><ellipse class="er" fill="${f.c}"/>
+      ${f.glossy ? `<circle class="g1" r="1.7" fill="#fff"/><circle class="g2" r="1.7" fill="#fff"/><circle class="g3" r=".8" fill="#fff"/><circle class="g4" r=".8" fill="#fff"/>` : ""}
+      <path class="al" fill="none" stroke="${f.c}" stroke-width="3" stroke-linecap="round"/><path class="ar" fill="none" stroke="${f.c}" stroke-width="3" stroke-linecap="round"/>
+      ${f.mouth || f.sleepy ? `<path class="sm" fill="none" stroke="${f.mouthC || f.c}" stroke-width="2.2" stroke-linecap="round"/><ellipse class="mo" fill="${f.mouthC === "#fff" ? "#fff" : "#0E2238"}"/>` : ""}
+    </g>`;
+  const defs = `<defs>
+      <linearGradient id="${G}f" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${(v.fill || [])[0]}"/><stop offset=".55" stop-color="${(v.fill || [])[1]}"/><stop offset="1" stop-color="${(v.fill || [])[2]}"/></linearGradient>
+      <radialGradient id="${G}hi" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${G}ao" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${v.ao || "#3A6FEF"}" stop-opacity="${v.aoOp || .45}"/><stop offset="1" stop-color="${v.ao || "#3A6FEF"}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${G}bl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FF7EAA" stop-opacity="${v.blushStrong ? .95 : .75}"/><stop offset="1" stop-color="#FF8DB3" stop-opacity="0"/></radialGradient>
+      <linearGradient id="${G}rim" x1="0" y1="-40" x2="0" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${v.rimC || "#fff"}" stop-opacity=".95"/><stop offset="1" stop-color="${v.rimC || "#fff"}" stop-opacity="0"/></linearGradient>
+      <linearGradient id="${G}ln" x1="-45" y1="-30" x2="45" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6AD5F9"/><stop offset=".5" stop-color="#2FB1F4"/><stop offset="1" stop-color="#3A7BF5"/></linearGradient>
+      <radialGradient id="${G}bub" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#C9F4FF"/><stop offset=".45" stop-color="#46BDF6"/><stop offset="1" stop-color="#3A66EA"/></radialGradient>
+      <radialGradient id="${G}glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${v.glow || "#9BEBFF"}" stop-opacity=".85"/><stop offset="1" stop-color="${v.glow || "#9BEBFF"}" stop-opacity="0"/></radialGradient>
+      <filter id="${G}blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${small ? 3 : 9}"/></filter>
+      <filter id="${G}soft" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="${small ? 1 : 5}" stdDeviation="${small ? 1.5 : 5}" flood-color="${v.ao || "#2369B0"}" flood-opacity="${v.look === "line" ? .12 : .32}"/></filter>
+      <clipPath id="${G}clip"><path class="clipP"/></clipPath>
+    </defs>`;
+  const shadow = small ? "" : `<ellipse class="sh" cx="0" cy="50" rx="34" ry="4" fill="#0B2A4A" opacity=".12"/>`;
+  let bodyArt = "";
+  if (v.look === "clay") bodyArt = `
+      ${v.halo ? `<path class="halo" fill="#5FC8F8" filter="url(#${G}blur)"/>` : ""}
+      <path class="body" fill="url(#${G}f)" filter="url(#${G}soft)"/>
+      <g clip-path="url(#${G}clip)">
+        <ellipse cx="0" cy="46" rx="60" ry="24" fill="url(#${G}ao)"/>
+        ${v.glow ? `<ellipse cx="0" cy="30" rx="30" ry="9" fill="url(#${G}glow)"/>` : ""}
+        <ellipse cx="-12" cy="-22" rx="34" ry="18" fill="url(#${G}hi)" opacity=".9"/>
+      </g>
+      <path class="rim" fill="none" stroke="url(#${G}rim)" stroke-width="2"/>
+      <ellipse cx="-14" cy="-18" rx="6" ry="3.4" fill="#fff" opacity=".9" transform="rotate(-25 -14 -18)"/>`;
+  if (v.look === "gel") bodyArt = `
+      <path class="body" fill="url(#${G}f)" filter="url(#${G}soft)" opacity=".97"/>
+      <g clip-path="url(#${G}clip)">
+        <ellipse cx="0" cy="38" rx="46" ry="16" fill="url(#${G}glow)"/>
+        <ellipse cx="4" cy="6" rx="30" ry="22" fill="#fff" opacity=".12"/>
+      </g>
+      <path class="rim" fill="none" stroke="url(#${G}rim)" stroke-width="2.2" opacity=".9"/>
+      <path d="M-28,-6 C-26,-18 -16,-26 -4,-28" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+      <circle cx="10" cy="-28" r="2.4" fill="#fff" opacity=".9"/>`;
+  if (v.look === "line") bodyArt = `<path class="body" fill="#fff" stroke="url(#${G}ln)" stroke-width="${small ? 6 : 4.5}" stroke-linejoin="round" filter="url(#${G}soft)"/>`;
+  if (v.look === "bubbles") bodyArt = v.geo.puffs.map((_, i) => `<g class="bb${i}"><circle r="1" fill="url(#${G}bub)" filter="url(#${G}soft)"/><ellipse class="bh" fill="#fff" opacity=".85"/></g>`).join("");
+  return defs + shadow + `<g class="b">${bodyArt}${face}</g>`;
+}
+
+/* ---------- engine ---------- */
+let N = 0;
+class Cloud {
+  constructor(mount, v, size) {
+    this.v = v; this.id = "q" + (++N); this.small = size < 70; this.state = "idle"; this.t = Math.random() * 10; this.level = 0; this.target = 0;
+    const S = (x = 1) => ({ x, v: 0, to: x });
+    this.sy = S(); this.sx = S(); this.ty = S(0); this.open = S(); this.happy = S(0); this.awake = S(v.face.sleepy ? 0 : 1); this.lx = S(0); this.ly = S(0); this.big = S(1);
+    this.nextBlink = performance.now() + 900 + Math.random() * 3000;
+    mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-60 -60 120 120" style="overflow:visible;display:block" aria-hidden="true">${build(v, this.id, this.small)}</svg>`;
+    const q = s => mount.querySelector(s), qa = s => [...mount.querySelectorAll(s)];
+    this.r = { b: q(".b"), body: q(".body"), clipP: q(".clipP"), rim: q(".rim"), halo: q(".halo"), sh: q(".sh"),
+      el: q(".el"), er: q(".er"), al: q(".al"), ar: q(".ar"), g: qa(".g1,.g2,.g3,.g4"), sm: q(".sm"), mo: q(".mo"), bl: q(".bl"), br: q(".br"),
+      bb: v.look === "bubbles" ? v.geo.puffs.map((_, i) => q(".bb" + i)) : null };
+    Cloud.all.push(this);
+  }
+  setState(s) {
+    if (s === this.state) return; const p = this.state; this.state = s;
+    this.happy.to = s === "done" ? 1 : 0;
+    this.awake.to = this.v.face.sleepy ? (s === "idle" ? 0 : 1) : 1;
+    this.big.to = s === "listening" ? 1.12 : 1;
+    if (s === "done") { this.sy.v -= 2.8; this.sx.v += 1.8; this.ty.v -= 200; }
+    if (s === "listening" && p !== "listening") { this.sy.v += 1.5; this.sx.v -= .8; this.ty.v -= 60; }
+  }
+  st(s, k, c, dt) { s.v += (-k * (s.x - s.to) - c * s.v) * dt; s.x += s.v * dt; }
+  frame(now, dt) {
+    const v = this.v, r = this.r, f = v.face; this.t += dt; const st = this.state, t = reduce ? 0 : this.t;
+    const tl = st === "listening" ? this.target : 0; this.level += (tl - this.level) * (tl > this.level ? .45 : .12); const L = this.level;
+    if (now > this.nextBlink && st !== "done") { this.open.x = .08; this.open.v = 0; this.nextBlink = now + 2400 + Math.random() * 3400; }
+    this.lx.to = st === "thinking" ? 3.5 * Math.sign(Math.sin(this.t * 1.3)) : 0; this.ly.to = st === "thinking" ? -2.5 : st === "listening" ? -1 : 0;
+    const br = reduce ? 0 : Math.sin(this.t * (st === "idle" ? 1.3 : 2.4)) * (st === "idle" ? .022 : .015);
+    this.sy.to = 1 + br + L * .1; this.sx.to = 1 - br * .5 + L * .05;
+    for (const [s, k, c] of [[this.sy, 260, 13], [this.sx, 260, 13], [this.ty, 220, 16], [this.open, 300, 22], [this.happy, 240, 22], [this.awake, 160, 18], [this.lx, 140, 16], [this.ly, 140, 16], [this.big, 220, 18]]) this.st(s, k, c, dt);
+    const hap = Math.max(0, Math.min(1, this.happy.x)), awake = Math.max(0, Math.min(1, this.awake.x)), ty = Math.min(0, this.ty.x);
+
+    // animated puffs
+    const puffs = v.geo.puffs.map(([cx, cy, rr], i) => {
+      const ph = i * 1.9; let d = Math.sin(t * (1.1 + i * .17) + ph) * .9;
+      if (st === "listening") d += Math.max(0, Math.sin(t * 9 + ph * 1.4)) * L * (v.look === "bubbles" ? 4 : 5.5);
+      if (st === "thinking") d += Math.max(0, Math.sin(t * 4.2 - i * .9)) * 2.6;
+      return [cx, cy, rr + d];
+    });
+    if (v.look === "bubbles") {
+      puffs.forEach(([cx, cy, rr], i) => { const g = r.bb[i]; const bounce = st === "listening" ? -Math.max(0, Math.sin(t * 8 + i * 1.3)) * L * 5 : 0;
+        g.setAttribute("transform", `translate(${cx} ${(cy + bounce).toFixed(2)})`); g.firstElementChild.setAttribute("r", rr.toFixed(2));
+        const h = g.querySelector(".bh"); h.setAttribute("cx", (-rr * .35).toFixed(2)); h.setAttribute("cy", (-rr * .45).toFixed(2)); h.setAttribute("rx", (rr * .28).toFixed(2)); h.setAttribute("ry", (rr * .16).toFixed(2)); h.setAttribute("transform", `rotate(-30 ${(-rr * .35).toFixed(2)} ${(-rr * .45).toFixed(2)})`); });
+    } else {
+      const d = toPath(cloudPoints(puffs, v.geo.base, v.geo.o[0], v.geo.o[1], v.smooth ?? 3, this.small ? 90 : 150));
+      r.body.setAttribute("d", d); if (r.clipP) r.clipP.setAttribute("d", d); if (r.rim) r.rim.setAttribute("d", d);
+      if (r.halo) { r.halo.setAttribute("d", d); r.halo.setAttribute("opacity", (.35 + Math.sin(this.t * 1.6) * .1 + L * .6 + hap * .3).toFixed(2)); r.halo.setAttribute("transform", `scale(${(1.06 + L * .12).toFixed(3)})`); }
+    }
+    const baseY = 42;
+    r.b.setAttribute("transform", `translate(0 ${ty.toFixed(2)}) translate(0 ${baseY}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-baseY})`);
+    if (r.sh) r.sh.setAttribute("opacity", (.12 * (1 + ty / 45)).toFixed(3));
+
+    // face
+    const lx = this.lx.x, ly = this.ly.x, big = this.big.x;
+    const closed = Math.max(hap, 1 - awake), eyeOpen = Math.max(.06, this.open.x) * (1 - closed);
+    const ey = f.y + ly;
+    [[r.el, -1], [r.er, 1]].forEach(([e, s]) => { e.setAttribute("cx", (s * f.gap + lx).toFixed(2)); e.setAttribute("cy", ey.toFixed(2)); e.setAttribute("rx", (f.rx * big).toFixed(2)); e.setAttribute("ry", Math.max(.6, f.ry * big * eyeOpen).toFixed(2)); e.setAttribute("opacity", closed > .85 ? 0 : 1); });
+    // closed-eye arcs: up (^) when happy, down (‿) when sleepy
+    const curve = hap > (1 - awake) ? -1 : 1;
+    [[r.al, -1], [r.ar, 1]].forEach(([p, s]) => { const cx = s * f.gap + lx, w = f.rx * 1.25, k = curve * 4.2; p.setAttribute("d", `M${(cx - w).toFixed(2)},${(ey + (curve < 0 ? 1.5 : -1)).toFixed(2)} Q${cx.toFixed(2)},${(ey + k).toFixed(2)} ${(cx + w).toFixed(2)},${(ey + (curve < 0 ? 1.5 : -1)).toFixed(2)}`); p.setAttribute("opacity", (closed > .5 ? Math.min(1, (closed - .5) * 3) : 0).toFixed(2)); });
+    if (r.g.length) { const vis = eyeOpen > .55 ? 1 : 0; r.g.forEach((g, i) => { const s = i % 2 ? 1 : -1, small = i > 1; g.setAttribute("cx", (s * f.gap + lx + (small ? -1.6 : 1.5) * big).toFixed(2)); g.setAttribute("cy", (ey + (small ? 2.4 : -2.2) * big).toFixed(2)); g.setAttribute("opacity", vis); }); }
+    if (r.bl) { r.bl.setAttribute("cx", -f.gap - 9 + lx * .5); r.br.setAttribute("cx", f.gap + 9 + lx * .5); [r.bl, r.br].forEach(b => { b.setAttribute("cy", (ey + 6).toFixed(2)); b.setAttribute("opacity", (.7 + hap * .3).toFixed(2)); }); }
+    if (r.sm) {
+      const talk = st === "listening" ? L : 0, my = ey + 7.5, mx = lx * .6;
+      r.mo.setAttribute("cx", mx.toFixed(2)); r.mo.setAttribute("cy", (my + 1).toFixed(2)); r.mo.setAttribute("rx", (2.6 + talk * .8).toFixed(2)); r.mo.setAttribute("ry", (.5 + talk * 3.6).toFixed(2)); r.mo.setAttribute("opacity", talk > .06 ? 1 : 0);
+      const w = (f.sleepy && awake < .5 ? 1.8 : 2.6) + hap * 2.2, dp = 1.8 + hap * 2.6;
+      r.sm.setAttribute("d", `M${(mx - w).toFixed(2)},${my.toFixed(2)} Q${mx.toFixed(2)},${(my + dp).toFixed(2)} ${(mx + w).toFixed(2)},${my.toFixed(2)}`); r.sm.setAttribute("opacity", talk > .06 ? 0 : 1);
+    }
+  }
+}
+Cloud.all = [];
+
+/* ---------- cards ---------- */
+const grid = document.getElementById("grid"), pills = [];
+V.forEach((v, i) => {
+  const c = document.createElement("article"); c.className = "card"; c.dataset.key = v.key;
+  c.innerHTML = `<div class="stage"><span class="num">0${i + 1}</span><div class="big"></div></div>
+    <div class="body"><div class="title"><b>${v.name}</b><span>${v.tag}</span></div><p class="desc">${v.desc}</p>
+      <div class="row">
+        <figure><div class="pill"><div class="slot"></div><div class="wave">${"<i></i>".repeat(10)}</div><span class="lbl"></span></div><figcaption>pill</figcaption></figure>
+        <figure><div class="icons"><div class="icon a"></div><div class="icon blue"></div></div><figcaption>app icon</figcaption></figure>
+        <button class="pick">Pick</button>
+      </div></div>`;
+  grid.append(c);
+  new Cloud(c.querySelector(".big"), v, 200);
+  new Cloud(c.querySelector(".slot"), v, 42);
+  new Cloud(c.querySelector(".icon.a"), v, 44);
+  new Cloud(c.querySelector(".icon.blue"), v, 44);
+  pills.push(c.querySelector(".pill"));
+  c.querySelector(".pick").addEventListener("click", () => {
+    const on = !c.classList.contains("picked");
+    document.querySelectorAll(".card").forEach(x => { x.classList.toggle("picked", on && x === c); x.querySelector(".pick").textContent = on && x === c ? "Picked ✓" : "Pick"; });
+    document.getElementById("bar-name").textContent = v.name; document.getElementById("bar").classList.toggle("show", on);
+    if (on) Cloud.all.filter(k => k.v === v).forEach(k => { k.setState("done"); setTimeout(() => k.setState(current), 1300); });
+  });
+});
+
+/* ---------- states ---------- */
+let current = "idle", doneT;
+const seg = document.getElementById("states"), thumb = seg.querySelector(".thumb"), btns = [...seg.querySelectorAll("button")];
+function placeThumb() { const on = btns.find(b => b.getAttribute("aria-pressed") === "true"); thumb.style.width = on.offsetWidth + "px"; thumb.style.transform = `translateX(${on.offsetLeft - 4}px)`; }
+function setAll(s) {
+  current = s; clearTimeout(doneT); btns.forEach(b => b.setAttribute("aria-pressed", b.dataset.s === s)); placeThumb();
+  Cloud.all.forEach(c => c.setState(s));
+  pills.forEach(p => { p.querySelector(".lbl").textContent = s === "thinking" ? "Polishing…" : s === "done" ? "Pasted ✓" : s === "idle" ? "Ready" : ""; p.querySelector(".wave").style.display = s === "listening" ? "flex" : "none"; });
+  if (s === "done") doneT = setTimeout(() => setAll("idle"), 1800);
+}
+btns.forEach(b => b.addEventListener("click", () => setAll(b.dataset.s)));
+document.fonts && document.fonts.ready.then(placeThumb);
+let sp = false;
+addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat) { e.preventDefault(); sp = true; setAll("listening"); } });
+addEventListener("keyup", e => { if (e.code === "Space" && sp) { sp = false; setAll("thinking"); setTimeout(() => { if (current === "thinking") setAll("done"); }, 1000); } });
+function synth(t) { const a = Math.max(0, Math.sin(t * 13.5) * .6 + Math.sin(t * 7.1 + 1) * .4), b = Math.max(0, Math.sin(t * 1.3) * .5 + .55); return Math.min(1, a * b * (.75 + Math.random() * .35)); }
+let last = performance.now(), lastWave = 0;
+function loop(now) {
+  const dt = Math.min(.033, (now - last) / 1000); last = now;
+  const L = current === "listening" ? synth(now / 1000) : 0;
+  Cloud.all.forEach(c => { c.target = L; c.frame(now, dt); });
+  if (current === "listening" && now - lastWave > 60) { lastWave = now; pills.forEach(p => { const b = p.querySelectorAll(".wave i"); for (let i = 0; i < b.length - 1; i++) b[i].style.transform = b[i + 1].style.transform; b[b.length - 1].style.transform = `scaleY(${(.15 + L * .85).toFixed(3)})`; }); }
+  requestAnimationFrame(loop);
+}
+setAll("idle"); requestAnimationFrame(loop); addEventListener("resize", placeThumb);
+</script>
+</body>
+</html>
