@@ -793,26 +793,44 @@ pub enum FixResult {
     Clean,
     NothingSelected,
     Failed,
+    /// Refine rewrote the selection: number of words in the result.
+    Refined(usize),
+    /// No AI is set up for Refine.
+    NoEngine,
 }
 
 #[derive(serde::Serialize, Clone)]
 struct FixPayload {
     kind: &'static str,
     fixes: Vec<crate::spellfix::SpellFix>,
+    words: usize,
+}
+
+/// Shows "Refining…" while the AI rewrites a selection.
+pub fn show_refining_overlay(app_handle: &AppHandle) {
+    show_overlay_state(app_handle, "refining");
 }
 
 /// Shows the result of "Fix selection" in the pill for a moment, then hides it.
 pub fn show_fix_result(app_handle: &AppHandle, result: FixResult) {
+    let mut words = 0;
     let (kind, fixes) = match result {
         FixResult::Fixed(fixes) => ("fixed", fixes),
         FixResult::Clean => ("clean", vec![]),
         FixResult::NothingSelected => ("empty", vec![]),
         FixResult::Failed => ("failed", vec![]),
+        FixResult::Refined(n) => {
+            words = n;
+            ("refined", vec![])
+        }
+        FixResult::NoEngine => ("nokey", vec![]),
     };
-    let hold = Duration::from_millis(2400 + 350 * fixes.len().min(4) as u64);
+    let hold = Duration::from_millis(
+        2400 + 350 * fixes.len().min(4) as u64 + if kind == "nokey" { 1600 } else { 0 },
+    );
     show_overlay_state(app_handle, "fix");
     if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
-        let _ = overlay_window.emit("overlay-fix", FixPayload { kind, fixes });
+        let _ = overlay_window.emit("overlay-fix", FixPayload { kind, fixes, words });
     }
     let handle = app_handle.clone();
     std::thread::spawn(move || {

@@ -24,6 +24,7 @@ type OverlayState =
   | "processing"
   | "done"
   | "fix"
+  | "refining"
   | "notice"
   | "live_notice";
 
@@ -46,9 +47,12 @@ const CLOUD_SIZE = 46;
 
 // What "Fix selection" did (from the backend's `overlay-fix` event).
 type FixResult = {
-  kind: "fixed" | "clean" | "empty" | "failed";
+  kind: "fixed" | "clean" | "empty" | "failed" | "refined" | "nokey";
   fixes: { from: string; to: string }[];
+  words: number;
 };
+
+const UNDO_KEYS = /Mac/.test(navigator.userAgent) ? "⌘Z" : "Ctrl+Z";
 
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
@@ -364,13 +368,15 @@ const RecordingOverlay: React.FC = () => {
   const fixRow = fix && (
     <div className="vrow">
       {cloud(
-        fix.kind === "fixed" || fix.kind === "clean"
+        fix.kind === "fixed" || fix.kind === "clean" || fix.kind === "refined"
           ? "done"
           : fix.kind === "failed"
             ? "error"
             : "idle",
       )}
-      {fix.kind === "fixed" || fix.kind === "clean" ? (
+      {fix.kind === "fixed" ||
+      fix.kind === "clean" ||
+      fix.kind === "refined" ? (
         <svg className="vcheck" viewBox="0 0 22 22" aria-hidden="true">
           <path
             d="M5 11.5l4 4 8-9"
@@ -383,7 +389,15 @@ const RecordingOverlay: React.FC = () => {
         </svg>
       ) : null}
       <span className="vfix">
-        {fix.kind === "fixed" ? (
+        {fix.kind === "refined" ? (
+          <>
+            <b>{t("overlay.refined")}</b>
+            <span className="vfix-list">
+              <span>{t("overlay.words", { count: fix.words })}</span>
+              <span>{t("overlay.undoHint", { keys: UNDO_KEYS })}</span>
+            </span>
+          </>
+        ) : fix.kind === "fixed" ? (
           <>
             <b>{t("overlay.fixed", { count: fix.fixes.length })}</b>
             <span className="vfix-list">
@@ -407,7 +421,9 @@ const RecordingOverlay: React.FC = () => {
               ? t("overlay.noMistakes")
               : fix.kind === "empty"
                 ? t("overlay.selectFirst")
-                : t("overlay.fixFailed")}
+                : fix.kind === "nokey"
+                  ? t("overlay.needAiKey")
+                  : t("overlay.fixFailed")}
           </b>
         )}
       </span>
@@ -497,9 +513,14 @@ const RecordingOverlay: React.FC = () => {
   }
 
   // ---- Compact pill: one row at a time, the pill animates its width ----
-  const working = state === "transcribing" || state === "processing";
+  const working =
+    state === "transcribing" || state === "processing" || state === "refining";
   const workLabel =
-    state === "processing" ? t("overlay.processing") : transcribingLabel;
+    state === "refining"
+      ? t("overlay.refining")
+      : state === "processing"
+        ? t("overlay.processing")
+        : transcribingLabel;
   const mode = shownNotice
     ? "m-notice"
     : state === "fix"

@@ -209,7 +209,7 @@ fn should_use_streaming_overlay(style: OverlayStyle, is_streaming: bool) -> bool
 
 /// What became of a transcription's post-processing.
 #[derive(Debug, PartialEq, Eq)]
-enum PostProcessOutcome {
+pub(crate) enum PostProcessOutcome {
     /// There was no speech to process.
     Skipped,
     Done(String),
@@ -218,7 +218,7 @@ enum PostProcessOutcome {
     Failed,
 }
 
-async fn post_process_transcription(
+pub(crate) async fn post_process_transcription(
     settings: &AppSettings,
     transcription: &str,
 ) -> PostProcessOutcome {
@@ -1076,6 +1076,17 @@ impl ShortcutAction for FixSelectionAction {
     }
 }
 
+// Refine Selection Action: rewrites the selected text with the AI. Runs on release.
+struct RefineSelectionAction;
+
+impl ShortcutAction for RefineSelectionAction {
+    fn start(&self, _app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {}
+
+    fn stop(&self, app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {
+        crate::fix_selection::run_refine(app);
+    }
+}
+
 // Test Action
 struct TestAction;
 
@@ -1119,6 +1130,10 @@ pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::ne
     map.insert(
         "fix_selection".to_string(),
         Arc::new(FixSelectionAction) as Arc<dyn ShortcutAction>,
+    );
+    map.insert(
+        "refine_selection".to_string(),
+        Arc::new(RefineSelectionAction) as Arc<dyn ShortcutAction>,
     );
     map.insert(
         "test".to_string(),

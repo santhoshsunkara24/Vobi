@@ -352,6 +352,10 @@
           "fix_selection": {
             "name": "Fix Selection",
             "description": "Select text in any app and press this to fix its spelling."
+          },
+          "refine_selection": {
+            "name": "Refine Selection",
+            "description": "Select text in any app and press this to rewrite it clearly with AI."
           }
         },
         "errors": {
@@ -996,7 +1000,11 @@
     "fixMore": "+{{count}} more",
     "noMistakes": "No spelling mistakes",
     "selectFirst": "Select some text first",
-    "fixFailed": "Couldn’t fix that text"
+    "fixFailed": "Couldn’t fix that text",
+    "refining": "Refining…",
+    "refined": "Refined",
+    "undoHint": "· {{keys}} to undo",
+    "needAiKey": "Add a free AI key in Settings to use Refine"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} може да блокира 1 бърз клавиш",
