@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Blob</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --font: "Instrument Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --text: #0E1620; --text-2: #5A6675; --text-3: #97A2AF; --surface-2: #F3F7FA; --surface-3: #E7EDF2;
+  --shadow: 0 1px 2px rgba(18,38,58,.04), 0 14px 36px -12px rgba(18,38,58,.12);
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 14.5px/1.5 var(--font); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; background: #F4F7FA; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; }
+h2 { margin: 34px 0 12px; font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.sub { color: var(--text-2); margin: 6px 0 0; max-width: 600px; }
+.spacer { flex: 1; }
+.seg { position: relative; display: inline-flex; padding: 4px; gap: 2px; background: #fff; border-radius: 999px; box-shadow: var(--shadow); }
+.seg button { position: relative; z-index: 1; height: 34px; padding: 0 15px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--text-2); transition: color .2s; }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg .thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: #0E1620; transition: transform .45s var(--ease), width .45s var(--ease); }
+.controls { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+.hint { font-size: 12.5px; color: var(--text-3); }
+.kbd { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; background: #fff; border: 1px solid rgba(18,38,58,.14); border-bottom-width: 2px; font-size: 11.5px; font-weight: 600; }
+
+.hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+.card { background: #fff; border-radius: 26px; box-shadow: var(--shadow); overflow: hidden; }
+.live { position: relative; height: 380px; display: grid; place-items: center; background: radial-gradient(320px 220px at 50% 60%, #fff, transparent 70%), linear-gradient(180deg, #F6FAFD, #E9F1F8); }
+.live .tag { position: absolute; top: 16px; left: 18px; font-size: 12.5px; font-weight: 600; color: var(--text-3); }
+.live .state { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 13px; color: var(--text-2); font-weight: 500; }
+.side { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.side h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.side p { margin: 0; font-size: 13.5px; color: var(--text-2); }
+.row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+figcaption { font-size: 11px; color: var(--text-3); }
+.pill { height: 50px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 4px; border-radius: 999px; background: #0E1620; box-shadow: 0 10px 22px -8px rgba(6,12,22,.45); }
+.pill .slot { width: 46px; height: 46px; display: grid; place-items: center; }
+.pill .wave { display: flex; gap: 2.5px; align-items: center; height: 22px; }
+.pill .wave i { width: 2.5px; height: 20px; border-radius: 2px; background: linear-gradient(#7FDBFA, #3A86F5); transform: scaleY(.15); }
+.pill .lbl { color: #93A0AF; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.icon { width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(160deg, #F7FCFF, #D3EAFB); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 6px 14px -6px rgba(30,90,150,.35); }
+.mono { width: 34px; height: 26px; display: grid; place-items: center; border-radius: 7px; background: #E9EEF3; color: #111; }
+
+.poses { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.pose { background: #fff; border-radius: 20px; box-shadow: var(--shadow); padding: 10px 10px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform .2s var(--ease), box-shadow .2s; }
+.pose:hover { transform: translateY(-2px); }
+.pose.on { box-shadow: var(--shadow), 0 0 0 2px #2FB1F4; }
+.pose b { font-size: 13.5px; font-weight: 600; margin-top: 2px; }
+.pose span { font-size: 11.5px; color: var(--text-3); text-align: center; line-height: 1.35; }
+@media (max-width: 980px) { .hero { grid-template-columns: 1fr; } .poses { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .poses { grid-template-columns: repeat(2, 1fr); } .controls { align-items: flex-start; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Vobi · Ocean blob</h1>
+      <p class="sub">The Ocean Marshmallow look (soft 3D clay, glow underneath, glossy eyes, rosy cheeks) on a squishy character blob that changes its whole shape with its mood.</p></div>
+    <div class="spacer"></div>
+    <div class="controls">
+      
+      <div class="seg" id="states"><span class="thumb"></span><button data-s="idle" aria-pressed="true">Idle</button><button data-s="listening" aria-pressed="false">Listening</button><button data-s="thinking" aria-pressed="false">Thinking</button><button data-s="done" aria-pressed="false">Done</button><button data-s="error" aria-pressed="false">Error</button></div>
+      <div class="hint">Hold <span class="kbd">Space</span> to talk to it. Leave it idle a while and it gets sleepy.</div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="card live"><span class="tag">Live</span><div id="big"></div><div class="state" id="state-text">Relaxed</div></div>
+    <div class="card side">
+      <div><h3>At real size</h3><p>This is how you’ll mostly see it: in the pill, as the app icon and in the menu bar.</p></div>
+      <div class="row">
+        <figure><div class="pill"><div class="slot" id="pill-blob"></div><div class="wave" id="wave">${"<i></i>".repeat(10)}</div><span class="lbl" id="pill-lbl">Ready</span></div><figcaption>pill</figcaption></figure>
+      </div>
+      <div class="row">
+        <figure><div class="icon" id="icon-blob"></div><figcaption>app icon</figcaption></figure>
+        <figure><div class="mono" id="mono-blob"></div><figcaption>menu bar</figcaption></figure>
+      </div>
+      <div><h3>How it moves</h3><p>Every mood is a different body shape, and it melts smoothly from one to the next with a little wobble. While listening, its mouth and body follow your voice.</p></div>
+    </div>
+  </div>
+
+  <h2>Moods</h2>
+  <div class="poses" id="poses"></div>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const INK = "#14304C";
+
+/* ---------- poses: body = ellipse + lobes, plus tilt, face placement and face type ---------- */
+// lobes: [angleDeg, amount, width]  (angle 0 = right, -90 = top)
+const POSES = {
+  bean:     { label: "Relaxed",   use: "Idle",                 rx: 44, ry: 30, tilt: -6,  lobes: [[-130, 9, .6], [165, -10, .4], [20, 4, .8]],            face: { x: 10, y: -2, eyes: "dot", mouth: "smile" } },
+  egg:      { label: "Listening", use: "Hears you",            rx: 31, ry: 42, tilt: 4,   lobes: [[-90, -4, .9], [90, 5, 1.2]],                            face: { x: 0, y: -4, eyes: "happy", mouth: "talk" } },
+  curl:     { label: "Thinking",  use: "Polishing words",      rx: 40, ry: 34, tilt: 8,   lobes: [[-55, 15, .42], [195, -19, .33], [-150, 7, .38], [100, 4, .8]],          face: { x: -6, y: -6, eyes: "up", mouth: "hmm" } },
+  stretch:  { label: "Yay!",      use: "Text pasted",          rx: 46, ry: 30, tilt: 0,   lobes: [[-148, 19, .28], [-32, 19, .28], [-90, -9, .4]],        face: { x: 0, y: 2, eyes: "happy", mouth: "grin" } },
+  slump:    { label: "Oh no",     use: "Something went wrong", rx: 47, ry: 25, tilt: 0,   lobes: [[-90, -3, 1], [180, 3, .6], [0, 3, .6]],                face: { x: 4, y: 4, eyes: "sad", mouth: "frown" } },
+  sleepy:   { label: "Sleepy",    use: "Idle for a while",     rx: 38, ry: 36, tilt: -4,  lobes: [[-90, -12, .6], [90, 8, 1.4], [-125, 6, .32]],            face: { x: 2, y: 2, eyes: "closed", mouth: "yawn" } },
+  peek:     { label: "Curious",   use: "Waiting for you",      rx: 42, ry: 32, tilt: -12, lobes: [[-158, 16, .32], [-25, -10, .45], [120, 6, .6]],          face: { x: -14, y: -6, eyes: "dot", mouth: "o" } },
+  laugh:    { label: "Laughing",  use: "Fun moments",          rx: 40, ry: 33, tilt: 10,  lobes: [[-40, 12, .4], [200, 9, .4], [100, -4, .5]],                             face: { x: 4, y: -2, eyes: "squeeze", mouth: "laugh" } },
+  oops:     { label: "Oops",      use: "Couldn’t hear you",    rx: 50, ry: 20, tilt: 4,   lobes: [[-90, -2, 1], [10, 5, .5]],                              face: { x: 14, y: 4, eyes: "x", mouth: "flat" } },
+  shy:      { label: "Shy",       use: "Asking for permission", rx: 36, ry: 37, tilt: -8, lobes: [[-110, 8, .45], [35, -11, .4], [90, 5, 1.1]],             face: { x: 6, y: 4, eyes: "down", mouth: "smile" } },
+};
+const STATE_POSE = { idle: "bean", listening: "egg", thinking: "curl", done: "stretch", error: "slump" };
+const N = 64;
+
+function profile(p, t, wob) {
+  // radius per angle for pose p, with organic wobble
+  const out = new Array(N), tilt = p.tilt * Math.PI / 180;
+  for (let i = 0; i < N; i++) {
+    const a = i / N * Math.PI * 2;
+    const ca = Math.cos(a - tilt), sa = Math.sin(a - tilt);
+    let r = 1 / Math.sqrt((ca * ca) / (p.rx * p.rx) + (sa * sa) / (p.ry * p.ry));
+    for (const [deg, amt, w] of p.lobes) {
+      let d = Math.atan2(Math.sin(a - deg * Math.PI / 180), Math.cos(a - deg * Math.PI / 180));
+      r += amt * Math.exp(-(d * d) / (2 * w * w * .35));
+    }
+    r += Math.sin(a * 3 + t * 1.7) * wob + Math.sin(a * 2 - t * 1.1) * wob * .7;
+    out[i] = r;
+  }
+  return out;
+}
+function pathFrom(radii, cx, cy, sx = 1, sy = 1, groundY = 34) {
+  const pts = radii.map((r, i) => { const a = i / N * Math.PI * 2; return [cx + Math.cos(a) * r * sx, cy + Math.sin(a) * r * sy]; });
+  // sit on the ground: flatten anything below groundY a bit
+  for (const p of pts) if (p[1] > groundY) p[1] = groundY + (p[1] - groundY) * .35;
+  let d = "";
+  for (let i = 0; i < N; i++) {
+    const p0 = pts[(i - 1 + N) % N], p1 = pts[i], p2 = pts[(i + 1) % N], p3 = pts[(i + 2) % N];
+    if (!i) d += `M${p1[0].toFixed(2)},${p1[1].toFixed(2)}`;
+    d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(2)},${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(2)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(2)},${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)}`;
+  }
+  return { d: d + "Z", pts };
+}
+
+/* ---------- character ---------- */
+let NID = 0;
+class Squish {
+  constructor(mount, size, opts = {}) {
+    this.id = "s" + (++NID); this.size = size; this.mono = !!opts.mono; this.style = "soft"; this.small = size < 70;
+    this.poseKey = opts.pose || "bean"; this.t = Math.random() * 10; this.level = 0; this.target = 0; this.fixed = !!opts.fixed;
+    this.radii = profile(POSES[this.poseKey], 0, 0); this.rv = new Array(N).fill(0);
+    const S = (x) => ({ x, v: 0, to: x });
+    this.fx = S(POSES[this.poseKey].face.x); this.fy = S(POSES[this.poseKey].face.y); this.sq = S(1); this.ty = S(0); this.open = S(1);
+    this.nextBlink = performance.now() + 1000 + Math.random() * 3000; this.idleSince = performance.now();
+    mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-62 -62 124 124" style="overflow:visible;display:block" aria-hidden="true">
+      <defs>
+        <linearGradient id="${this.id}g" x1="0" y1="-40" x2="0" y2="38" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#DDF7FF"/><stop offset=".55" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></linearGradient>
+        <radialGradient id="${this.id}h"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${this.id}ao"><stop offset="0" stop-color="#1B44C9" stop-opacity=".55"/><stop offset="1" stop-color="#1B44C9" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${this.id}gl"><stop offset="0" stop-color="#9EEBFF" stop-opacity=".85"/><stop offset="1" stop-color="#9EEBFF" stop-opacity="0"/></radialGradient>
+        <radialGradient id="${this.id}bl"><stop offset="0" stop-color="#FF7EAA" stop-opacity=".8"/><stop offset="1" stop-color="#FF7EAA" stop-opacity="0"/></radialGradient>
+        <linearGradient id="${this.id}rim" x1="0" y1="-44" x2="0" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <filter id="${this.id}sf" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="${size < 70 ? 1 : 5}" stdDeviation="${size < 70 ? 1.4 : 5}" flood-color="#1B44C9" flood-opacity=".32"/></filter>
+        <clipPath id="${this.id}c"><path class="clip"/></clipPath>
+      </defs>
+      ${this.small ? "" : `<ellipse class="shadow" cx="2" cy="44" rx="40" ry="5.5" fill="#0E1620" opacity=".13"/>`}
+      <g class="root">
+        <path class="back"/>
+        <path class="body"/>
+        <g class="shade" clip-path="url(#${this.id}c)"><ellipse cx="0" cy="44" rx="62" ry="26" fill="url(#${this.id}ao)"/><ellipse class="glow" cx="0" cy="28" rx="32" ry="10" fill="url(#${this.id}gl)"/><ellipse class="hi" cx="-14" cy="-22" rx="32" ry="18" fill="url(#${this.id}h)"/></g>
+        <path class="rim" fill="none" stroke="url(#${this.id}rim)" stroke-width="2"/>
+        <ellipse class="spec" rx="6.5" ry="3.6" fill="#fff" opacity=".92"/>
+        
+        <path class="line" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        <g class="face"></g>
+      </g></svg>`;
+    const q = s => mount.querySelector(s);
+    this.e = { root: q(".root"), back: q(".back"), body: q(".body"), clip: q(".clip"), shade: q(".shade"), rim: q(".rim"), spec: q(".spec"), hi: q(".hi"), line: q(".line"), face: q(".face"), shadow: q(".shadow") };
+    this.applyStyle();
+    Squish.all.push(this);
+  }
+  applyStyle() {
+    const e = this.e;
+    e.back.setAttribute("fill", "none"); e.line.setAttribute("stroke", "none");
+    if (this.mono) { e.body.setAttribute("fill", "currentColor"); e.shade.style.display = "none"; e.rim.style.display = "none"; e.spec.style.display = "none"; return; }
+    e.body.setAttribute("fill", `url(#${this.id}g)`); e.body.setAttribute("filter", `url(#${this.id}sf)`);
+  }
+  setStyle(s) { this.style = s; this.applyStyle(); }
+  setPose(key) {
+    if (key === this.poseKey) return; const prev = this.poseKey; this.poseKey = key;
+    const f = POSES[key].face; this.fx.to = f.x; this.fy.to = f.y;
+    // squash on change, hop for happy
+    this.sq.v -= 1.6; if (key === "stretch" || key === "laugh") this.ty.v -= 230; if (key === "egg" && prev !== "egg") this.ty.v -= 90;
+    if (key !== "sleepy") this.idleSince = performance.now();
+  }
+  st(s, k, c, dt) { s.v += (-k * (s.x - s.to) - c * s.v) * dt; s.x += s.v * dt; }
+  frame(now, dt) {
+    this.t += dt; const p = POSES[this.poseKey], e = this.e, t = reduce ? 0 : this.t;
+    const listening = this.poseKey === "egg";
+    const tl = listening ? this.target : 0; this.level += (tl - this.level) * (tl > this.level ? .45 : .12); const L = this.level;
+    // body morph: spring each radius toward the target profile (gives a jelly wobble)
+    const wob = reduce ? 0 : (listening ? 1 + L * 3.5 : this.poseKey === "curl" ? 1.4 : .8);
+    const target = profile(p, t, wob);
+    for (let i = 0; i < N; i++) { const a = -150 * (this.radii[i] - target[i]) - 14 * this.rv[i]; this.rv[i] += a * dt; this.radii[i] += this.rv[i] * dt; }
+    const br = reduce ? 0 : Math.sin(this.t * 1.5) * .025;
+    this.sq.to = 1 + br + L * .1;
+    this.st(this.sq, 240, 12, dt); this.st(this.ty, 220, 15, dt); this.st(this.fx, 160, 18, dt); this.st(this.fy, 160, 18, dt); this.st(this.open, 300, 22, dt);
+    const sy = this.sq.x, sx = 1 + (1 - this.sq.x) * .6, ty = Math.min(0, this.ty.x);
+    const { d, pts } = pathFrom(this.radii, 0, 0, sx, sy);
+    e.body.setAttribute("d", d); e.line.setAttribute("d", d); e.clip.setAttribute("d", d);
+    e.back.setAttribute("d", d); e.back.setAttribute("transform", "translate(3.5 2.5)");
+    e.rim.setAttribute("d", d);
+    // specular highlight + top light follow the upper-left of the body
+    let top = pts[0]; for (const q of pts) if (q[0] + q[1] * 1.3 < top[0] + top[1] * 1.3) top = q;
+    const hx = top[0] * .62, hy = top[1] * .62;
+    e.spec.setAttribute("cx", (hx + 4).toFixed(2)); e.spec.setAttribute("cy", (hy + 5).toFixed(2)); e.spec.setAttribute("transform", `rotate(-28 ${(hx + 4).toFixed(2)} ${(hy + 5).toFixed(2)})`);
+    e.hi.setAttribute("cx", (hx + 8).toFixed(2)); e.hi.setAttribute("cy", (hy + 6).toFixed(2));
+    e.root.setAttribute("transform", `translate(0 ${ty.toFixed(2)})`);
+    if (e.shadow) { e.shadow.setAttribute("rx", (40 * sx * (1 + ty / 70)).toFixed(2)); e.shadow.setAttribute("opacity", (.13 * (1 + ty / 50)).toFixed(3)); }
+    // blink
+    if (now > this.nextBlink) { this.open.x = .05; this.open.v = 0; this.nextBlink = now + 2500 + Math.random() * 3500; }
+    this.drawFace(p.face, this.fx.x * sx, this.fy.x * sy, L, Math.max(.05, this.open.x));
+  }
+  drawFace(f, cx, cy, L, open) {
+    const ink = this.mono ? "#fff" : INK, sw = this.small ? 3.6 : 2.8, g = 11;
+    const eye = (x, y) => {
+      switch (f.eyes) {
+        case "dot": return `<ellipse cx="${x}" cy="${y}" rx="4.4" ry="${(5.8 * open).toFixed(2)}" fill="${ink}"/>${open > .55 && !this.mono ? `<circle cx="${x + 1.4}" cy="${y - 2}" r="1.6" fill="#fff"/><circle cx="${x - 1.5}" cy="${y + 2.2}" r=".8" fill="#fff"/>` : ""}`;
+        case "happy": return `<path d="M${x - 3.6},${y + 1.2} Q${x},${y - 3.6} ${x + 3.6},${y + 1.2}" stroke="${ink}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
+        case "up": return `<ellipse cx="${x}" cy="${y}" rx="4.4" ry="${(5.8 * open).toFixed(2)}" fill="${ink}"/>${open > .55 ? `<circle cx="${x - 1.2}" cy="${y - 2.6}" r="1.6" fill="#fff"/><circle cx="${x + 1.5}" cy="${y + 1.6}" r=".8" fill="#fff"/>` : ""}`;
+        case "sad": return `<ellipse cx="${x}" cy="${y + 1}" rx="4" ry="${(5 * open).toFixed(2)}" fill="${ink}"/>${open > .55 ? `<circle cx="${x + 1.2}" cy="${y - 1}" r="1.4" fill="#fff"/>` : ""}<path d="M${x - 4},${y - 4.5} L${x + 3},${y - 6.2}" transform="${x < cx ? "" : `scale(-1 1) translate(${-2 * x} 0)`}" stroke="${ink}" stroke-width="${sw * .8}" stroke-linecap="round"/>`;
+        case "closed": return `<path d="M${x - 3.6},${y - 1} Q${x},${y + 3} ${x + 3.6},${y - 1}" stroke="${ink}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
+        case "squeeze": return `<path d="M${x - 3.5},${y - 2.5} L${x + 2.5},${y} L${x - 3.5},${y + 2.5}" transform="${x < cx ? "" : `scale(-1 1) translate(${-2 * x} 0)`}" stroke="${ink}" stroke-width="${sw}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+        case "x": return `<path d="M${x - 3},${y - 3} L${x + 3},${y + 3} M${x + 3},${y - 3} L${x - 3},${y + 3}" stroke="${ink}" stroke-width="${sw}" stroke-linecap="round"/>`;
+        case "down": return `<path d="M${x - 3.2},${y} Q${x},${y + 2.6} ${x + 3.2},${y}" stroke="${ink}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
+      }
+    };
+    const my = cy + 10.5;
+    let mouth = "";
+    if (!this.mono || !this.small) switch (f.mouth) {
+      case "smile": mouth = `<path d="M${cx - 4.5},${my - 1} Q${cx},${my + 3.4} ${cx + 4.5},${my - 1}" stroke="${ink}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`; break;
+      case "talk": { const h = 2 + L * 9, w = 6 + L * 2; mouth = `<path d="M${cx - w},${my - 2} Q${cx},${my - 2.6} ${cx + w},${my - 2} Q${cx + w * .8},${my + h} ${cx},${my + h} Q${cx - w * .8},${my + h} ${cx - w},${my - 2}Z" fill="${ink}"/>${h > 5 ? `<ellipse cx="${cx}" cy="${my + h - 2.4}" rx="${w * .5}" ry="${Math.min(2.4, h * .25)}" fill="#FF8CA9"/>` : ""}`; break; }
+      case "grin": mouth = `<path d="M${cx - 8},${my - 2} Q${cx},${my - 1} ${cx + 8},${my - 2} Q${cx + 6},${my + 8} ${cx},${my + 8} Q${cx - 6},${my + 8} ${cx - 8},${my - 2}Z" fill="${ink}"/><ellipse cx="${cx}" cy="${my + 5.6}" rx="4" ry="1.8" fill="#FF8CA9"/>`; break;
+      case "hmm": mouth = `<path d="M${cx - 3},${my} L${cx + 3.5},${my - 1}" stroke="${ink}" stroke-width="${sw}" stroke-linecap="round"/>`; break;
+      case "frown": mouth = `<path d="M${cx - 4.5},${my + 2} Q${cx},${my - 2.4} ${cx + 4.5},${my + 2}" stroke="${ink}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`; break;
+      case "yawn": mouth = `<ellipse cx="${cx}" cy="${my + 2}" rx="4.2" ry="${(5.5 + Math.sin(this.t * 1.2) * 1.5).toFixed(2)}" fill="${ink}"/>`; break;
+      case "o": mouth = `<ellipse cx="${cx}" cy="${my}" rx="2.4" ry="3" fill="${ink}"/>`; break;
+      case "laugh": mouth = `<path d="M${cx - 7},${my - 2} Q${cx},${my - 1} ${cx + 7},${my - 2} Q${cx + 5},${my + 9} ${cx},${my + 9} Q${cx - 5},${my + 9} ${cx - 7},${my - 2}Z" fill="${ink}"/>`; break;
+      case "flat": mouth = `<path d="M${cx - 3.5},${my} L${cx + 3.5},${my}" stroke="${ink}" stroke-width="${sw}" stroke-linecap="round"/>`; break;
+    }
+    const blush = this.mono ? "" : `<ellipse cx="${cx - g - 7}" cy="${cy + 7}" rx="6.5" ry="3.6" fill="url(#${this.id}bl)"/><ellipse cx="${cx + g + 7}" cy="${cy + 7}" rx="6.5" ry="3.6" fill="url(#${this.id}bl)"/>`;
+    this.e.face.innerHTML = blush + eye(cx - g, cy) + eye(cx + g, cy) + mouth;
+  }
+}
+Squish.all = [];
+
+/* ---------- build ---------- */
+const big = new Squish(document.getElementById("big"), 290);
+const pillB = new Squish(document.getElementById("pill-blob"), 46);
+const iconB = new Squish(document.getElementById("icon-blob"), 54);
+const monoB = new Squish(document.getElementById("mono-blob"), 24, { mono: true });
+const live = [big, pillB, iconB, monoB];
+document.getElementById("wave").innerHTML = "<i></i>".repeat(10);
+const posesEl = document.getElementById("poses");
+Object.entries(POSES).forEach(([k, p]) => {
+  const c = document.createElement("div"); c.className = "pose"; c.dataset.k = k;
+  c.innerHTML = `<div class="m"></div><b>${p.label}</b><span>${p.use}</span>`;
+  posesEl.append(c);
+  const s = new Squish(c.querySelector(".m"), 130, { pose: k, fixed: true });
+  c.addEventListener("click", () => { document.querySelectorAll(".pose").forEach(x => x.classList.toggle("on", x === c)); live.forEach(b => b.setPose(k)); document.getElementById("state-text").textContent = p.label; manual = true; });
+});
+
+/* ---------- segmented controls ---------- */
+function seg(el, cb) {
+  const th = el.querySelector(".thumb"), bs = [...el.querySelectorAll("button")];
+  const place = () => { const on = bs.find(b => b.getAttribute("aria-pressed") === "true"); th.style.width = on.offsetWidth + "px"; th.style.transform = `translateX(${on.offsetLeft - 4}px)`; };
+  bs.forEach(b => b.addEventListener("click", () => { bs.forEach(x => x.setAttribute("aria-pressed", x === b)); place(); cb(b); }));
+  document.fonts && document.fonts.ready.then(place); place(); addEventListener("resize", place); el._set = v => { bs.forEach(x => x.setAttribute("aria-pressed", (x.dataset.s || x.dataset.v) === v)); place(); };
+}
+
+let state = "idle", manual = false, doneT;
+const pillLbl = document.getElementById("pill-lbl"), wave = document.getElementById("wave");
+function setState(s) {
+  state = s; manual = false; clearTimeout(doneT); document.getElementById("states")._set(s);
+  const k = STATE_POSE[s]; live.forEach(b => b.setPose(k));
+  document.getElementById("state-text").textContent = POSES[k].label;
+  document.querySelectorAll(".pose").forEach(x => x.classList.toggle("on", x.dataset.k === k));
+  pillLbl.textContent = s === "thinking" ? "Polishing…" : s === "done" ? "Pasted ✓" : s === "error" ? "Can’t hear you" : s === "idle" ? "Ready" : "";
+  wave.style.display = s === "listening" ? "flex" : "none";
+  if (s === "done") doneT = setTimeout(() => setState("idle"), 1800);
+}
+seg(document.getElementById("states"), b => setState(b.dataset.s));
+let sp = false;
+addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat) { e.preventDefault(); sp = true; setState("listening"); } });
+addEventListener("keyup", e => { if (e.code === "Space" && sp) { sp = false; setState("thinking"); setTimeout(() => { if (state === "thinking") setState("done"); }, 1100); } });
+
+/* ---------- loop ---------- */
+function synth(t) { const a = Math.max(0, Math.sin(t * 13.5) * .6 + Math.sin(t * 7.1 + 1) * .4), b = Math.max(0, Math.sin(t * 1.3) * .5 + .55); return Math.min(1, a * b * (.75 + Math.random() * .35)); }
+let last = performance.now(), lastWave = 0;
+function loop(now) {
+  const dt = Math.min(.033, (now - last) / 1000); last = now;
+  const L = state === "listening" && !manual ? synth(now / 1000) : 0;
+  // long idle -> sleepy, and back
+  if (state === "idle" && !manual) { const k = big.poseKey; if (k === "bean" && now - big.idleSince > 7000) live.forEach(b => b.setPose("sleepy")), document.getElementById("state-text").textContent = "Sleepy (idle a while)"; }
+  Squish.all.forEach(s => { s.target = s.poseKey === "egg" ? (manual ? synth(now / 1000) : L) : 0; s.frame(now, dt); });
+  if (state === "listening" && now - lastWave > 60) { lastWave = now; const b = wave.querySelectorAll("i"); for (let i = 0; i < b.length - 1; i++) b[i].style.transform = b[i + 1].style.transform; b[b.length - 1].style.transform = `scaleY(${(.15 + L * .85).toFixed(3)})`; }
+  requestAnimationFrame(loop);
+}
+setState("idle"); requestAnimationFrame(loop);
+</script>
+</body>
+</html>
