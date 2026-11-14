@@ -1008,6 +1008,20 @@ pub fn get_default_settings() -> AppSettings {
             current_binding: default_post_process_shortcut.to_string(),
         },
     );
+    #[cfg(target_os = "macos")]
+    let default_fix_shortcut = "option+shift+f";
+    #[cfg(not(target_os = "macos"))]
+    let default_fix_shortcut = "alt+shift+f";
+    bindings.insert(
+        "fix_selection".to_string(),
+        ShortcutBinding {
+            id: "fix_selection".to_string(),
+            name: "Fix Selection".to_string(),
+            description: "Corrects the spelling of the text you have selected.".to_string(),
+            default_binding: default_fix_shortcut.to_string(),
+            current_binding: default_fix_shortcut.to_string(),
+        },
+    );
     bindings.insert(
         "cancel".to_string(),
         ShortcutBinding {

@@ -74,7 +74,7 @@ mod macos {
     ///
     /// TIS APIs must run on the main thread; paste reaches this via
     /// `clipboard::with_enigo`, which hops there.
-    fn resolve_command_v_keycode() -> Result<u16, String> {
+    fn resolve_command_keycode(letter: u8) -> Result<u16, String> {
         // SAFETY: This function is called on the macOS main thread. The returned
         // source follows the Create Rule and is released by InputSource::drop.
         let source = InputSource(unsafe { TISCopyCurrentKeyboardLayoutInputSource() });
@@ -123,15 +123,20 @@ mod macos {
                 )
             };
 
-            status == 0 && length == 1 && chars[0] == u16::from(b'v')
+            status == 0 && length == 1 && chars[0] == u16::from(letter)
         })
-        .ok_or_else(|| "could not map Cmd+V in the current macOS keyboard layout".to_string())?;
+        .ok_or_else(|| {
+            format!(
+                "could not map Cmd+{} in the current macOS keyboard layout",
+                letter as char
+            )
+        })?;
 
         Ok(keycode)
     }
 
     pub(super) fn command_v_key() -> Key {
-        match resolve_command_v_keycode() {
+        match resolve_command_keycode(b'v') {
             Ok(keycode) => {
                 debug!("Resolved Cmd+V for the active macOS layout to keycode {keycode}");
                 Key::Other(u32::from(keycode))
@@ -143,6 +148,30 @@ mod macos {
                 Key::Other(u32::from(ANSI_V_KEYCODE))
             }
         }
+    }
+    /// Same as `command_v_key`, for Cmd+C (kVK_ANSI_C = 8 as the fallback).
+    pub(super) fn command_c_key() -> Key {
+        match resolve_command_keycode(b'c') {
+            Ok(keycode) => Key::Other(u32::from(keycode)),
+            Err(error) => {
+                warn!(
+                    "Could not resolve Cmd+C for the active macOS layout ({error}); using ANSI C"
+                );
+                Key::Other(8)
+            }
+        }
+    }
+
+    /// True while Shift, Control, Option or Command is physically held.
+    pub(super) fn modifiers_held() -> bool {
+        #[link(name = "CoreGraphics", kind = "framework")]
+        extern "C" {
+            fn CGEventSourceFlagsState(state_id: i32) -> u64;
+        }
+        const HID_SYSTEM_STATE: i32 = 1;
+        const MODIFIERS: u64 = 0x20000 | 0x40000 | 0x80000 | 0x100000;
+        // SAFETY: a pure query of the current modifier flags.
+        unsafe { CGEventSourceFlagsState(HID_SYSTEM_STATE) & MODIFIERS != 0 }
     }
 }
 
@@ -271,4 +300,56 @@ pub fn paste_text_direct(enigo: &mut Enigo, text: &str) -> Result<(), String> {
         .map_err(|e| format!("Failed to send text directly: {}", e))?;
 
     Ok(())
+}
+
+/// Sends Ctrl+C / Cmd+C to copy the current selection in the frontmost app.
+pub fn send_copy(enigo: &mut Enigo, hold_ms: u64) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    let (modifier_key, c_key) = (Key::Meta, macos::command_c_key());
+    #[cfg(target_os = "windows")]
+    let (modifier_key, c_key) = (Key::Control, Key::Other(0x43)); // VK_C
+    #[cfg(target_os = "linux")]
+    let (modifier_key, c_key) = (Key::Control, Key::Unicode('c'));
+
+    enigo
+        .key(modifier_key, enigo::Direction::Press)
+        .map_err(|e| format!("Failed to press modifier key: {}", e))?;
+    enigo
+        .key(c_key, enigo::Direction::Click)
+        .map_err(|e| format!("Failed to click C key: {}", e))?;
+    std::thread::sleep(std::time::Duration::from_millis(hold_ms));
+    enigo
+        .key(modifier_key, enigo::Direction::Release)
+        .map_err(|e| format!("Failed to release modifier key: {}", e))?;
+    Ok(())
+}
+
+/// Waits (up to `timeout`) for the user to let go of Shift/Ctrl/Alt/Cmd, so a
+/// synthetic Cmd+C isn't merged with the keys of the shortcut that triggered it.
+pub fn wait_for_modifiers_released(timeout: std::time::Duration) {
+    let start = std::time::Instant::now();
+    while start.elapsed() < timeout && modifiers_held() {
+        std::thread::sleep(std::time::Duration::from_millis(15));
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn modifiers_held() -> bool {
+    macos::modifiers_held()
+}
+
+#[cfg(target_os = "windows")]
+fn modifiers_held() -> bool {
+    use windows::Win32::UI::Input::KeyboardAndMouse::{
+        GetAsyncKeyState, VK_CONTROL, VK_LWIN, VK_MENU, VK_RWIN, VK_SHIFT,
+    };
+    [VK_SHIFT, VK_CONTROL, VK_MENU, VK_LWIN, VK_RWIN]
+        .iter()
+        // SAFETY: GetAsyncKeyState only reads the global key state.
+        .any(|vk| unsafe { GetAsyncKeyState(i32::from(vk.0)) } as u16 & 0x8000 != 0)
+}
+
+#[cfg(target_os = "linux")]
+fn modifiers_held() -> bool {
+    false
 }

@@ -144,6 +144,7 @@ const GeneralTab: React.FC<{ onNavigate: (page: Page) => void }> = ({
     <div>
       <SettingsGroup title={t("vobi.settings.groups.talking")}>
         <ShortcutInput shortcutId="transcribe" grouped />
+        <ShortcutInput shortcutId="fix_selection" grouped />
         <ShortcutActivationSetting grouped />
         {/* Cancel shortcut stays hidden on Linux: dynamic shortcuts are unstable there. */}
         {!isLinux && <ShortcutInput shortcutId="cancel" grouped />}

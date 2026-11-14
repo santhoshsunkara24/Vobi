@@ -787,6 +787,45 @@ static OVERLAY_SESSION_SHOWING: AtomicBool = AtomicBool::new(false);
 static OVERLAY_SESSION_LIVE: AtomicBool = AtomicBool::new(false);
 
 /// Hides the recording overlay window with fade-out animation
+/// What "Fix selection" did, for the pill.
+pub enum FixResult {
+    Fixed(Vec<crate::spellfix::SpellFix>),
+    Clean,
+    NothingSelected,
+    Failed,
+}
+
+#[derive(serde::Serialize, Clone)]
+struct FixPayload {
+    kind: &'static str,
+    fixes: Vec<crate::spellfix::SpellFix>,
+}
+
+/// Shows the result of "Fix selection" in the pill for a moment, then hides it.
+pub fn show_fix_result(app_handle: &AppHandle, result: FixResult) {
+    let (kind, fixes) = match result {
+        FixResult::Fixed(fixes) => ("fixed", fixes),
+        FixResult::Clean => ("clean", vec![]),
+        FixResult::NothingSelected => ("empty", vec![]),
+        FixResult::Failed => ("failed", vec![]),
+    };
+    let hold = Duration::from_millis(2400 + 350 * fixes.len().min(4) as u64);
+    show_overlay_state(app_handle, "fix");
+    if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
+        let _ = overlay_window.emit("overlay-fix", FixPayload { kind, fixes });
+    }
+    let handle = app_handle.clone();
+    std::thread::spawn(move || {
+        // Let the show (queued on the main thread) bump the generation first.
+        std::thread::sleep(Duration::from_millis(80));
+        let shown_at = OVERLAY_SHOW_GENERATION.load(Ordering::SeqCst);
+        std::thread::sleep(hold);
+        if OVERLAY_SHOW_GENERATION.load(Ordering::SeqCst) == shown_at {
+            hide_recording_overlay(&handle);
+        }
+    });
+}
+
 /// The text landed: Vobi does its happy hop with "Pasted", then the pill fades.
 /// The Live card has already shown the text, so it just hides as before.
 pub fn show_done_then_hide(app_handle: &AppHandle, words: usize) {

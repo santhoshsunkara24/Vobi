@@ -1064,6 +1064,18 @@ impl ShortcutAction for CancelAction {
     }
 }
 
+// Fix Selection Action: corrects the spelling of the selected text. Runs on
+// release, once the shortcut's keys are up.
+struct FixSelectionAction;
+
+impl ShortcutAction for FixSelectionAction {
+    fn start(&self, _app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {}
+
+    fn stop(&self, app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {
+        crate::fix_selection::run(app);
+    }
+}
+
 // Test Action
 struct TestAction;
 
@@ -1103,6 +1115,10 @@ pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::ne
     map.insert(
         "cancel".to_string(),
         Arc::new(CancelAction) as Arc<dyn ShortcutAction>,
+    );
+    map.insert(
+        "fix_selection".to_string(),
+        Arc::new(FixSelectionAction) as Arc<dyn ShortcutAction>,
     );
     map.insert(
         "test".to_string(),

@@ -348,6 +348,10 @@
           "transcribe_with_post_process": {
             "name": "後処理のショートカット",
             "description": "文字起こしに常に AI 後処理を適用するキーボードショートカット。 (任意)"
+          },
+          "fix_selection": {
+            "name": "Fix Selection",
+            "description": "Select text in any app and press this to fix its spelling."
           }
         },
         "errors": {
@@ -986,7 +990,13 @@
     "pasted": "Pasted",
     "words_one": "· {{count}} word",
     "words_other": "· {{count}} words",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "fixed_one": "Fixed {{count}} word",
+    "fixed_other": "Fixed {{count}} words",
+    "fixMore": "+{{count}} more",
+    "noMistakes": "No spelling mistakes",
+    "selectFirst": "Select some text first",
+    "fixFailed": "Couldn’t fix that text"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} が1個のショートカットをブロックしている可能性があります",

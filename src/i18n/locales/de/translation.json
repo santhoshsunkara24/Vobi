@@ -348,6 +348,10 @@
           "transcribe_with_post_process": {
             "name": "Nachbearbeitungs-Tastenkürzel",
             "description": "Optional: Ein dediziertes Tastenkürzel, das immer die KI-Nachbearbeitung auf deine Transkription anwendet."
+          },
+          "fix_selection": {
+            "name": "Fix Selection",
+            "description": "Select text in any app and press this to fix its spelling."
           }
         },
         "errors": {
@@ -986,7 +990,13 @@
     "pasted": "Pasted",
     "words_one": "· {{count}} word",
     "words_other": "· {{count}} words",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "fixed_one": "Fixed {{count}} word",
+    "fixed_other": "Fixed {{count}} words",
+    "fixMore": "+{{count}} more",
+    "noMistakes": "No spelling mistakes",
+    "selectFirst": "Select some text first",
+    "fixFailed": "Couldn’t fix that text"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} blockiert möglicherweise 1 Tastenkürzel",
