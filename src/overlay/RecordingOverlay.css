@@ -123,7 +123,8 @@
    top: no tint, no painted rim, no sheen, no drop shadow. */
 .native-glass .vcard {
   background: transparent;
-  box-shadow: var(--v-rim);
+  /* Apple's glass draws its own bright, refracting rim. */
+  box-shadow: none;
 }
 .native-glass .vcard::after {
   display: none;

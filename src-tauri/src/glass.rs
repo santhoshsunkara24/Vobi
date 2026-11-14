@@ -159,19 +159,19 @@ mod mac {
         glass
     }
 
-    /// How dark the smoke over the glass is. Bare glass takes on whatever is
-    /// behind it; a dark tint keeps the pill one even, smoky pane over any app
-    /// so its white text always reads.
-    const SMOKE: f64 = 0.36;
+    /// A trace of dark smoke over the clear glass, just enough to keep the
+    /// pill's white text readable over bright pages.
+    const SMOKE: f64 = 0.2;
 
-    /// Apple's Liquid Glass (macOS 26+): the "regular" style, which draws its
-    /// own refraction, edge highlight and shadow, smoked dark for legibility.
+    /// Apple's Liquid Glass (macOS 26+) in its clear style, the same see-through
+    /// glass as the Dock: the system draws the blur, refraction, bright rim and
+    /// shadow.
     fn make_liquid(mtm: MainThreadMarker) -> Retained<NSGlassEffectView> {
         let view = NSGlassEffectView::initWithFrame(
             mtm.alloc(),
             NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1.0, 1.0)),
         );
-        view.setStyle(NSGlassEffectViewStyle::Regular);
+        view.setStyle(NSGlassEffectViewStyle::Clear);
         let smoke = NSColor::colorWithSRGBRed_green_blue_alpha(0.11, 0.115, 0.125, SMOKE);
         view.setTintColor(Some(&smoke));
         view
