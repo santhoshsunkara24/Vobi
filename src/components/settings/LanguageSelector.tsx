@@ -229,7 +229,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           </button>
 
           {isOpen && !isUpdating("selected_language") && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-line-strong rounded shadow-lg z-50 max-h-60 overflow-hidden">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-line-strong rounded z-50 max-h-60 overflow-hidden">
               {/* Search input */}
               <div className="p-2 border-b border-line-strong">
                 <input

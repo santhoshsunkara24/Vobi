@@ -103,7 +103,7 @@ const NoticeCard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       data-notices
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`fixed ${position} z-[60] max-h-[60vh] w-80 divide-y divide-[var(--border)] overflow-y-auto rounded-[16px] bg-surface text-xs text-ink-2 shadow-pop motion-safe:animate-rise`}
+      className={`fixed ${position} z-[60] max-h-[60vh] w-80 divide-y divide-[var(--border)] overflow-y-auto rounded-[16px] bg-surface text-xs text-ink-2 border border-[var(--hairline)] motion-safe:animate-rise`}
     >
       {children}
     </div>

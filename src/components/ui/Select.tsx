@@ -97,7 +97,8 @@ const selectStyles: StylesConfig<SelectOption, false> = {
     color: "var(--color-text)",
     borderRadius: 14,
     overflow: "hidden",
-    boxShadow: "var(--shadow-pop)",
+    border: "1px solid var(--hairline)",
+    boxShadow: "none",
   }),
   option: (base, state) => ({
     ...base,

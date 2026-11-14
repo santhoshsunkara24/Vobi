@@ -215,7 +215,7 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({
     <>
       {showPortableUpdateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,10,18,.35)] animate-fade">
-          <div className="v-card max-w-md w-full mx-4 space-y-4 rounded-[24px] p-6 shadow-win">
+          <div className="v-card max-w-md w-full mx-4 space-y-4 rounded-[24px] p-6">
             <h2 className="text-base font-semibold">
               {t("footer.portableUpdateTitle")}
             </h2>

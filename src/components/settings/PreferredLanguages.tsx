@@ -89,7 +89,7 @@ const LanguageMenu: React.FC<{
       onMouseDown={(e) => {
         if (e.target !== inputRef.current) e.preventDefault();
       }}
-      className="absolute end-0 top-full z-50 mt-1 w-[248px] overflow-hidden rounded-lg border border-line bg-background text-start shadow-lg"
+      className="absolute end-0 top-full z-50 mt-1 w-[248px] overflow-hidden rounded-lg border border-line bg-background text-start"
     >
       <label className="flex items-center gap-2 border-b border-line px-3 text-ink-3">
         <SearchIcon />

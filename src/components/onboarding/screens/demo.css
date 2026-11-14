@@ -183,9 +183,7 @@
   overflow: hidden;
   text-align: start;
   background: var(--color-demo-window);
-  box-shadow:
-    0 0 0 0.5px var(--color-line),
-    0 10px 30px rgb(40 20 50 / 0.16);
+  box-shadow: 0 0 0 1px var(--hairline);
 }
 .demo-screen:has(.is-task) .demo-app {
   top: 20px;
@@ -247,7 +245,6 @@
   height: 20px;
   margin: -1px 0 0 -1px; /* the arrow's tip sits on the point */
   pointer-events: none;
-  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.25));
 }
 .demo-pointer svg {
   display: block;

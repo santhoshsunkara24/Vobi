@@ -66,7 +66,6 @@
   --hairline: #eceff3;
   --rail-icon: #6b7380;
   --window: #ffffff;
-  --shadow-soft: 0 1px 2px rgba(18, 38, 58, 0.04);
   --text: #1a1f26;
   --text-2: #5b6470;
   --text-3: #8a929c;
@@ -75,13 +74,11 @@
   --accent-text: var(--sky-700);
   --ink: #1a1f26;
   --on-ink: #ffffff;
-  --shadow-card:
-    0 1px 2px rgba(18, 38, 58, 0.04), 0 10px 28px -8px rgba(18, 38, 58, 0.08);
-  --shadow-win:
-    0 40px 90px -20px rgba(18, 38, 58, 0.35),
-    0 12px 30px -10px rgba(18, 38, 58, 0.18), 0 0 0 1px rgba(18, 38, 58, 0.06);
-  --shadow-pop:
-    0 24px 60px -12px rgba(18, 38, 58, 0.28), 0 0 0 1px rgba(18, 38, 58, 0.06);
+  /* No drop shadows anywhere: surfaces separate with a 1px hairline ring
+     (drawn as a spread-only box-shadow so it adds no layout). */
+  --shadow-card: 0 0 0 1px var(--hairline);
+  --shadow-win: 0 0 0 1px var(--hairline);
+  --shadow-pop: 0 0 0 1px var(--hairline);
   color-scheme: light;
 }
 
@@ -181,6 +178,5 @@
   --color-demo-alu-hi: #eef1f4;
   --color-demo-alu-lo: #cfd6dd;
   --demo-wallpaper: var(--wall);
-  --demo-pill-shadow:
-    0 0 0 1px rgba(18, 38, 58, 0.08), 0 10px 26px -10px rgba(6, 12, 22, 0.45);
+  --demo-pill-shadow: none;
 }
