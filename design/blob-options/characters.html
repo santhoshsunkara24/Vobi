@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Characters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --font: "Instrument Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --text: #0E1620; --text-2: #5A6675; --text-3: #97A2AF; --surface-2: #F3F7FA; --surface-3: #E7EDF2;
+  --shadow: 0 1px 2px rgba(18,38,58,.04), 0 14px 36px -12px rgba(18,38,58,.12);
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 14.5px/1.5 var(--font); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; background: #F4F7FA; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; }
+.sub { color: var(--text-2); margin: 6px 0 0; max-width: 620px; }
+.spacer { flex: 1; }
+.seg { position: relative; display: inline-flex; padding: 4px; gap: 2px; background: #fff; border-radius: 999px; box-shadow: var(--shadow); }
+.seg button { position: relative; z-index: 1; height: 34px; padding: 0 15px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--text-2); transition: color .2s; }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg .thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: #0E1620; transition: transform .45s var(--ease), width .45s var(--ease); }
+.hint { font-size: 12.5px; color: var(--text-3); margin-top: 8px; text-align: right; }
+.kbd { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 6px; background: #fff; border: 1px solid rgba(18,38,58,.14); border-bottom-width: 2px; font-size: 11.5px; font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card { background: #fff; border-radius: 26px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: transform .25s var(--ease), box-shadow .25s; }
+.card:hover { transform: translateY(-2px); }
+.card.picked { box-shadow: var(--shadow), 0 0 0 2px #2FB1F4, 0 0 0 7px rgba(47,177,244,.15); }
+.stage { position: relative; height: 260px; display: grid; place-items: center; background: radial-gradient(260px 170px at 50% 55%, #fff, transparent 72%), linear-gradient(180deg, #F5FAFD, #E8F1F8); }
+.num { position: absolute; top: 14px; left: 16px; font-size: 12px; font-weight: 600; color: var(--text-3); }
+.body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.title { display: flex; align-items: baseline; gap: 8px; }
+.title b { font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.title span { font-size: 13px; color: var(--text-3); }
+.desc { color: var(--text-2); font-size: 13.5px; margin: 0 0 6px; }
+.row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: auto; }
+figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+figcaption { font-size: 11px; color: var(--text-3); }
+.pill { height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 4px; border-radius: 999px; background: #0E1620; box-shadow: 0 10px 22px -8px rgba(6,12,22,.45); }
+.pill .slot { width: 46px; height: 46px; display: grid; place-items: center; }
+.pill .lbl { color: #93A0AF; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.icon { width: 48px; height: 48px; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(160deg, #F7FCFF, #D3EAFB); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 4px 10px -4px rgba(30,90,150,.3); }
+.pick { align-self: center; margin-left: auto; white-space: nowrap; height: 36px; padding: 0 16px; border-radius: 999px; background: var(--surface-2); font-size: 13px; font-weight: 600; transition: background .15s, transform .12s var(--ease), color .15s; }
+.pick:hover { background: var(--surface-3); } .pick:active { transform: scale(.96); }
+.card.picked .pick { background: #0E1620; color: #fff; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 660px) { .grid { grid-template-columns: 1fr; } .hint { text-align: left; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Vobi · characters</h1>
+      <p class="sub">Six original mascots, each built from clean geometric parts in the Ocean 3D style. Their bodies act out what Vobi is doing: ears perk up to listen, wings flap with your voice, arms go up when your text lands.</p></div>
+    <div class="spacer"></div>
+    <div><div class="seg" id="states"><span class="thumb"></span>
+      <button data-s="idle" aria-pressed="true">Idle</button><button data-s="listening" aria-pressed="false">Listening</button><button data-s="thinking" aria-pressed="false">Thinking</button><button data-s="done" aria-pressed="false">Done</button><button data-s="error" aria-pressed="false">Error</button></div>
+      <div class="hint">or hold <span class="kbd">Space</span> to talk</div></div>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NAVY = "#14304C";
+const A = (el, o) => { if (el) for (const k in o) el.setAttribute(k, typeof o[k] === "number" ? +o[k].toFixed(2) : o[k]); };
+
+/* ---------- shared defs & parts ---------- */
+const defs = id => `<defs>
+  <radialGradient id="${id}b" cx=".38" cy=".28" r=".85"><stop offset="0" stop-color="#E6FAFF"/><stop offset=".5" stop-color="#5ACCFB"/><stop offset="1" stop-color="#2B7FF0"/></radialGradient>
+  <radialGradient id="${id}d" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="#9FE4FF"/><stop offset=".6" stop-color="#3FA8F5"/><stop offset="1" stop-color="#2464E0"/></radialGradient>
+  <radialGradient id="${id}w" cx=".45" cy=".35" r=".7"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D8F1FF"/></radialGradient>
+  <radialGradient id="${id}p" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#FFD3B8"/><stop offset="1" stop-color="#FF9F70"/></radialGradient>
+  <radialGradient id="${id}bl"><stop offset="0" stop-color="#FF7EAA" stop-opacity=".8"/><stop offset="1" stop-color="#FF7EAA" stop-opacity="0"/></radialGradient>
+  <radialGradient id="${id}gl"><stop offset="0" stop-color="#7FE9FF" stop-opacity=".95"/><stop offset="1" stop-color="#7FE9FF" stop-opacity="0"/></radialGradient>
+  <linearGradient id="${id}rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <filter id="${id}s" x="-50%" y="-50%" width="200%" height="220%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1B44C9" flood-opacity=".26"/></filter>
+</defs>`;
+// a glossy blob part: fill + rim highlight + spec
+const shine = (id, shape, spec = "") => `${shape.replace("/>", ` fill="url(#${id}b)"/>`)}${shape.replace("/>", ` fill="none" stroke="url(#${id}rim)" stroke-width="2"/>`)}${spec}`;
+const face = id => `<g class="face">
+  <ellipse class="bl1" rx="6" ry="3.4" fill="url(#${id}bl)"/><ellipse class="bl2" rx="6" ry="3.4" fill="url(#${id}bl)"/>
+  <ellipse class="e1" fill="${NAVY}"/><ellipse class="e2" fill="${NAVY}"/>
+  <circle class="g1" r="1.6" fill="#fff"/><circle class="g2" r="1.6" fill="#fff"/>
+  <path class="h1" fill="none" stroke="${NAVY}" stroke-width="2.8" stroke-linecap="round"/><path class="h2" fill="none" stroke="${NAVY}" stroke-width="2.8" stroke-linecap="round"/>
+  <path class="b1" fill="none" stroke="${NAVY}" stroke-width="2.2" stroke-linecap="round"/><path class="b2" fill="none" stroke="${NAVY}" stroke-width="2.2" stroke-linecap="round"/>
+  <path class="mouth" stroke="${NAVY}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>`;
+// draws the shared face at (cx, cy) with gap g and eye size
+function drawFace(q, P, cx, cy, g, rx = 4.4, ry = 5.8, opts = {}) {
+  const hap = P.happy, sad = P.sad, open = Math.max(.06, P.open) * (1 - hap);
+  const lx = P.lookX, ly = P.lookY, ey = cy + ly;
+  [["e1", -1], ["e2", 1]].forEach(([k, s]) => A(q[k], { cx: cx + s * g + lx, cy: ey + sad * 1.5, rx: rx * (1 + P.perk * .08), ry: Math.max(.6, ry * open * (1 - sad * .25)), opacity: hap > .85 ? 0 : 1 }));
+  [["g1", -1], ["g2", 1]].forEach(([k, s]) => A(q[k], { cx: cx + s * g + lx + 1.4, cy: ey - 2 + sad * 1.5, opacity: open > .55 ? 1 : 0 }));
+  [["h1", -1], ["h2", 1]].forEach(([k, s]) => { const x = cx + s * g + lx, w = rx * 1.2; A(q[k], { d: `M${x - w},${ey + 1.5} Q${x},${ey - 4} ${x + w},${ey + 1.5}`, opacity: hap > .5 ? Math.min(1, (hap - .5) * 3) : 0 }); });
+  [["b1", -1], ["b2", 1]].forEach(([k, s]) => { const x = cx + s * g + lx; A(q[k], { d: `M${x - s * 4},${ey - 12} L${x + s * 4},${ey - 9}`, opacity: sad }); });
+  [["bl1", -1], ["bl2", 1]].forEach(([k, s]) => A(q[k], { cx: cx + s * (g + 7) + lx * .5, cy: ey + 7, opacity: (.75 + hap * .25) * (1 - sad * .6) }));
+  const my = cy + (opts.mouthY ?? 10) + ly * .5, mx = cx + lx * .6;
+  let d, fill = "none";
+  if (P.st === "listening" && P.L > .05) { const h = 1.5 + P.L * 7, w = 3.6 + P.L * 1.5; d = `M${mx - w},${my - 1} Q${mx},${my - 2} ${mx + w},${my - 1} Q${mx + w * .7},${my + h} ${mx},${my + h} Q${mx - w * .7},${my + h} ${mx - w},${my - 1}Z`; fill = NAVY; }
+  else if (hap > .3) { const w = 6.5; d = `M${mx - w},${my - 1.5} Q${mx},${my - .5} ${mx + w},${my - 1.5} Q${mx + w * .7},${my + 6} ${mx},${my + 6} Q${mx - w * .7},${my + 6} ${mx - w},${my - 1.5}Z`; fill = NAVY; }
+  else if (sad > .3) d = `M${mx - 4},${my + 2} Q${mx},${my - 2} ${mx + 4},${my + 2}`;
+  else if (P.st === "thinking") d = `M${mx - 3},${my} L${mx + 3},${my - .8}`;
+  else d = `M${mx - 3.8},${my - .5} Q${mx},${my + 3} ${mx + 3.8},${my - .5}`;
+  A(q.mouth, { d, fill });
+}
+
+/* ---------- the six characters ---------- */
+const CH = [
+  {
+    key: "pip", name: "Pip", tag: "a little songbird",
+    desc: "A round bird — the classic voice creature. Its tuft perks up and its wings flutter with your voice; it tilts its head while thinking and throws its wings up when done.",
+    svg: id => `<g class="feet"><rect class="f1" x="-13" y="36" width="9" height="7" rx="3.5" fill="url(#${id}p)"/><rect class="f2" x="4" y="36" width="9" height="7" rx="3.5" fill="url(#${id}p)"/></g>
+      <g class="w1"><ellipse cx="0" cy="12" rx="9" ry="16" fill="url(#${id}d)"/></g><g class="w2"><ellipse cx="0" cy="12" rx="9" ry="16" fill="url(#${id}d)"/></g>
+      <g class="head"><g class="tuft"><ellipse cx="-3" cy="-36" rx="4" ry="9" fill="url(#${id}d)" transform="rotate(-18 -3 -30)"/><ellipse cx="4" cy="-35" rx="3.4" ry="7" fill="url(#${id}d)" transform="rotate(20 4 -30)"/></g>
+      ${shine(id, `<circle cx="0" cy="4" r="34"/>`, `<ellipse cx="0" cy="18" rx="20" ry="15" fill="url(#${id}w)" opacity=".85"/><ellipse cx="-14" cy="-16" rx="7" ry="4" fill="#fff" opacity=".9" transform="rotate(-30 -14 -16)"/>`)}
+      <path class="beak" d="M-5,8 Q0,4 5,8 Q0,15 -5,8Z" fill="url(#${id}p)"/>${face(id)}</g>`,
+    pose(q, P) {
+      const flap = P.st === "listening" ? Math.sin(P.t * 16) * (8 + P.L * 26) : P.st === "thinking" ? 0 : Math.sin(P.t * 2) * 3;
+      const wingUp = P.arm * -95;
+      A(q.w1, { transform: `translate(-31 4) rotate(${18 + wingUp + flap} 0 -2)` });
+      A(q.w2, { transform: `translate(31 4) rotate(${-18 - wingUp - flap} 0 -2)` });
+      A(q.head, { transform: `rotate(${P.tilt} 0 30)` });
+      A(q.tuft, { transform: `translate(0 ${6 - P.perk * 6}) rotate(${(1 - P.perk) * 30 - P.sad * 10} 0 -30)` });
+      drawFace(q, P, 0, -4, 12, 4.4, 5.8, { mouthY: 20 });
+      A(q.beak, { transform: `translate(${P.lookX * .6} ${P.lookY}) scale(1 ${1 + (P.st === "listening" ? P.L * .8 : 0)})`, "transform-origin": "0 8" });
+      A(q.mouth, { opacity: 0 });
+    }
+  },
+  {
+    key: "tic", name: "Tic", tag: "a capsule buddy",
+    desc: "A tall pill with tiny arms and feet. It bounces its arms to your voice, scratches its chin while thinking, cheers with both arms up and droops when something goes wrong.",
+    svg: id => `<rect class="f1" x="-17" y="36" width="12" height="8" rx="4" fill="url(#${id}d)"/><rect class="f2" x="5" y="36" width="12" height="8" rx="4" fill="url(#${id}d)"/>
+      <g class="a1"><rect x="-4.5" y="0" width="9" height="24" rx="4.5" fill="url(#${id}d)"/></g><g class="a2"><rect x="-4.5" y="0" width="9" height="24" rx="4.5" fill="url(#${id}d)"/></g>
+      <g class="head">${shine(id, `<rect x="-25" y="-40" width="50" height="80" rx="25"/>`, `<ellipse cx="-11" cy="-26" rx="5" ry="8" fill="#fff" opacity=".85" transform="rotate(20 -11 -26)"/>`)}${face(id)}</g>`,
+    pose(q, P) {
+      const bounce = P.st === "listening" ? Math.sin(P.t * 12) * P.L * 22 : 0;
+      let r1 = 18 - P.arm * 150 + bounce, r2 = -18 + P.arm * 150 - bounce;
+      if (P.st === "thinking") r2 = -150 + Math.sin(P.t * 6) * 6; // hand to chin
+      if (P.st === "error") { r1 = 6; r2 = -6; }
+      A(q.a1, { transform: `translate(-24 -2) rotate(${r1})` }); A(q.a2, { transform: `translate(24 -2) rotate(${r2})` });
+      A(q.head, { transform: `rotate(${P.tilt * .6} 0 40)` });
+      drawFace(q, P, 0, -14, 11, 4.4, 5.8, { mouthY: 11 });
+    }
+  },
+  {
+    key: "miso", name: "Miso", tag: "a soft cat",
+    desc: "A squircle cat whose ears do the listening: they perk up and twitch with your voice, swivel while thinking and go flat when worried. Its tail swishes happily when done.",
+    svg: id => `<g class="tail"><path d="M30,30 C48,28 50,8 42,-2" fill="none" stroke="url(#${id}d)" stroke-width="9" stroke-linecap="round"/></g>
+      <g class="ear1"><path d="M-14,0 Q-12,-24 0,-26 Q8,-14 14,0Z" fill="url(#${id}d)"/><path d="M-7,-2 Q-6,-16 1,-18 Q5,-10 8,-2Z" fill="#FFB3C8" opacity=".75"/></g>
+      <g class="ear2"><path d="M-14,0 Q-8,-14 0,-26 Q12,-24 14,0Z" fill="url(#${id}d)"/><path d="M-8,-2 Q-5,-10 -1,-18 Q6,-16 7,-2Z" fill="#FFB3C8" opacity=".75"/></g>
+      <g class="head">${shine(id, `<rect x="-40" y="-26" width="80" height="68" rx="30"/>`, `<ellipse cx="-20" cy="-12" rx="8" ry="4.5" fill="#fff" opacity=".85" transform="rotate(-25 -20 -12)"/>`)}
+      <g stroke="${NAVY}" stroke-width="1.6" stroke-linecap="round" opacity=".45"><path d="M-30,14 L-42,12"/><path d="M-30,19 L-42,20"/><path d="M30,14 L42,12"/><path d="M30,19 L42,20"/></g>
+      <path class="nose" d="M-2.6,12 L2.6,12 L0,15Z" fill="#FF8FA8" stroke="#FF8FA8" stroke-width="1.2" stroke-linejoin="round"/>${face(id)}</g>`,
+    pose(q, P) {
+      const tw = P.st === "listening" ? Math.sin(P.t * 14) * P.L * 9 : 0, sw = P.st === "thinking" ? Math.sin(P.t * 3) * 14 : 0;
+      const flat = P.sad * 48, perk = P.perk;
+      A(q.ear1, { transform: `translate(-22 ${-20 + (1 - perk) * 4 + P.sad * 6}) rotate(${-8 + (1 - perk) * -14 - flat - tw + sw})` });
+      A(q.ear2, { transform: `translate(22 ${-20 + (1 - perk) * 4 + P.sad * 6}) rotate(${8 + (1 - perk) * 14 + flat + tw + sw})` });
+      A(q.tail, { transform: `rotate(${Math.sin(P.t * (P.st === "done" ? 10 : 1.6)) * (P.st === "done" ? 14 : 5) - P.sad * 30} 30 30)` });
+      A(q.head, { transform: `rotate(${P.tilt * .6} 0 42)` });
+      drawFace(q, P, 0, 2, 13, 4.6, 6.2, { mouthY: 16 });
+      A(q.nose, { transform: `translate(${P.lookX * .6} ${P.lookY * .5})` });
+    }
+  },
+  {
+    key: "bit", name: "Bit", tag: "a friendly robot",
+    desc: "A rounded little robot with a glass visor and an antenna that glows when it hears you. Its visor eyes do all the emoting. Smart, clear and very readable when tiny.",
+    svg: id => `<g class="ant"><path class="stalk" fill="none" stroke="#8FB1CC" stroke-width="3" stroke-linecap="round"/><circle class="glow" r="9" fill="url(#${id}gl)"/><circle class="ball" r="5" fill="url(#${id}d)"/></g>
+      <g class="a1"><rect x="-4" y="0" width="8" height="16" rx="4" fill="url(#${id}d)"/></g><g class="a2"><rect x="-4" y="0" width="8" height="16" rx="4" fill="url(#${id}d)"/></g>
+      ${shine(id, `<rect x="-18" y="20" width="36" height="22" rx="11"/>`)}
+      <g class="head">${shine(id, `<rect x="-38" y="-30" width="76" height="56" rx="22"/>`, `<ellipse cx="-20" cy="-22" rx="8" ry="3.5" fill="#fff" opacity=".85" transform="rotate(-12 -20 -22)"/>`)}
+      <rect x="-28" y="-19" width="56" height="34" rx="15" fill="#0E2238"/><rect x="-28" y="-19" width="56" height="34" rx="15" fill="none" stroke="#fff" stroke-opacity=".15"/>
+      <g class="vis">${face(id)}</g></g>`,
+    pose(q, P) {
+      const lean = P.st === "listening" ? Math.sin(P.t * 12) * P.L * 6 : P.st === "thinking" ? Math.sin(P.t * 2.4) * 8 : 0;
+      const tx = lean - P.sad * 10, ty = -48 - P.perk * 4 + P.sad * 10;
+      A(q.stalk, { d: `M0,-30 Q${tx * .3},-40 ${tx},${ty}` }); A(q.ball, { cx: tx, cy: ty }); A(q.glow, { cx: tx, cy: ty, opacity: P.st === "listening" ? .4 + P.L * .6 : P.happy * .8 });
+      A(q.a1, { transform: `translate(-22 24) rotate(${20 - P.arm * 140})` }); A(q.a2, { transform: `translate(22 24) rotate(${-20 + P.arm * 140})` });
+      A(q.head, { transform: `rotate(${P.tilt * .5} 0 26)` });
+      drawFace(q, P, 0, -3, 12, 4.2, 6.4, { mouthY: 10 });
+      // glowing cyan eyes on the visor
+      ["e1", "e2"].forEach(k => q[k].setAttribute("fill", "#7FE3FF")); ["h1", "h2", "b1", "b2", "mouth"].forEach(k => { q[k].setAttribute("stroke", "#7FE3FF"); });
+      if (q.mouth.getAttribute("fill") !== "none") q.mouth.setAttribute("fill", "#7FE3FF");
+      ["bl1", "bl2", "g1", "g2"].forEach(k => q[k].setAttribute("opacity", 0));
+    }
+  },
+  {
+    key: "bobo", name: "Bobo", tag: "the listener",
+    desc: "A round buddy wearing big headphones: the most direct ‘I’m listening’ character. The ear cups light up and it nods along to your voice; when done it bobs happily.",
+    svg: id => `<g class="head">${shine(id, `<circle cx="0" cy="6" r="33"/>`, `<ellipse cx="-14" cy="-12" rx="7" ry="4" fill="#fff" opacity=".9" transform="rotate(-30 -14 -12)"/>`)}${face(id)}
+      <g class="phones"><path d="M-36,2 A36,36 0 0 1 36,2" fill="none" stroke="#14304C" stroke-width="6" stroke-linecap="round"/>
+      <rect x="-44" y="-8" width="14" height="26" rx="7" fill="#14304C"/><rect x="30" y="-8" width="14" height="26" rx="7" fill="#14304C"/>
+      <rect class="cup1" x="-41" y="-4" width="8" height="18" rx="4" fill="url(#${id}gl)"/><rect class="cup2" x="33" y="-4" width="8" height="18" rx="4" fill="url(#${id}gl)"/></g></g>`,
+    pose(q, P) {
+      const nod = P.st === "listening" ? Math.sin(P.t * 9) * P.L * 6 : P.st === "done" ? Math.sin(P.t * 10) * 5 : 0;
+      A(q.head, { transform: `translate(0 ${Math.max(0, nod)}) rotate(${P.tilt * .7} 0 40)` });
+      A(q.phones, { transform: `rotate(${P.sad * -10} 0 0)` });
+      const glow = P.st === "listening" ? .35 + P.L * .65 : P.happy * .7 + .1; A(q.cup1, { opacity: glow }); A(q.cup2, { opacity: glow });
+      drawFace(q, P, 0, 6, 12, 4.4, 5.8, { mouthY: 11 });
+    }
+  },
+  {
+    key: "bo", name: "Bo", tag: "a tiny bear",
+    desc: "A round bear cub with big ears and a soft snout. Its ears twitch as it listens, it looks up thoughtfully while thinking and its whole face lights up when you’re done.",
+    svg: id => `<g class="ear1"><circle r="12" fill="url(#${id}d)"/><circle r="6.5" fill="#BFE9FF" opacity=".8"/></g><g class="ear2"><circle r="12" fill="url(#${id}d)"/><circle r="6.5" fill="#BFE9FF" opacity=".8"/></g>
+      <g class="head">${shine(id, `<circle cx="0" cy="6" r="34"/>`, `<ellipse cx="-15" cy="-12" rx="7" ry="4" fill="#fff" opacity=".9" transform="rotate(-30 -15 -12)"/>`)}
+      <ellipse class="snout" cx="0" cy="19" rx="12" ry="8.5" fill="url(#${id}w)"/><ellipse class="nose" cx="0" cy="15.5" rx="3.6" ry="2.6" fill="${NAVY}"/>${face(id)}</g>`,
+    pose(q, P) {
+      const tw = P.st === "listening" ? Math.sin(P.t * 13) * P.L * 3 : 0;
+      const ey = -22 + (1 - P.perk) * 3 + P.sad * 6;
+      A(q.ear1, { transform: `translate(${-25 - tw} ${ey}) scale(${.9 + P.perk * .12})` }); A(q.ear2, { transform: `translate(${25 + tw} ${ey}) scale(${.9 + P.perk * .12})` });
+      A(q.head, { transform: `rotate(${P.tilt * .7} 0 40)` });
+      drawFace(q, P, 0, 2, 12, 4.2, 5.6, { mouthY: 21 });
+      A(q.snout, { cx: P.lookX * .5, cy: 19 + P.lookY * .5 }); A(q.nose, { cx: P.lookX * .6, cy: 15.5 + P.lookY * .5 });
+    }
+  },
+];
+
+/* ---------- engine: springs for every pose parameter ---------- */
+const TARGETS = {
+  idle:      { perk: .35, arm: 0,  tilt: 0, lookY: 0,  happy: 0, sad: 0 },
+  listening: { perk: 1,   arm: .25, tilt: 4, lookY: -1, happy: 0, sad: 0 },
+  thinking:  { perk: .6,  arm: .1, tilt: -7, lookY: -3, happy: 0, sad: 0 },
+  done:      { perk: 1,   arm: 1,  tilt: 0, lookY: 0,  happy: 1, sad: 0 },
+  error:     { perk: 0,   arm: -.05, tilt: 0, lookY: 2, happy: 0, sad: 1 },
+};
+let NID = 0;
+class Char {
+  constructor(mount, ch, size) {
+    this.ch = ch; this.id = "c" + (++NID); this.st = "idle"; this.t = Math.random() * 10; this.L = 0; this.target = 0;
+    this.s = {}; for (const k of ["perk", "arm", "tilt", "lookX", "lookY", "happy", "sad", "open", "sq", "hop"]) this.s[k] = { x: k === "open" || k === "sq" ? 1 : 0, v: 0, to: k === "open" || k === "sq" ? 1 : 0 };
+    Object.assign(this, { nextBlink: performance.now() + 1500 + Math.random() * 3000 });
+    mount.innerHTML = `<svg width="${size}" height="${size}" viewBox="-60 -62 120 120" style="overflow:visible;display:block" aria-hidden="true">${defs(this.id)}
+      ${size >= 70 ? `<ellipse class="shadow" cx="0" cy="47" rx="32" ry="4" fill="#0B2A4A" opacity=".11"/>` : ""}
+      <g class="root" filter="url(#${this.id}s)">${ch.svg(this.id)}</g></svg>`;
+    this.q = {}; mount.querySelectorAll("[class]").forEach(e => e.getAttribute("class").split(" ").forEach(c => { if (!this.q[c]) this.q[c] = e; }));
+    this.setState("idle", true);
+    Char.all.push(this);
+  }
+  setState(st, init) {
+    const prev = this.st; this.st = st; const T = TARGETS[st]; for (const k in T) this.s[k].to = T[k];
+    if (init) return;
+    if (st === "done") { this.s.hop.v -= 220; this.s.sq.v -= 2.4; }
+    if (st === "listening" && prev !== "listening") { this.s.hop.v -= 80; this.s.sq.v += 1.4; }
+    if (st === "error") this.s.sq.v += 1.6;
+  }
+  frame(now, dt) {
+    this.t += dt; const s = this.s, st = this.st;
+    const tl = st === "listening" ? this.target : 0; this.L += (tl - this.L) * (tl > this.L ? .45 : .12);
+    if (now > this.nextBlink && st !== "done") { s.open.x = .06; s.open.v = 0; this.nextBlink = now + 2600 + Math.random() * 3400; }
+    s.lookX.to = st === "thinking" ? 3.5 * Math.sign(Math.sin(this.t * 1.2)) : 0;
+    s.sq.to = 1 + (reduce ? 0 : Math.sin(this.t * 1.5) * .018) + this.L * .06;
+    const spec = { hop: [200, 15], sq: [240, 12], open: [300, 22] };
+    for (const k in s) { const [K, C] = spec[k] || [170, 17]; s[k].v += (-K * (s[k].x - s[k].to) - C * s[k].v) * dt; s[k].x += s[k].v * dt; }
+    const P = { t: reduce ? 0 : this.t, L: this.L, st, perk: s.perk.x, arm: s.arm.x, tilt: s.tilt.x, lookX: s.lookX.x, lookY: s.lookY.x,
+      happy: Math.max(0, Math.min(1, s.happy.x)), sad: Math.max(0, Math.min(1, s.sad.x)), open: s.open.x };
+    const hy = Math.min(0, s.hop.x), sq = s.sq.x;
+    A(this.q.root, { transform: `translate(0 ${hy}) translate(0 44) scale(${1 + (1 - sq) * .6} ${sq}) translate(0 -44)` });
+    if (this.q.shadow) A(this.q.shadow, { rx: 32 * (1 + hy / 80), opacity: .11 * (1 + hy / 50) });
+    this.ch.pose(this.q, P);
+  }
+}
+Char.all = [];
+
+/* ---------- cards ---------- */
+const grid = document.getElementById("grid"), labels = [];
+CH.forEach((ch, i) => {
+  const el = document.createElement("article"); el.className = "card";
+  el.innerHTML = `<div class="stage"><span class="num">0${i + 1}</span><div class="big"></div></div>
+    <div class="body"><div class="title"><b>${ch.name}</b><span>${ch.tag}</span></div><p class="desc">${ch.desc}</p>
+      <div class="row">
+        <figure><div class="pill"><div class="slot"></div><span class="lbl">Ready</span></div><figcaption>pill</figcaption></figure>
+        <figure><div class="icon"></div><figcaption>app icon</figcaption></figure>
+        <button class="pick">Pick</button>
+      </div></div>`;
+  grid.append(el);
+  new Char(el.querySelector(".big"), ch, 200);
+  new Char(el.querySelector(".slot"), ch, 44);
+  new Char(el.querySelector(".icon"), ch, 44);
+  labels.push(el.querySelector(".lbl"));
+  el.querySelector(".pick").addEventListener("click", () => { const on = !el.classList.contains("picked"); document.querySelectorAll(".card").forEach(x => { x.classList.toggle("picked", on && x === el); x.querySelector(".pick").textContent = on && x === el ? "Picked ✓" : "Pick"; }); });
+});
+
+/* ---------- states ---------- */
+let state = "idle", doneT;
+const seg = document.getElementById("states"), thumb = seg.querySelector(".thumb"), btns = [...seg.querySelectorAll("button")];
+function place() { const on = btns.find(b => b.getAttribute("aria-pressed") === "true"); thumb.style.width = on.offsetWidth + "px"; thumb.style.transform = `translateX(${on.offsetLeft - 4}px)`; }
+function setAll(s) {
+  state = s; clearTimeout(doneT); btns.forEach(b => b.setAttribute("aria-pressed", b.dataset.s === s)); place();
+  Char.all.forEach(c => c.setState(s));
+  labels.forEach(l => l.textContent = { idle: "Ready", listening: "Listening", thinking: "Polishing…", done: "Pasted ✓", error: "Can’t hear you" }[s]);
+  if (s === "done") doneT = setTimeout(() => setAll("idle"), 2000);
+}
+btns.forEach(b => b.addEventListener("click", () => setAll(b.dataset.s)));
+document.fonts && document.fonts.ready.then(place); addEventListener("resize", place);
+let sp = false;
+addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat) { e.preventDefault(); sp = true; setAll("listening"); } });
+addEventListener("keyup", e => { if (e.code === "Space" && sp) { sp = false; setAll("thinking"); setTimeout(() => { if (state === "thinking") setAll("done"); }, 1300); } });
+function synth(t) { const a = Math.max(0, Math.sin(t * 13.5) * .6 + Math.sin(t * 7.1 + 1) * .4), b = Math.max(0, Math.sin(t * 1.3) * .5 + .55); return Math.min(1, a * b * (.75 + Math.random() * .35)); }
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(.033, (now - last) / 1000); last = now;
+  const L = state === "listening" ? synth(now / 1000) : 0;
+  Char.all.forEach(c => { c.target = L; c.frame(now, dt); });
+  requestAnimationFrame(loop);
+}
+setAll("idle"); requestAnimationFrame(loop);
+</script>
+</body>
+</html>
