@@ -896,6 +896,11 @@
           "title": "ggml",
           "description": "Высокопроизводительная модель автоматического распознавания речи OpenAI Whisper",
           "details": "Vobi использует ggml для быстрого локального преобразования речи в текст. Спасибо великолепной работе Георгия Герганова и участников."
+        },
+        "icons": {
+          "title": "Icons",
+          "credit": "Icons: Bicon by Hexline Design Studio",
+          "button": "Visit"
         }
       }
     }
@@ -1008,68 +1013,66 @@
       "snippets": "Snippets",
       "settings": "Settings"
     },
-    "side": {
-      "ready": "Ready to listen",
-      "holdBefore": "Hold",
-      "holdAfter": "in any app. Vobi types where your cursor is."
-    },
     "home": {
-      "greeting": {
-        "morning": "Good morning",
-        "afternoon": "Good afternoon",
-        "evening": "Good evening"
-      },
-      "search": "Search history",
-      "hero": {
-        "before": "Hold",
-        "after": "and just talk",
-        "sub": "Works in every app. Release to paste. Tap twice for hands-free.",
-        "try": "Try it now"
+      "countWeek_one": "{{n}} word this week",
+      "countWeek_other": "{{n}} words this week",
+      "actions": {
+        "dictate": "Dictate"
       },
       "try": {
         "before": "Hold",
         "after": "and talk. Your words land here.",
         "placeholder": "Your words will appear here…",
-        "close": "Done"
+        "close": "Close"
       },
-      "quick": "Quick actions",
-      "actions": {
-        "dictate": "Dictate",
-        "transcribe": "Transcribe file",
-        "addWord": "Add word",
-        "snippet": "New snippet"
-      },
-      "stats": {
-        "words": "Words this week",
-        "dictations": "Dictations",
-        "streak": "Streak",
-        "thisWeek": "this week",
-        "up": "+{{percent}}% vs last week",
-        "down": "−{{percent}}% vs last week",
-        "day": "day",
-        "days": "days",
-        "inARow": "in a row"
+      "usage": {
+        "onDevice": "On device",
+        "noModel": "No speech model yet",
+        "change": "Change the speech model",
+        "bars": "Words per day this month",
+        "day_one": "{{day}} · {{count}} word",
+        "day_other": "{{day}} · {{count}} words"
       },
       "recent": "Recent",
-      "viewAll": "View all",
+      "viewAll": "View all history",
+      "banner": {
+        "dismiss": "Dismiss",
+        "cleanup": {
+          "title": "Try clean-up",
+          "body": "Vobi tidies “um”s and punctuation as you talk.",
+          "action": "Turn on"
+        },
+        "dictionary": {
+          "title": "Teach Vobi your words",
+          "body": "Add names and jargon so they’re always spelled right.",
+          "action": "Add a word"
+        }
+      },
       "emptyBefore": "Nothing here yet. Hold",
       "emptyAfter": "in any app and say something."
     },
     "history": {
       "title": "History",
-      "sub": "Everything you’ve said, kept on this computer",
+      "count_one": "{{n}} dictation",
+      "count_other": "{{n}} dictations",
       "search": "Search what you said",
       "noMatch": "Nothing matches “{{query}}”",
+      "noneHere": "Nothing here yet",
       "today": "Today",
       "yesterday": "Yesterday",
       "dictation": "Dictation",
-      "word": "{{count}} word",
-      "words": "{{count}} words",
-      "saved": "Saved"
+      "saved": "Saved",
+      "folder": "Recordings",
+      "filters": {
+        "all": "All",
+        "saved": "Saved",
+        "files": "Files"
+      }
     },
     "dictionary": {
       "title": "Dictionary",
-      "sub": "Names and words Vobi should always spell right",
+      "count_one": "{{n}} word",
+      "count_other": "{{n}} words",
       "placeholder": "Add a word, like “Kubernetes”",
       "add": "Add word",
       "empty": "No words yet. Add names, brands and jargon you use.",
@@ -1078,8 +1081,9 @@
     },
     "snippets": {
       "title": "Snippets",
-      "sub": "Say a short phrase, get the full text",
-      "new": "Snippet",
+      "count_one": "{{n}} snippet",
+      "count_other": "{{n}} snippets",
+      "new": "New snippet",
       "trigger": "Phrase",
       "triggerPlaceholder": "What you’ll say, like “my address”",
       "text": "Text",

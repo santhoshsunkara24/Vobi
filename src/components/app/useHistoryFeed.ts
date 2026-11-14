@@ -145,77 +145,99 @@ export const startOfDay = (ms: number): number => {
   return d.getTime();
 };
 
-export interface WeekStats {
-  words: number;
-  wordsLastWeek: number;
-  dictations: number;
-  /** Consecutive days with a dictation, ending today (or yesterday). */
-  streak: number;
+export interface HistorySummary {
+  /** Entries on disk (counted up to a cap; see `capped`). */
+  total: number;
+  saved: number;
+  files: number;
+  /** Words in the last 7 days. */
+  wordsWeek: number;
+  /** Words per calendar day of this month, index 0 = the 1st. */
+  monthDays: number[];
+  /** The count stopped at the cap, so `total` is a lower bound. */
+  capped: boolean;
 }
 
+const SUMMARY_PAGES = 20;
+const SUMMARY_PAGE_SIZE = 100;
+
 /**
- * This week's numbers from the history on disk. Pages back until it has
- * covered two weeks (for the comparison) or run out. Null while loading or
- * when there's nothing this week.
+ * Counts and this month's words per day, from the history on disk. Re-runs
+ * when `refreshKey` changes (e.g. the newest entry's id).
  */
-export function useWeekStats(refreshKey: unknown): WeekStats | null {
-  const [stats, setStats] = useState<WeekStats | null>(null);
+export function useHistorySummary(refreshKey: unknown): HistorySummary | null {
+  const [summary, setSummary] = useState<HistorySummary | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
-      const now = Date.now();
-      const weekAgo = now - 7 * DAY;
-      const twoWeeksAgo = now - 14 * DAY;
       const all: HistoryEntry[] = [];
       let cursor: number | null = null;
-      for (let page = 0; page < 20; page++) {
-        const result = await commands.getHistoryEntries(cursor, 100);
+      let capped = false;
+      for (let page = 0; ; page++) {
+        if (page === SUMMARY_PAGES) {
+          capped = true;
+          break;
+        }
+        const result = await commands.getHistoryEntries(
+          cursor,
+          SUMMARY_PAGE_SIZE,
+        );
         if (result.status !== "ok") break;
         all.push(...result.data.entries);
         const last = result.data.entries[result.data.entries.length - 1];
-        if (
-          !result.data.has_more ||
-          !last ||
-          last.timestamp * 1000 < twoWeeksAgo
-        )
-          break;
+        if (!result.data.has_more || !last) break;
         cursor = last.id;
       }
       if (cancelled) return;
 
-      let words = 0;
-      let wordsLastWeek = 0;
-      let dictations = 0;
-      const days = new Set<number>();
+      const now = new Date();
+      const weekAgo = now.getTime() - 7 * DAY;
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const daysInMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+      ).getDate();
+      const monthDays = new Array<number>(daysInMonth).fill(0);
+      let wordsWeek = 0;
       for (const entry of all) {
         const ms = entry.timestamp * 1000;
         const n = wordCount(entryText(entry));
-        if (n === 0) continue;
-        days.add(startOfDay(ms));
-        if (ms >= weekAgo) {
-          words += n;
-          dictations += 1;
-        } else if (ms >= twoWeeksAgo) {
-          wordsLastWeek += n;
+        if (ms >= weekAgo) wordsWeek += n;
+        if (ms >= monthStart.getTime()) {
+          const day = new Date(ms).getDate() - 1;
+          if (day < daysInMonth) monthDays[day] += n;
         }
       }
-      let streak = 0;
-      let day = startOfDay(now);
-      if (!days.has(day)) day -= DAY;
-      while (days.has(day)) {
-        streak += 1;
-        day = startOfDay(day - DAY / 2);
-      }
-      setStats(
-        dictations > 0 ? { words, wordsLastWeek, dictations, streak } : null,
-      );
+      setSummary({
+        total: all.length,
+        saved: all.filter((e) => e.saved).length,
+        files: all.filter((e) => e.source_name).length,
+        wordsWeek,
+        monthDays,
+        capped,
+      });
     };
-    run().catch((e) => console.error("Failed to compute stats:", e));
+    run().catch((e) => console.error("Failed to summarise history:", e));
     return () => {
       cancelled = true;
     };
   }, [refreshKey]);
 
-  return stats;
+  return summary;
+}
+
+/** Bumps whenever history changes, to refresh anything derived from it. */
+export function useHistoryVersion(): number {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const unlisten = events.historyUpdatePayload.listen(() =>
+      setVersion((v) => v + 1),
+    );
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
+  return version;
 }

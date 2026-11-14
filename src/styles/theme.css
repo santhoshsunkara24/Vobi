@@ -56,19 +56,24 @@
     radial-gradient(900px 600px at 15% 10%, #d7eefb 0%, transparent 60%),
     radial-gradient(800px 600px at 90% 90%, #dce7fb 0%, transparent 60%),
     #e9eff4;
-  --bg: #f3f6f9;
+  --bg: #f8f9fb;
   --surface: #ffffff;
-  --surface-2: #f3f6f9;
-  --surface-3: #e8edf2;
+  --surface-2: #f4f5f7;
+  --surface-3: #eaecf0;
   --border: rgba(18, 38, 58, 0.07);
   --border-2: rgba(18, 38, 58, 0.12);
-  --text: #0e1620;
-  --text-2: #5a6675;
-  --text-3: #97a2af;
+  /* Clean dashboard: hairlines instead of shadows. */
+  --hairline: #eceff3;
+  --rail-icon: #6b7380;
+  --window: #ffffff;
+  --shadow-soft: 0 1px 2px rgba(18, 38, 58, 0.04);
+  --text: #1a1f26;
+  --text-2: #5b6470;
+  --text-3: #8a929c;
   --accent: var(--sky-500);
   --accent-soft: var(--sky-50);
   --accent-text: var(--sky-700);
-  --ink: #0e1620;
+  --ink: #1a1f26;
   --on-ink: #ffffff;
   --shadow-card:
     0 1px 2px rgba(18, 38, 58, 0.04), 0 10px 28px -8px rgba(18, 38, 58, 0.08);

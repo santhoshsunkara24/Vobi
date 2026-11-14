@@ -24,10 +24,10 @@ export const SettingContainer: React.FC<SettingContainerProps> = ({
   disabled = false,
   grow = false,
 }) => {
-  const frame = grouped ? "" : "v-card px-[18px]";
+  const frame = grouped ? "" : "v-card px-[24px]";
   const label = (
     <div className={disabled ? "opacity-45" : ""}>
-      <h3 className="m-0 text-[14.5px] leading-[1.35] font-semibold text-text">
+      <h3 className="m-0 text-[15px] leading-[1.35] font-medium text-text">
         {title}
       </h3>
       {description && (

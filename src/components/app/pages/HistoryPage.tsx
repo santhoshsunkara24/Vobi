@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileAudio, FolderOpen } from "lucide-react";
+import {
+  FileAudio,
+  FolderOpen,
+  History,
+  Search,
+  Star,
+  Upload,
+} from "@hexline/bicon/react";
 import { commands } from "@/bindings";
 import { notify } from "@/stores/noticeStore";
 import { AudioPlayerGroup } from "@/components/ui/AudioPlayer";
@@ -8,25 +15,39 @@ import {
   pickAndTranscribeFiles,
   useFileReadsStore,
 } from "@/components/settings/history/transcribeFiles";
-import { HistoryCard } from "../HistoryCard";
-import { SearchIcon, UploadIcon } from "../icons";
-import { entryText, startOfDay, useHistoryFeed } from "../useHistoryFeed";
+import { HistoryRow } from "../HistoryRow";
+import { ChipButton, Divider, PageFrame } from "../PageFrame";
+import {
+  entryText,
+  startOfDay,
+  useHistoryFeed,
+  useHistorySummary,
+} from "../useHistoryFeed";
 
 const DAY = 86_400_000;
+const ICON = { size: 20, strokeWidth: 1.5 } as const;
+
+type Filter = "all" | "saved" | "files";
 
 /** Everything said, newest first, grouped by day, searchable. */
 export const HistoryPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const feed = useHistoryFeed();
+  const summary = useHistorySummary(
+    `${feed.entries[0]?.id}:${feed.entries.length}:${feed.entries.filter((e) => e.saved).length}`,
+  );
   const reads = useFileReadsStore((s) => s.reads);
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
   const sentinel = useRef<HTMLDivElement>(null);
   const q = query.trim().toLowerCase();
+  const number = new Intl.NumberFormat(i18n.language);
 
-  // Search covers everything: page through the rest while a query is typed.
+  // Search and filters cover everything: page through the rest.
   useEffect(() => {
-    if (q && feed.hasMore && !feed.loading) feed.loadMore();
-  }, [q, feed.hasMore, feed.loading, feed.entries.length]);
+    if ((q || filter !== "all") && feed.hasMore && !feed.loading)
+      feed.loadMore();
+  }, [q, filter, feed.hasMore, feed.loading, feed.entries.length]);
 
   // Infinite scroll.
   useEffect(() => {
@@ -41,14 +62,16 @@ export const HistoryPage: React.FC = () => {
 
   const shown = useMemo(
     () =>
-      q
-        ? feed.entries.filter(
-            (e) =>
-              entryText(e).toLowerCase().includes(q) ||
-              (e.source_name ?? "").toLowerCase().includes(q),
-          )
-        : feed.entries,
-    [feed.entries, q],
+      feed.entries.filter(
+        (e) =>
+          (filter === "all" ||
+            (filter === "saved" && e.saved) ||
+            (filter === "files" && e.source_name)) &&
+          (!q ||
+            entryText(e).toLowerCase().includes(q) ||
+            (e.source_name ?? "").toLowerCase().includes(q)),
+      ),
+    [feed.entries, q, filter],
   );
 
   const days = useMemo(() => {
@@ -92,15 +115,22 @@ export const HistoryPage: React.FC = () => {
     }
   };
 
+  const toggle = (next: Filter) => setFilter(filter === next ? "all" : next);
+
   return (
-    <section className="v-page">
-      <div className="v-top flex-wrap">
-        <div className="min-w-[200px] flex-1">
-          <h1>{t("vobi.history.title")}</h1>
-          <div className="v-sub">{t("vobi.history.sub")}</div>
-        </div>
+    <PageFrame
+      title={t("vobi.history.title")}
+      count={
+        summary
+          ? t("vobi.history.count", {
+              count: summary.total,
+              n: number.format(summary.total) + (summary.capped ? "+" : ""),
+            })
+          : null
+      }
+      side={
         <label className="v-search">
-          <SearchIcon size={15} />
+          <Search size={16} strokeWidth={1.6} />
           <input
             type="search"
             value={query}
@@ -110,71 +140,95 @@ export const HistoryPage: React.FC = () => {
             aria-label={t("vobi.history.search")}
           />
         </label>
-      </div>
-
-      <div className="mb-[20px] flex gap-[8px]">
-        <button
-          type="button"
-          className="v-btn v-btn-white v-btn-sm"
-          onClick={transcribeFile}
-        >
-          <UploadIcon size={15} />
-          {t("settings.history.transcribeFile")}
-        </button>
-        <button
-          type="button"
-          className="v-btn v-btn-quiet"
-          onClick={openFolder}
-        >
-          <FolderOpen size={15} strokeWidth={1.8} />
-          {t("settings.history.openFolder")}
-        </button>
-      </div>
-
-      {reads.map((read) => (
-        <div key={read.id} className="v-card v-rec mb-[12px]">
-          <div className="v-rec-h">
-            <span className="v-tile" aria-hidden="true">
-              <FileAudio size={18} strokeWidth={1.7} />
-            </span>
-            <div className="min-w-0">
-              <b className="truncate">{read.name}</b>
-              <div className="v-meta">
-                <span>{t("settings.history.readingFile")}</span>
+      }
+      actions={
+        <>
+          <button type="button" className="v-pill" onClick={transcribeFile}>
+            <Upload {...ICON} />
+            {t("settings.history.transcribeFile")}
+          </button>
+          <Divider />
+          <ChipButton
+            icon={<History {...ICON} />}
+            n={summary ? number.format(summary.total) : null}
+            pressed={filter === "all"}
+            onClick={() => setFilter("all")}
+          >
+            {t("vobi.history.filters.all")}
+          </ChipButton>
+          <ChipButton
+            icon={<Star {...ICON} />}
+            n={summary ? number.format(summary.saved) : null}
+            pressed={filter === "saved"}
+            onClick={() => toggle("saved")}
+          >
+            {t("vobi.history.filters.saved")}
+          </ChipButton>
+          <ChipButton
+            icon={<FileAudio {...ICON} />}
+            n={summary ? number.format(summary.files) : null}
+            pressed={filter === "files"}
+            onClick={() => toggle("files")}
+          >
+            {t("vobi.history.filters.files")}
+          </ChipButton>
+          <ChipButton icon={<FolderOpen {...ICON} />} onClick={openFolder}>
+            {t("vobi.history.folder")}
+          </ChipButton>
+        </>
+      }
+    >
+      {reads.length > 0 && (
+        <section className="v-card v-list mb-[20px]">
+          {reads.map((read) => (
+            <div key={read.id} className="v-row">
+              <span className="v-badge" data-tone="file" aria-hidden="true">
+                <FileAudio size={20} strokeWidth={1.5} />
+              </span>
+              <div className="v-row-main">
+                <div className="v-row-top">
+                  <b>{read.name}</b>
+                </div>
+                <p className="v-row-text italic">
+                  {t("settings.history.readingFile")}
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-      ))}
+          ))}
+        </section>
+      )}
 
       {feed.loading ? null : feed.entries.length === 0 && reads.length === 0 ? (
-        <div className="v-empty">{t("settings.history.empty")}</div>
-      ) : shown.length === 0 && q ? (
-        <div className="v-empty">
-          {t("vobi.history.noMatch", { query: query.trim() })}
+        <div className="v-card v-empty">{t("settings.history.empty")}</div>
+      ) : shown.length === 0 ? (
+        <div className="v-card v-empty">
+          {q
+            ? t("vobi.history.noMatch", { query: query.trim() })
+            : t("vobi.history.noneHere")}
         </div>
       ) : (
         <AudioPlayerGroup>
           {days.map((group) => (
-            <div key={group.day}>
+            <div key={group.day} className="v-day-group">
               <div className="v-day">{dayLabel(group.day)}</div>
-              <div className="v-rec-list">
+              <section className="v-card v-list">
                 {group.items.map((entry) => (
-                  <HistoryCard
+                  <HistoryRow
                     key={entry.id}
                     entry={entry}
                     query={query}
+                    timeOnly
                     fresh={feed.fresh.has(entry.id)}
                     onToggleSaved={() => feed.toggleSaved(entry.id)}
                     onDelete={() => feed.remove(entry.id)}
                   />
                 ))}
-              </div>
+              </section>
             </div>
           ))}
         </AudioPlayerGroup>
       )}
       <div ref={sentinel} className="h-px" />
-    </section>
+    </PageFrame>
   );
 };

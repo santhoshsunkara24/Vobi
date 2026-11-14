@@ -3,7 +3,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { FileDropOverlay } from "@/components/FileDropOverlay";
 import { WhatsNewGate } from "@/components/whats-new";
 import type { OnboardingStep } from "@/components/onboarding/onboardingStore";
-import { AppSidebar, type Page } from "./AppSidebar";
+import { AppRail } from "./AppRail";
+import { NavContext, type Navigate, type Page } from "./nav";
 import { HomePage } from "./pages/HomePage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { DictionaryPage } from "./pages/DictionaryPage";
@@ -17,7 +18,7 @@ interface AppShellProps {
   onRunModelMigration: () => void;
 }
 
-/** The main window: sidebar and the five pages. */
+/** The main window: the icon rail and one rounded panel holding the page. */
 export const AppShell: React.FC<AppShellProps> = ({
   direction,
   onPreviewOnboarding,
@@ -26,33 +27,34 @@ export const AppShell: React.FC<AppShellProps> = ({
 }) => {
   const [page, setPage] = useState<Page>("home");
   const [tab, setTab] = useState<SettingsTab>("general");
-  // Bumped on each navigation so a page can focus its field when asked to.
+  // Bumped on each "add" request so a page can focus its field.
   const [focus, setFocus] = useState<{ page: Page; n: number } | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
 
-  const navigate = useCallback((to: Page, want?: "add") => {
+  const navigate = useCallback<Navigate>((to, want) => {
     setPage(to);
-    setFocus(want ? { page: to, n: Date.now() } : null);
+    if (want === "model") setTab("model");
+    setFocus(want === "add" ? { page: to, n: Date.now() } : null);
   }, []);
   const showHistory = useCallback(() => navigate("history"), [navigate]);
 
   useLayoutEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
+    panelRef.current?.querySelector("[data-page-scroll]")?.scrollTo({ top: 0 });
   }, [page, tab]);
 
   const wantsFocus = focus?.page === page;
 
   return (
-    <div dir={direction} className="v-app select-none cursor-default">
-      {/* macOS: the title bar is transparent; this strip drags the window. */}
-      <div className="v-drag" data-tauri-drag-region aria-hidden="true" />
-      <ErrorBoundary context="What's New">
-        <WhatsNewGate />
-      </ErrorBoundary>
-      <AppSidebar page={page} onNavigate={navigate} />
-      <main className="v-main">
-        <div ref={scrollRef} className="v-scroll">
-          {page === "home" && <HomePage onNavigate={navigate} />}
+    <NavContext.Provider value={navigate}>
+      <div dir={direction} className="v-app select-none cursor-default">
+        {/* macOS: the title bar is transparent; this strip drags the window. */}
+        <div className="v-drag" data-tauri-drag-region aria-hidden="true" />
+        <ErrorBoundary context="What's New">
+          <WhatsNewGate />
+        </ErrorBoundary>
+        <AppRail page={page} onNavigate={(p) => navigate(p)} />
+        <main ref={panelRef} className="v-panel">
+          {page === "home" && <HomePage />}
           {page === "history" && <HistoryPage />}
           {page === "dictionary" && (
             <DictionaryPage key={focus?.n} autoFocus={wantsFocus} />
@@ -64,15 +66,15 @@ export const AppShell: React.FC<AppShellProps> = ({
             <SettingsPage
               tab={tab}
               onTab={setTab}
-              onNavigate={navigate}
+              onNavigate={(p) => navigate(p)}
               onPreviewOnboarding={onPreviewOnboarding}
               onRunOnboarding={onRunOnboarding}
               onRunModelMigration={onRunModelMigration}
             />
           )}
-        </div>
-      </main>
-      <FileDropOverlay onDropped={showHistory} />
-    </div>
+        </main>
+        <FileDropOverlay onDropped={showHistory} />
+      </div>
+    </NavContext.Provider>
   );
 };

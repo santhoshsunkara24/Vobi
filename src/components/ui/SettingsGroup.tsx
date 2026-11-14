@@ -24,8 +24,8 @@ export const SettingsGroup: React.FC<SettingsGroupProps> = ({
           )}
         </div>
       )}
-      <div className="v-card overflow-visible px-[18px] py-[6px]">
-        <div className="divide-y divide-[var(--border)]">{children}</div>
+      <div className="v-card overflow-visible px-[24px] py-[6px]">
+        <div className="divide-y divide-[var(--hairline)]">{children}</div>
       </div>
     </section>
   );

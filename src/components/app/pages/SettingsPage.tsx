@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { type } from "@tauri-apps/plugin-os";
+import { currentOsType } from "@/hooks/useOsType";
 import { useSettings } from "@/hooks/useSettings";
 import { isChinese } from "@/lib/utils/languageSuggestions";
 import { SettingsGroup } from "@/components/ui/SettingsGroup";
@@ -34,8 +34,17 @@ import { AppendTrailingSpace } from "@/components/settings/AppendTrailingSpace";
 import { AutoSubmit } from "@/components/settings/AutoSubmit";
 import { ShowTrayIcon } from "@/components/settings/ShowTrayIcon";
 import { AppLanguageSelector } from "@/components/settings/AppLanguageSelector";
-import { Segmented } from "../Segmented";
-import type { Page } from "../AppSidebar";
+import {
+  Cpu,
+  InfoCircle,
+  MagicWand,
+  Settings,
+  Sliders,
+  Code,
+  type BiconIcon,
+} from "@hexline/bicon/react";
+import { ChipButton, PageFrame } from "../PageFrame";
+import type { Page } from "../nav";
 
 export type SettingsTab =
   | "general"
@@ -68,21 +77,36 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   const debug = settings?.debug_mode ?? false;
   const postProcessing = settings?.post_process_enabled ?? false;
 
-  const tabs = [
-    { value: "general" as const, label: t("vobi.settings.tabs.general") },
-    { value: "model" as const, label: t("vobi.settings.tabs.model") },
+  const tabs: { value: SettingsTab; label: string; icon: BiconIcon }[] = [
+    {
+      value: "general",
+      label: t("vobi.settings.tabs.general"),
+      icon: Settings,
+    },
+    { value: "model", label: t("vobi.settings.tabs.model"), icon: Cpu },
     ...(postProcessing
       ? [
           {
             value: "postprocessing" as const,
             label: t("vobi.settings.tabs.postProcessing"),
+            icon: MagicWand,
           },
         ]
       : []),
-    { value: "advanced" as const, label: t("vobi.settings.tabs.advanced") },
-    { value: "about" as const, label: t("vobi.settings.tabs.about") },
+    {
+      value: "advanced",
+      label: t("vobi.settings.tabs.advanced"),
+      icon: Sliders,
+    },
+    { value: "about", label: t("vobi.settings.tabs.about"), icon: InfoCircle },
     ...(debug
-      ? [{ value: "debug" as const, label: t("vobi.settings.tabs.debug") }]
+      ? [
+          {
+            value: "debug" as const,
+            label: t("vobi.settings.tabs.debug"),
+            icon: Code,
+          },
+        ]
       : []),
   ];
 
@@ -93,20 +117,32 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   }, [current, tab, onTab]);
 
   return (
-    <section
-      className={`v-page ${current === "model" ? "flex h-full flex-col pb-[20px]" : ""}`}
+    <PageFrame
+      title={t("vobi.settings.title")}
+      count={tabs.find((x) => x.value === current)?.label}
+      fill={current === "model"}
+      actions={
+        <div
+          role="tablist"
+          aria-label={t("vobi.settings.tabs.label")}
+          className="flex gap-[10px]"
+        >
+          {tabs.map(({ value, label, icon: Icon }) => (
+            <ChipButton
+              key={value}
+              role="tab"
+              aria-selected={value === current}
+              pressed={value === current}
+              icon={<Icon size={20} strokeWidth={1.5} />}
+              onClick={() => onTab(value)}
+            >
+              {label}
+            </ChipButton>
+          ))}
+        </div>
+      }
     >
-      <div className="v-top flex-wrap">
-        <h1 className="flex-1">{t("vobi.settings.title")}</h1>
-        <Segmented
-          label={t("vobi.settings.tabs.label")}
-          value={current}
-          options={tabs}
-          onChange={onTab}
-        />
-      </div>
       <SecureInputWarning />
-
       {current === "general" && <GeneralTab onNavigate={onNavigate} />}
       {current === "model" && (
         <div className="flex min-h-0 flex-1 flex-col">
@@ -123,7 +159,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           onRunModelMigration={onRunModelMigration}
         />
       )}
-    </section>
+    </PageFrame>
   );
 };
 
@@ -133,7 +169,7 @@ const GeneralTab: React.FC<{ onNavigate: (page: Page) => void }> = ({
   const { t } = useTranslation();
   const { getSetting, updateSetting, isUpdating, audioFeedbackEnabled } =
     useSettings();
-  const [isLinux] = useState(() => type() === "linux");
+  const [isLinux] = useState(() => currentOsType() === "linux");
   // Only for Chinese speakers, or anyone who already picked a script.
   const speaksChinese =
     (getSetting("spoken_languages") ?? []).some(isChinese) ||

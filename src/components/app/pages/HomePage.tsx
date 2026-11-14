@@ -1,276 +1,289 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { VobiCloud } from "@/components/vobi/VobiCloud";
-import { notify } from "@/stores/noticeStore";
-import { pickAndTranscribeFiles } from "@/components/settings/history/transcribeFiles";
-import { HotkeyKbd } from "../Hotkey";
-import type { Page } from "../AppSidebar";
 import {
-  AddWordIcon,
-  ArrowIcon,
-  BoltIcon,
-  MicIcon,
-  SearchIcon,
-  UploadIcon,
-} from "../icons";
-import { useHistoryFeed, useWeekStats } from "../useHistoryFeed";
-import { HistoryCard } from "../HistoryCard";
+  Book,
+  FilterList,
+  History,
+  Mic,
+  Waveform,
+  X,
+  Zap,
+} from "@hexline/bicon/react";
+import { VobiCloud } from "@/components/vobi/VobiCloud";
+import { useSettings } from "@/hooks/useSettings";
+import { useModelStore } from "@/stores/modelStore";
+import { getTranslatedModelName } from "@/lib/utils/modelTranslation";
+import { HotkeyKbd } from "../Hotkey";
+import { ChipButton, Divider, PageFrame } from "../PageFrame";
+import { HistoryRow } from "../HistoryRow";
+import { useNav } from "../nav";
+import {
+  useHistoryFeed,
+  useHistorySummary,
+  type HistorySummary,
+} from "../useHistoryFeed";
 
-interface HomePageProps {
-  onNavigate: (page: Page, focus?: "add") => void;
-}
+const BANNER_KEY = "vobi.banner.dismissed";
 
-const greetingKey = (hour: number) =>
-  hour < 5
-    ? "vobi.home.greeting.evening"
-    : hour < 12
-      ? "vobi.home.greeting.morning"
-      : hour < 18
-        ? "vobi.home.greeting.afternoon"
-        : "vobi.home.greeting.evening";
+const dismissedBanners = (): string[] => {
+  try {
+    return JSON.parse(localStorage.getItem(BANNER_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+};
 
-export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
+export const HomePage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const feed = useHistoryFeed(3);
-  const stats = useWeekStats(feed.entries[0]?.id);
+  const navigate = useNav();
+  const { getSetting, updateSetting } = useSettings();
+  const feed = useHistoryFeed(4);
+  const summary = useHistorySummary(feed.entries[0]?.id);
   const [trying, setTrying] = useState(false);
   const tryRef = useRef<HTMLTextAreaElement>(null);
-  const now = new Date();
+  const [dismissed, setDismissed] = useState(dismissedBanners);
+  const number = new Intl.NumberFormat(i18n.language);
 
   useEffect(() => {
     if (trying) tryRef.current?.focus();
   }, [trying]);
 
-  const startTrying = () => {
-    if (trying) tryRef.current?.focus();
-    else setTrying(true);
-  };
+  const words = getSetting("custom_words") ?? [];
+  const snippets = getSetting("snippets") ?? [];
+  const cleanUp = getSetting("filler_word_removal_enabled") ?? true;
 
-  const transcribeFile = async () => {
+  // One suggestion at a time: clean-up if it's off, else the Dictionary.
+  const banner = !cleanUp
+    ? "cleanup"
+    : words.length === 0
+      ? "dictionary"
+      : null;
+  const showBanner = banner && !dismissed.includes(banner);
+  const dismiss = () => {
+    if (!banner) return;
+    const next = [...dismissed, banner];
+    setDismissed(next);
     try {
-      const added = await pickAndTranscribeFiles();
-      if (added) onNavigate("history");
-    } catch (error) {
-      console.error("Failed to pick a file to transcribe:", error);
-      notify({ title: t("settings.history.transcribeFailed") });
+      localStorage.setItem(BANNER_KEY, JSON.stringify(next));
+    } catch {
+      // Not remembered across launches; it's only a suggestion.
     }
   };
 
-  const number = new Intl.NumberFormat(i18n.language);
-  const change =
-    stats && stats.wordsLastWeek > 0
-      ? Math.round(
-          ((stats.words - stats.wordsLastWeek) / stats.wordsLastWeek) * 100,
-        )
-      : null;
-
   return (
-    <section className="v-page">
-      <div className="v-top">
-        <div className="flex-1">
-          <div className="v-sub">
-            {new Intl.DateTimeFormat(i18n.language, {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            }).format(now)}
+    <PageFrame
+      title={t("vobi.nav.home")}
+      count={
+        summary && summary.wordsWeek > 0
+          ? t("vobi.home.countWeek", {
+              count: summary.wordsWeek,
+              n: number.format(summary.wordsWeek),
+            })
+          : null
+      }
+      actions={
+        <>
+          <button
+            type="button"
+            className="v-pill"
+            onClick={() => (trying ? tryRef.current?.focus() : setTrying(true))}
+          >
+            <Mic size={20} strokeWidth={1.5} />
+            {t("vobi.home.actions.dictate")}
+          </button>
+          <Divider />
+          <ChipButton
+            icon={<History size={20} strokeWidth={1.5} />}
+            n={summary ? number.format(summary.total) : null}
+            onClick={() => navigate("history")}
+          >
+            {t("vobi.nav.history")}
+          </ChipButton>
+          <ChipButton
+            icon={<Book size={20} strokeWidth={1.5} />}
+            n={number.format(words.length)}
+            onClick={() => navigate("dictionary")}
+          >
+            {t("vobi.nav.dictionary")}
+          </ChipButton>
+          <ChipButton
+            icon={<Zap size={20} strokeWidth={1.5} />}
+            n={number.format(snippets.length)}
+            onClick={() => navigate("snippets")}
+          >
+            {t("vobi.nav.snippets")}
+          </ChipButton>
+        </>
+      }
+    >
+      <div className="v-stack">
+        {trying && (
+          <div className="v-card animate-rise p-[20px]">
+            <div className="mb-[12px] flex items-center gap-[10px] text-[15px] font-medium">
+              <span className="v-live" aria-hidden="true" />
+              <span className="flex-1">
+                {t("vobi.home.try.before")} <HotkeyKbd />{" "}
+                {t("vobi.home.try.after")}
+              </span>
+              <button
+                type="button"
+                className="v-icon-btn"
+                onClick={() => setTrying(false)}
+                aria-label={t("vobi.home.try.close")}
+                title={t("vobi.home.try.close")}
+              >
+                <X size={18} strokeWidth={1.5} />
+              </button>
+            </div>
+            <textarea
+              ref={tryRef}
+              rows={3}
+              className="v-field w-full"
+              placeholder={t("vobi.home.try.placeholder")}
+            />
           </div>
-          <h1>{t(greetingKey(now.getHours()))}</h1>
-        </div>
-        <button
-          type="button"
-          className="v-circle-btn"
-          aria-label={t("vobi.home.search")}
-          onClick={() => onNavigate("history")}
-        >
-          <SearchIcon />
-        </button>
-      </div>
+        )}
 
-      <div className="v-hero">
-        <div className="v-bub">
-          <VobiCloud size={46} state={trying ? "listening" : "idle"} />
-        </div>
-        <div className="min-w-0">
-          <b>
-            {t("vobi.home.hero.before")} <HotkeyKbd />{" "}
-            {t("vobi.home.hero.after")}
-          </b>
-          <p>{t("vobi.home.hero.sub")}</p>
-        </div>
-        <button
-          type="button"
-          className="v-go"
-          aria-label={t("vobi.home.hero.try")}
-          title={t("vobi.home.hero.try")}
-          onClick={startTrying}
-        >
-          <ArrowIcon />
-        </button>
-      </div>
+        <UsageCard summary={summary} />
 
-      {trying && (
-        <div className="v-card mb-[26px] animate-rise p-[14px]">
-          <div className="mb-[10px] flex items-center gap-[8px] text-[13.5px] font-semibold">
-            <span className="v-live" data-tone="busy" aria-hidden="true" />
-            <span className="flex-1">
-              {t("vobi.home.try.before")} <HotkeyKbd />{" "}
-              {t("vobi.home.try.after")}
-            </span>
+        <section className="v-card v-list">
+          <div className="v-list-h">
+            <h2>{t("vobi.home.recent")}</h2>
             <button
               type="button"
-              className="v-btn v-btn-quiet"
-              onClick={() => setTrying(false)}
+              className="v-icon-btn"
+              onClick={() => navigate("history")}
+              aria-label={t("vobi.home.viewAll")}
+              title={t("vobi.home.viewAll")}
             >
-              {t("vobi.home.try.close")}
+              <FilterList size={20} strokeWidth={1.5} />
             </button>
           </div>
-          <textarea
-            ref={tryRef}
-            rows={3}
-            className="v-field w-full bg-surface-2 shadow-none"
-            placeholder={t("vobi.home.try.placeholder")}
-          />
-        </div>
-      )}
 
-      <div className="v-sec">
-        <h2>{t("vobi.home.quick")}</h2>
-      </div>
-      <div className="v-card v-actions">
-        <button type="button" className="v-action" onClick={startTrying}>
-          <span
-            className="v-ico"
-            style={
-              {
-                background: "linear-gradient(135deg,#6AD5F9,#2FB1F4)",
-                "--c": "rgba(47,177,244,.6)",
-              } as React.CSSProperties
-            }
-          >
-            <MicIcon />
-          </span>
-          {t("vobi.home.actions.dictate")}
-        </button>
-        <button type="button" className="v-action" onClick={transcribeFile}>
-          <span
-            className="v-ico"
-            style={
-              {
-                background: "linear-gradient(135deg,#7FB2FF,#3A7BF5)",
-                "--c": "rgba(58,123,245,.6)",
-              } as React.CSSProperties
-            }
-          >
-            <UploadIcon />
-          </span>
-          {t("vobi.home.actions.transcribe")}
-        </button>
-        <button
-          type="button"
-          className="v-action"
-          onClick={() => onNavigate("dictionary", "add")}
-        >
-          <span
-            className="v-ico"
-            style={
-              {
-                background: "linear-gradient(135deg,#8CE4F3,#19B5D6)",
-                "--c": "rgba(25,181,214,.6)",
-              } as React.CSSProperties
-            }
-          >
-            <AddWordIcon />
-          </span>
-          {t("vobi.home.actions.addWord")}
-        </button>
-        <button
-          type="button"
-          className="v-action"
-          onClick={() => onNavigate("snippets", "add")}
-        >
-          <span
-            className="v-ico"
-            style={
-              {
-                background: "linear-gradient(135deg,#A3B8FF,#5B6CF0)",
-                "--c": "rgba(91,108,240,.6)",
-              } as React.CSSProperties
-            }
-          >
-            <BoltIcon />
-          </span>
-          {t("vobi.home.actions.snippet")}
-        </button>
-      </div>
-
-      {stats && (
-        <div className="v-stats animate-rise">
-          <div className="v-card v-stat">
-            <div className="v-l">{t("vobi.home.stats.words")}</div>
-            <b>{number.format(stats.words)}</b>
-            {change !== null ? (
-              <span
-                className="v-foot"
-                data-tone={change >= 0 ? "up" : undefined}
+          {showBanner && (
+            <div className="v-banner">
+              <VobiCloud size={52} state="done" />
+              <div className="min-w-0 flex-1">
+                <b>{t(`vobi.home.banner.${banner}.title`)}</b>
+                <p>{t(`vobi.home.banner.${banner}.body`)}</p>
+              </div>
+              <button
+                type="button"
+                className="v-banner-go"
+                onClick={() => {
+                  if (banner === "cleanup")
+                    updateSetting("filler_word_removal_enabled", true);
+                  else navigate("dictionary", "add");
+                }}
               >
-                {t(
-                  change >= 0 ? "vobi.home.stats.up" : "vobi.home.stats.down",
-                  { percent: Math.abs(change) },
-                )}
-              </span>
-            ) : (
-              <span className="v-foot">{t("vobi.home.stats.thisWeek")}</span>
-            )}
-          </div>
-          <div className="v-card v-stat">
-            <div className="v-l">{t("vobi.home.stats.dictations")}</div>
-            <b>{number.format(stats.dictations)}</b>
-            <span className="v-foot">{t("vobi.home.stats.thisWeek")}</span>
-          </div>
-          <div className="v-card v-stat">
-            <div className="v-l">{t("vobi.home.stats.streak")}</div>
-            <b>
-              {number.format(stats.streak)}{" "}
-              <small>
-                {t(
-                  stats.streak === 1
-                    ? "vobi.home.stats.day"
-                    : "vobi.home.stats.days",
-                )}
-              </small>
-            </b>
-            <span className="v-foot">{t("vobi.home.stats.inARow")}</span>
-          </div>
-        </div>
-      )}
+                {t(`vobi.home.banner.${banner}.action`)}
+              </button>
+              <button
+                type="button"
+                className="v-banner-x"
+                onClick={dismiss}
+                aria-label={t("vobi.home.banner.dismiss")}
+                title={t("vobi.home.banner.dismiss")}
+              >
+                <X size={16} strokeWidth={1.8} />
+              </button>
+            </div>
+          )}
 
-      <div className="v-sec">
-        <h2>{t("vobi.home.recent")}</h2>
-        {feed.entries.length > 0 && (
-          <button type="button" onClick={() => onNavigate("history")}>
-            {t("vobi.home.viewAll")}
-          </button>
-        )}
+          {feed.loading ? null : feed.entries.length === 0 ? (
+            <div className="v-empty">
+              {t("vobi.home.emptyBefore")} <HotkeyKbd />{" "}
+              {t("vobi.home.emptyAfter")}
+            </div>
+          ) : (
+            <div>
+              {feed.entries.slice(0, 4).map((entry) => (
+                <HistoryRow
+                  key={entry.id}
+                  entry={entry}
+                  fresh={feed.fresh.has(entry.id)}
+                  onToggleSaved={() => feed.toggleSaved(entry.id)}
+                  onDelete={() => feed.remove(entry.id)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
-      {feed.loading ? null : feed.entries.length === 0 ? (
-        <div className="v-card v-empty px-6">
-          {t("vobi.home.emptyBefore")} <HotkeyKbd /> {t("vobi.home.emptyAfter")}
-        </div>
-      ) : (
-        <div className="v-rec-list">
-          {feed.entries.slice(0, 3).map((entry) => (
-            <HistoryCard
-              key={entry.id}
-              entry={entry}
-              fresh={feed.fresh.has(entry.id)}
-              onToggleSaved={() => feed.toggleSaved(entry.id)}
-              onDelete={() => feed.remove(entry.id)}
-              compact
-            />
-          ))}
-        </div>
+    </PageFrame>
+  );
+};
+
+/** The speech model, and this month's words as a row of day bars. */
+const UsageCard: React.FC<{ summary: HistorySummary | null }> = ({
+  summary,
+}) => {
+  const { t, i18n } = useTranslation();
+  const navigate = useNav();
+  const currentModel = useModelStore((s) => s.currentModel);
+  const model = useModelStore((s) =>
+    s.models.find((m) => m.id === s.currentModel),
+  );
+  const name = model
+    ? getTranslatedModelName(model, t)
+    : currentModel || t("vobi.home.usage.noModel");
+
+  const today = new Date().getDate();
+  const days = summary?.monthDays ?? [];
+  const max = Math.max(1, ...days);
+  const dayLabel = (day: number) =>
+    new Intl.DateTimeFormat(i18n.language, {
+      month: "short",
+      day: "numeric",
+    }).format(new Date(new Date().getFullYear(), new Date().getMonth(), day));
+
+  return (
+    <button
+      type="button"
+      className="v-card v-usage text-start transition-colors hover:border-[var(--border-2)]"
+      onClick={() => navigate("settings", "model")}
+      title={t("vobi.home.usage.change")}
+    >
+      <span className="v-usage-ico" aria-hidden="true">
+        <Waveform size={22} strokeWidth={1.6} />
+      </span>
+      <span className="v-usage-t">
+        <b>{name}</b>
+        <span>{t("vobi.home.usage.onDevice")}</span>
+      </span>
+      {days.length > 0 && (
+        <span
+          className="v-bars"
+          role="img"
+          aria-label={t("vobi.home.usage.bars")}
+        >
+          {days.map((words, i) => {
+            const day = i + 1;
+            const future = day > today;
+            return (
+              <i
+                key={day}
+                data-future={future || undefined}
+                data-empty={(!future && words === 0) || undefined}
+                title={
+                  future
+                    ? dayLabel(day)
+                    : t("vobi.home.usage.day", {
+                        day: dayLabel(day),
+                        count: words,
+                      })
+                }
+                style={{
+                  // Busier days read stronger; quiet ones stay a soft tint.
+                  opacity:
+                    future || words === 0 ? 1 : 0.45 + (0.55 * words) / max,
+                  animationDelay: `${i * 12}ms`,
+                }}
+              />
+            );
+          })}
+        </span>
       )}
-    </section>
+    </button>
   );
 };

@@ -70,6 +70,20 @@ export const AboutSettings: React.FC = () => {
             {t("settings.about.acknowledgments.ggml.details")}
           </div>
         </SettingContainer>
+        {/* Bicon is CC-BY-4.0: the credit must stay visible. */}
+        <SettingContainer
+          title={t("settings.about.acknowledgments.icons.title")}
+          description={t("settings.about.acknowledgments.icons.credit")}
+          grouped={true}
+        >
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => openUrl("https://bicon-seven.vercel.app")}
+          >
+            {t("settings.about.acknowledgments.icons.button")}
+          </Button>
+        </SettingContainer>
       </SettingsGroup>
     </div>
   );
