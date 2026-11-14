@@ -44,7 +44,8 @@ mod mac {
     use objc2::runtime::{AnyClass, AnyObject};
     use objc2::{msg_send, MainThreadMarker};
     use objc2_app_kit::{
-        NSColor, NSGlassEffectView, NSGlassEffectViewStyle, NSView, NSVisualEffectBlendingMode,
+        NSAppearance, NSAppearanceCustomization, NSAppearanceNameDarkAqua, NSColor,
+        NSGlassEffectView, NSGlassEffectViewStyle, NSView, NSVisualEffectBlendingMode,
         NSVisualEffectMaterial, NSVisualEffectState, NSVisualEffectView, NSWindow,
         NSWindowOrderingMode,
     };
@@ -147,32 +148,32 @@ mod mac {
             Glass::Blur(make_blur(mtm))
         };
         let view = glass.view();
-        // No fixed appearance: the glass follows the system's light or dark
-        // mode, and the overlay page switches its text to match
-        // (prefers-color-scheme in RecordingOverlay.css).
+        // Smoky dark glass in every system appearance, under white text.
+        // SAFETY: NSAppearanceNameDarkAqua is a framework-provided constant.
+        if let Some(dark) = NSAppearance::appearanceNamed(unsafe { NSAppearanceNameDarkAqua }) {
+            view.setAppearance(Some(&dark));
+        }
         view.setHidden(true);
         // Underneath the webview, so the pill's content draws on top.
         content.addSubview_positioned_relativeTo(view, NSWindowOrderingMode::Below, None);
         glass
     }
 
-    /// How strongly the glass is frosted toward the window colour. Bare
-    /// glass takes on whatever is behind it, so over a dark page the pill went
-    /// a muddy grey under dark text; a frosted tint keeps it light (or dark in
-    /// dark mode) over any app, the way system panels and notifications read.
-    const FROST: f64 = 0.38;
+    /// How dark the smoke over the glass is. Bare glass takes on whatever is
+    /// behind it; a dark tint keeps the pill one even, smoky pane over any app
+    /// so its white text always reads.
+    const SMOKE: f64 = 0.8;
 
     /// Apple's Liquid Glass (macOS 26+): the "regular" style, which draws its
-    /// own refraction, edge highlight and shadow, frosted for legibility.
+    /// own refraction, edge highlight and shadow, smoked dark for legibility.
     fn make_liquid(mtm: MainThreadMarker) -> Retained<NSGlassEffectView> {
         let view = NSGlassEffectView::initWithFrame(
             mtm.alloc(),
             NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1.0, 1.0)),
         );
         view.setStyle(NSGlassEffectViewStyle::Regular);
-        // A system colour, so the tint follows light and dark mode by itself.
-        let frost = NSColor::controlBackgroundColor().colorWithAlphaComponent(FROST);
-        view.setTintColor(Some(&frost));
+        let smoke = NSColor::colorWithSRGBRed_green_blue_alpha(0.11, 0.115, 0.125, SMOKE);
+        view.setTintColor(Some(&smoke));
         view
     }
 
@@ -182,7 +183,7 @@ mod mac {
             mtm.alloc(),
             NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1.0, 1.0)),
         );
-        view.setMaterial(NSVisualEffectMaterial::Popover);
+        view.setMaterial(NSVisualEffectMaterial::HUDWindow);
         view.setBlendingMode(NSVisualEffectBlendingMode::BehindWindow);
         // Vobi's overlay is never the key window, so keep the glass active.
         view.setState(NSVisualEffectState::Active);
