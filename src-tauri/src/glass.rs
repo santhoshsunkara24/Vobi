@@ -44,7 +44,7 @@ mod mac {
     use objc2::runtime::{AnyClass, AnyObject};
     use objc2::{msg_send, MainThreadMarker};
     use objc2_app_kit::{
-        NSGlassEffectView, NSGlassEffectViewStyle, NSView, NSVisualEffectBlendingMode,
+        NSColor, NSGlassEffectView, NSGlassEffectViewStyle, NSView, NSVisualEffectBlendingMode,
         NSVisualEffectMaterial, NSVisualEffectState, NSVisualEffectView, NSWindow,
         NSWindowOrderingMode,
     };
@@ -156,14 +156,23 @@ mod mac {
         glass
     }
 
-    /// Apple's Liquid Glass (macOS 26+): the frosted "regular" style, which
-    /// draws its own refraction, edge highlight and shadow.
+    /// How strongly the glass is frosted toward the window colour. Bare
+    /// glass takes on whatever is behind it, so over a dark page the pill went
+    /// a muddy grey under dark text; a frosted tint keeps it light (or dark in
+    /// dark mode) over any app, the way system panels and notifications read.
+    const FROST: f64 = 0.38;
+
+    /// Apple's Liquid Glass (macOS 26+): the "regular" style, which draws its
+    /// own refraction, edge highlight and shadow, frosted for legibility.
     fn make_liquid(mtm: MainThreadMarker) -> Retained<NSGlassEffectView> {
         let view = NSGlassEffectView::initWithFrame(
             mtm.alloc(),
             NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(1.0, 1.0)),
         );
         view.setStyle(NSGlassEffectViewStyle::Regular);
+        // A system colour, so the tint follows light and dark mode by itself.
+        let frost = NSColor::controlBackgroundColor().colorWithAlphaComponent(FROST);
+        view.setTintColor(Some(&frost));
         view
     }
 

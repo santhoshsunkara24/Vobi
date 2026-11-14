@@ -23,11 +23,27 @@
   --v-text-2: rgba(14, 34, 56, 0.58);
   --v-hair: rgba(255, 255, 255, 0.55);
   --v-accent: #1a8fe8;
-  --v-fill: rgba(14, 34, 56, 0.07);
-  --v-fill-hover: rgba(14, 34, 56, 0.13);
-  --v-primary: #0e1620;
-  --v-primary-hover: #1d2733;
+  /* Controls on the glass: a lighter pane of glass (fill plus a bright top
+     edge), and one blue prominent action, like Apple's glass buttons. */
+  --v-fill: rgba(255, 255, 255, 0.5);
+  --v-fill-hover: rgba(255, 255, 255, 0.72);
+  --v-fill-edge:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 0.5px rgba(14, 34, 56, 0.08);
+  --v-primary: linear-gradient(
+    180deg,
+    rgba(62, 164, 246, 0.9) 0%,
+    rgba(26, 128, 230, 0.9) 100%
+  );
+  --v-primary-hover: linear-gradient(
+    180deg,
+    rgba(75, 173, 248, 0.92) 0%,
+    rgba(34, 137, 236, 0.92) 100%
+  );
   --v-primary-text: #fff;
+  --v-primary-edge:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 0 0.5px rgba(10, 60, 130, 0.25);
   --v-shimmer: #1a6fe0;
   --v-error: #d93a49;
   --v-warning: #b7791f;
@@ -78,10 +94,24 @@
     --v-hair: rgba(255, 255, 255, 0.14);
     --v-accent: #4fb3ff;
     --v-fill: rgba(255, 255, 255, 0.1);
-    --v-fill-hover: rgba(255, 255, 255, 0.18);
-    --v-primary: #f2f6fb;
-    --v-primary-hover: #ffffff;
-    --v-primary-text: #0e1620;
+    --v-fill-hover: rgba(255, 255, 255, 0.17);
+    --v-fill-edge:
+      inset 0 0.5px 0 rgba(255, 255, 255, 0.22),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+    --v-primary: linear-gradient(
+      180deg,
+      rgba(58, 157, 245, 0.85) 0%,
+      rgba(24, 115, 217, 0.85) 100%
+    );
+    --v-primary-hover: linear-gradient(
+      180deg,
+      rgba(71, 167, 248, 0.9) 0%,
+      rgba(31, 125, 226, 0.9) 100%
+    );
+    --v-primary-text: #fff;
+    --v-primary-edge:
+      inset 0 0.5px 0 rgba(255, 255, 255, 0.35),
+      inset 0 0 0 0.5px rgba(0, 0, 0, 0.25);
     --v-shimmer: #7cc6ff;
     --v-error: #ff6b78;
     --v-warning: #f0b450;
@@ -247,6 +277,7 @@
   border-radius: 50%;
   color: var(--v-text);
   background: var(--v-fill);
+  box-shadow: var(--v-fill-edge);
   cursor: pointer;
   transition:
     background 120ms ease-out,
@@ -385,7 +416,8 @@
 /* ---------------------------------------------------------------- refine preview */
 .vcard.vpreview {
   width: 420px;
-  border-radius: 24px;
+  /* Concentric with its buttons: 17px button radius + 12px inset. */
+  border-radius: 29px;
   padding: 6px 12px 12px 6px;
   gap: 4px;
   white-space: normal;
@@ -457,6 +489,7 @@
 }
 .vbtn-soft {
   background: var(--v-fill);
+  box-shadow: var(--v-fill-edge);
   color: var(--v-text);
 }
 .vbtn-soft:hover {
@@ -464,6 +497,7 @@
 }
 .vbtn-primary {
   background: var(--v-primary);
+  box-shadow: var(--v-primary-edge);
   color: var(--v-primary-text);
 }
 .vbtn-primary:hover {
