@@ -44,9 +44,9 @@ mod mac {
     use objc2::runtime::{AnyClass, AnyObject};
     use objc2::{msg_send, MainThreadMarker};
     use objc2_app_kit::{
-        NSAppearance, NSAppearanceCustomization, NSAppearanceNameAqua, NSGlassEffectView,
-        NSGlassEffectViewStyle, NSView, NSVisualEffectBlendingMode, NSVisualEffectMaterial,
-        NSVisualEffectState, NSVisualEffectView, NSWindow, NSWindowOrderingMode,
+        NSGlassEffectView, NSGlassEffectViewStyle, NSView, NSVisualEffectBlendingMode,
+        NSVisualEffectMaterial, NSVisualEffectState, NSVisualEffectView, NSWindow,
+        NSWindowOrderingMode,
     };
     use objc2_foundation::{NSPoint, NSRect, NSSize};
     use std::cell::RefCell;
@@ -147,12 +147,9 @@ mod mac {
             Glass::Blur(make_blur(mtm))
         };
         let view = glass.view();
-        // Light glass in every system appearance (Vobi is light-theme only, and
-        // the pill's text is dark).
-        // SAFETY: NSAppearanceNameAqua is a framework-provided constant.
-        if let Some(aqua) = NSAppearance::appearanceNamed(unsafe { NSAppearanceNameAqua }) {
-            view.setAppearance(Some(&aqua));
-        }
+        // No fixed appearance: the glass follows the system's light or dark
+        // mode, and the overlay page switches its text to match
+        // (prefers-color-scheme in RecordingOverlay.css).
         view.setHidden(true);
         // Underneath the webview, so the pill's content draws on top.
         content.addSubview_positioned_relativeTo(view, NSWindowOrderingMode::Below, None);

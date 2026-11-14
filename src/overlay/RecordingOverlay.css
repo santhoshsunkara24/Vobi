@@ -1,8 +1,7 @@
 /* ============================================================
    Vobi recording pill
-   A dark pill that floats over any app, with Vobi (the cloud) on the left.
-   Light theme only for now: the pill is dark on purpose so it reads over
-   any background.
+   A glass pill that floats over any app, with Vobi (the cloud) on the left.
+   Light glass with dark text, or dark glass with light text in dark mode.
 
    The native overlay window (overlay.rs) must fit the widest state plus the
    room around it: keep OVERLAY_* sizes in sync with --v-* below.
@@ -24,6 +23,14 @@
   --v-text-2: rgba(14, 34, 56, 0.58);
   --v-hair: rgba(255, 255, 255, 0.55);
   --v-accent: #1a8fe8;
+  --v-fill: rgba(14, 34, 56, 0.07);
+  --v-fill-hover: rgba(14, 34, 56, 0.13);
+  --v-primary: #0e1620;
+  --v-primary-hover: #1d2733;
+  --v-primary-text: #fff;
+  --v-shimmer: #1a6fe0;
+  --v-error: #d93a49;
+  --v-warning: #b7791f;
   --v-grad: linear-gradient(135deg, #6ad5f9 0%, #2fb1f4 42%, #3a7bf5 100%);
   --v-ease: cubic-bezier(0.22, 1, 0.36, 1);
   /* A critically damped spring sampled into linear(): smooth, no bounce.
@@ -55,6 +62,33 @@
   --v-w-done: 214px;
   --v-w-open: 404px; /* Live card, opened */
   --v-cap-max-h: 66px;
+}
+/* Dark mode: on macOS the system glass turns dark with it (glass.rs leaves
+   its appearance to the system), so the pill's text and controls go light.
+   Elsewhere the frosted fallback goes dark too. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --v-bg: linear-gradient(
+      180deg,
+      rgba(40, 44, 52, 0.86) 0%,
+      rgba(28, 32, 40, 0.84) 100%
+    );
+    --v-text: #f2f6fb;
+    --v-text-2: rgba(242, 246, 251, 0.62);
+    --v-hair: rgba(255, 255, 255, 0.14);
+    --v-accent: #4fb3ff;
+    --v-fill: rgba(255, 255, 255, 0.1);
+    --v-fill-hover: rgba(255, 255, 255, 0.18);
+    --v-primary: #f2f6fb;
+    --v-primary-hover: #ffffff;
+    --v-primary-text: #0e1620;
+    --v-shimmer: #7cc6ff;
+    --v-error: #ff6b78;
+    --v-warning: #f0b450;
+  }
+  .vcard::after {
+    opacity: 0.15;
+  }
 }
 
 /* ---------------------------------------------------------------- stage */
@@ -212,14 +246,14 @@
   padding: 0;
   border-radius: 50%;
   color: var(--v-text);
-  background: rgba(14, 34, 56, 0.07);
+  background: var(--v-fill);
   cursor: pointer;
   transition:
     background 120ms ease-out,
     transform 120ms var(--v-ease);
 }
 .vround:hover {
-  background: rgba(14, 34, 56, 0.13);
+  background: var(--v-fill-hover);
 }
 .vround:active {
   transform: scale(0.9);
@@ -240,7 +274,7 @@
   background: linear-gradient(
     90deg,
     var(--v-text-2) 0%,
-    #1a6fe0 40%,
+    var(--v-shimmer) 40%,
     var(--v-text-2) 80%
   );
   background-size: 200% 100%;
@@ -299,7 +333,7 @@
   white-space: nowrap;
 }
 .vfix b.is-error {
-  color: #d93a49;
+  color: var(--v-error);
 }
 .vfix-list {
   display: flex;
@@ -336,10 +370,10 @@
   text-overflow: ellipsis;
 }
 .vnotice.level-error {
-  color: #d93a49;
+  color: var(--v-error);
 }
 .vnotice.level-warning {
-  color: #b7791f;
+  color: var(--v-warning);
 }
 .vprobe {
   position: absolute;
@@ -422,18 +456,18 @@
   cursor: default;
 }
 .vbtn-soft {
-  background: rgba(14, 34, 56, 0.07);
+  background: var(--v-fill);
   color: var(--v-text);
 }
 .vbtn-soft:hover {
-  background: rgba(14, 34, 56, 0.12);
+  background: var(--v-fill-hover);
 }
 .vbtn-primary {
-  background: #0e1620;
-  color: #fff;
+  background: var(--v-primary);
+  color: var(--v-primary-text);
 }
 .vbtn-primary:hover {
-  background: #1d2733;
+  background: var(--v-primary-hover);
 }
 
 /* ---------------------------------------------------------------- live card */
