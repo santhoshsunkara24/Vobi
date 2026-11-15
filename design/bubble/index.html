@@ -288,8 +288,13 @@
       <path data-r="ar" fill="none" stroke="${eye}" stroke-width="${line}" stroke-linecap="round"/>
       ${face}
     </g>
+    ${o.legs && !o.mono ? heartsMarkup() : ""}
     ${o.mono ? "" : extras(id, small)}
   </svg>`;
+  }
+  function heartsMarkup() {
+    const heart = (n, r) => `<path data-r="h${n}" d="M0,${r * 0.9} C${-r * 1.6},${-r * 0.1} ${-r * 0.9},${-r * 1.3} 0,${-r * 0.45} C${r * 0.9},${-r * 1.3} ${r * 1.6},${-r * 0.1} 0,${r * 0.9}Z" fill="#FF7EAA" stroke="#fff" stroke-width="1" opacity="0"/>`;
+    return heart(1, 5) + heart(2, 3.6);
   }
   function legsMarkup(id) {
     const leg = (k) => `<path data-r="leg${k}" fill="none" stroke="url(#${id}leg)" stroke-width="6.5" stroke-linecap="round"/><ellipse data-r="foot${k}" rx="5" ry="3.2" fill="#1D5FD6"/>`;
@@ -415,6 +420,10 @@
     nod = spring(0);
     tilt = spring(0);
     carried = false;
+    petting = false;
+    petSide = 0;
+    strokes = 0;
+    pet = spring(0);
     legSwing = [0, 0];
     legLift = [0, 0];
     p;
@@ -471,6 +480,24 @@
         this.nod.v += 40;
       }
     }
+    setPetting(on, side = 0) {
+      if (on && !this.petting && this.pettable()) {
+        this.ty.v -= 90;
+        this.sy.v -= 1.4;
+        this.sx.v += 0.8;
+      }
+      this.petting = on;
+      this.petSide = Math.max(-1, Math.min(1, side));
+      if (!on)
+        this.strokes = 0;
+    }
+    stroke(amount = 0.2) {
+      if (this.petting)
+        this.strokes = Math.min(1, this.strokes + amount);
+    }
+    pettable() {
+      return this.state === "idle" || this.state === "clean";
+    }
     setCarried(carried) {
       this.carried = carried;
     }
@@ -488,6 +515,12 @@
         let lift = 0;
         if (this.carried) {
           swing = Math.sin(t * 13 + phase) * 22;
+        } else if (this.pet.x > 0.5 && !still) {
+          if (s > 0) {
+            swing = 8 + Math.max(0, Math.sin(t * 19)) * (6 + this.strokes * 20);
+            lift = Math.max(0, Math.sin(t * 19)) * this.strokes * 2.5;
+          } else
+            swing = -2;
         } else if (still) {
           swing = 0;
         } else if (st === "listening") {
@@ -585,8 +618,12 @@
       const yawn = st === "sleepy" && !still ? Math.pow(Math.max(0, Math.sin(this.t * 1.1)), 4) : 0;
       const breathe = still ? 0 : Math.sin(this.t * (st === "idle" ? 1.3 : st === "sleepy" ? 0.9 : 2.4)) * (st === "idle" || st === "sleepy" ? 0.022 : 0.015);
       const size = p.size.x;
-      this.sy.to = size * (1 + breathe + L * 0.1 + yawn * 0.03);
-      this.sx.to = size * (1 - breathe * 0.5 + L * 0.05);
+      this.pet.to = this.petting && this.pettable() && !this.carried ? 1 : 0;
+      this.strokes *= Math.pow(0.35, dt);
+      const pet = clamp01(this.pet.x);
+      const purr = still ? 0 : Math.sin(this.t * 30) * 0.007 * (1 + this.strokes * 2);
+      this.sy.to = size * (1 + breathe + L * 0.1 + yawn * 0.03 - pet * 0.045 + pet * purr);
+      this.sx.to = size * (1 - breathe * 0.5 + L * 0.05 + pet * 0.03);
       step(this.sy, 260, 13, dt);
       step(this.sx, 260, 13, dt);
       step(this.ty, 220, 16, dt);
@@ -600,6 +637,7 @@
       step(this.sp, 120, 18, dt);
       step(this.qm, 160, 16, dt);
       step(this.zz, 90, 16, dt);
+      step(this.pet, 160, 20, dt);
       for (const k in p)
         step(p[k], 170, 22, dt);
       const hap = clamp01(this.happy.x);
@@ -622,7 +660,8 @@
       set(this.r.body, { d });
       set(this.r.clip, { d });
       set(this.r.rim, { d });
-      const lean = p.tilt.x + (st === "sleepy" && !still ? Math.sin(this.t * 0.9) * 2 : 0);
+      const nuzzle = still ? 0 : pet * (this.petSide * 8 + Math.sin(this.t * 2.4) * (2 + this.strokes * 3));
+      const lean = p.tilt.x + nuzzle + (st === "sleepy" && !still ? Math.sin(this.t * 0.9) * 2 : 0);
       set(this.r.root, {
         transform: `translate(0 ${f(ty)}) translate(0 ${BASE_Y}) rotate(${f(still ? p.tilt.to : this.tilt.x + lean)}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`
       });
@@ -641,7 +680,7 @@
         ["el", -1],
         ["er", 1]
       ]) {
-        const arc = s > 0 ? Math.max(hap, wink) : hap;
+        const arc = Math.max(s > 0 ? Math.max(hap, wink) : hap, pet);
         const open = lid * (1 - arc);
         const h = Math.max(0.6, ry * big * open);
         set(this.r[key], {
@@ -656,7 +695,7 @@
         ["al", -1],
         ["ar", 1]
       ]) {
-        const arc = s > 0 ? Math.max(hap, wink) : hap;
+        const arc = Math.max(s > 0 ? Math.max(hap, wink) : hap, pet);
         const cx = s * gap + ex;
         const w = rx * 1.25;
         set(this.r[key], {
@@ -667,14 +706,14 @@
       [1, 2, 3, 4].forEach((i) => {
         const s = i % 2 ? -1 : 1;
         const small = i > 2;
-        const arc = s > 0 ? Math.max(hap, wink) : hap;
+        const arc = Math.max(s > 0 ? Math.max(hap, wink) : hap, pet);
         set(this.r[`g${i}`], {
           cx: f(s * gap + ex + (small ? -1.6 : 1.5) * big),
           cy: f(ey + (small ? 2.4 : -2.2) * big),
           opacity: lid * (1 - arc) > 0.55 ? 1 : 0
         });
       });
-      const blush = f(clamp01(p.blush.x + hap * 0.3));
+      const blush = f(clamp01(p.blush.x + hap * 0.3 + pet * 0.35));
       set(this.r.bl, {
         cx: f(-gap - 9 + ex * 0.5),
         cy: f(ey + 6),
@@ -716,8 +755,8 @@
           ry: f(talk > 0.06 ? 0.5 + talk * 3.6 : 1.1 + oShape * 2.4),
           opacity: talk > 0.06 ? 1 : f(clamp01(oShape * 3))
         });
-        const w = p.mw.x;
-        const dp = p.dp.x;
+        const w = p.mw.x + pet * 1.6;
+        const dp = p.dp.x + pet * 1.8;
         const grin = hap > 0.4 ? Math.min(1, (hap - 0.4) * 2.5) : 0;
         set(this.r.smile, {
           d: mouthPath(mx, my, w, dp, p.asym.x, p.wv.x, t * 2.2),
@@ -736,6 +775,18 @@
           rx: f(2.4 * grin),
           ry: f(1.5 * grin),
           opacity: talk > 0.06 ? 0 : f(grin)
+        });
+      }
+      if (this.r.h1) {
+        const love = clamp01(this.pet.x) * clamp01(this.strokes * 1.6);
+        [1, 2].forEach((n) => {
+          const ph = still ? 0.5 : (this.t * 0.6 + n * 0.5) % 1;
+          const x = (n === 1 ? 30 : 22) + Math.sin(ph * Math.PI * 2 + n) * 2.5;
+          const y = -18 - ph * 26;
+          set(this.r[`h${n}`], {
+            transform: `translate(${f(x)} ${f(y)}) scale(${f(0.7 + ph * 0.5)})`,
+            opacity: f(love * Math.sin(ph * Math.PI))
+          });
         });
       }
       if (this.r.s1) {
@@ -937,6 +988,18 @@
     menu.style.right = toLeft ? "auto" : "20px"; menu.style.left = toLeft ? "20px" : "auto";
     menu.style.bottom = (desk.height - (r.top - desk.top) + 12) + "px";
   }
+
+  // ---------- hover: petting ----------
+  let lastPetX = null;
+  bubble.addEventListener("pointerenter", () => { lastPetX = null; });
+  bubble.addEventListener("pointermove", (e) => {
+    if (down) return;
+    const r = bubble.getBoundingClientRect();
+    bcloud.setPetting(true, ((e.clientX - r.left) / r.width) * 2 - 1);
+    if (lastPetX !== null && Math.abs(e.clientX - lastPetX) > 3) bcloud.stroke();
+    lastPetX = e.clientX;
+  });
+  bubble.addEventListener("pointerleave", () => bcloud.setPetting(false));
 
   // ---------- right-click: everything, by name ----------
   bubble.addEventListener("contextmenu", (e) => { e.preventDefault(); savedRange = selectedRange() || savedRange; menu.classList.toggle("on"); });

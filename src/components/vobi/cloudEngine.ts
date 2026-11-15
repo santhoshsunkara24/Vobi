@@ -163,11 +163,19 @@ function markup(id: string, o: CloudOptions): string {
       <path data-r="ar" fill="none" stroke="${eye}" stroke-width="${line}" stroke-linecap="round"/>
       ${face}
     </g>
+    ${o.legs && !o.mono ? heartsMarkup() : ""}
     ${o.mono ? "" : extras(id, small)}
   </svg>`;
 }
 
 /** Two stubby legs, drawn behind the body so the hips tuck under it. */
+/** Two little hearts that float up while Vobi is being petted. */
+function heartsMarkup(): string {
+  const heart = (n: number, r: number) =>
+    `<path data-r="h${n}" d="M0,${r * 0.9} C${-r * 1.6},${-r * 0.1} ${-r * 0.9},${-r * 1.3} 0,${-r * 0.45} C${r * 0.9},${-r * 1.3} ${r * 1.6},${-r * 0.1} 0,${r * 0.9}Z" fill="#FF7EAA" stroke="#fff" stroke-width="1" opacity="0"/>`;
+  return heart(1, 5) + heart(2, 3.6);
+}
+
 function legsMarkup(id: string): string {
   const leg = (k: string) =>
     `<path data-r="leg${k}" fill="none" stroke="url(#${id}leg)" stroke-width="6.5" stroke-linecap="round"/><ellipse data-r="foot${k}" rx="5" ry="3.2" fill="#1D5FD6"/>`;
@@ -344,6 +352,13 @@ export class CloudEngine {
   /** A little side-to-side wiggle when something worked. */
   private readonly tilt = spring(0);
   private carried = false;
+  /** The pointer is resting on Vobi: it closes its eyes and leans in. */
+  private petting = false;
+  /** Where the pointer is across Vobi, -1 (left) to 1 (right). */
+  private petSide = 0;
+  /** Recent stroking, 0..1: purrs harder, thumps a leg, hearts float up. */
+  private strokes = 0;
+  private readonly pet = spring(0);
   /** Each leg's swing (degrees) and foot lift, eased toward the pose. */
   private readonly legSwing = [0, 0];
   private readonly legLift = [0, 0];
@@ -407,6 +422,31 @@ export class CloudEngine {
     }
   }
 
+  /**
+   * Petting: the pointer rests on Vobi (`on`), at `side` across it (-1..1).
+   * Only shows while Vobi is idle or content; work and results win.
+   */
+  setPetting(on: boolean, side = 0) {
+    if (on && !this.petting && this.pettable()) {
+      // A little delighted bounce as the hand arrives.
+      this.ty.v -= 90;
+      this.sy.v -= 1.4;
+      this.sx.v += 0.8;
+    }
+    this.petting = on;
+    this.petSide = Math.max(-1, Math.min(1, side));
+    if (!on) this.strokes = 0;
+  }
+
+  /** The pointer moved across Vobi while petting: a stroke. */
+  stroke(amount = 0.2) {
+    if (this.petting) this.strokes = Math.min(1, this.strokes + amount);
+  }
+
+  private pettable() {
+    return this.state === "idle" || this.state === "clean";
+  }
+
   /** Picked up and being dragged: the legs dangle and kick. */
   setCarried(carried: boolean) {
     this.carried = carried;
@@ -437,6 +477,13 @@ export class CloudEngine {
       if (this.carried) {
         // Dangling from the pointer, kicking a little.
         swing = Math.sin(t * 13 + phase) * 22;
+      } else if (this.pet.x > 0.5 && !still) {
+        // Petted: one foot thumps like a happy dog's, faster with stroking;
+        // the other stays put.
+        if (s > 0) {
+          swing = 8 + Math.max(0, Math.sin(t * 19)) * (6 + this.strokes * 20);
+          lift = Math.max(0, Math.sin(t * 19)) * this.strokes * 2.5;
+        } else swing = -2;
       } else if (still) {
         swing = 0;
       } else if (st === "listening") {
@@ -554,8 +601,17 @@ export class CloudEngine {
       : Math.sin(this.t * (st === "idle" ? 1.3 : st === "sleepy" ? 0.9 : 2.4)) *
         (st === "idle" || st === "sleepy" ? 0.022 : 0.015);
     const size = p.size.x;
-    this.sy.to = size * (1 + breathe + L * 0.1 + yawn * 0.03);
-    this.sx.to = size * (1 - breathe * 0.5 + L * 0.05);
+    // Petted: pressed down a little under the hand, purring (a tiny, fast
+    // shiver that grows with stroking).
+    this.pet.to = this.petting && this.pettable() && !this.carried ? 1 : 0;
+    this.strokes *= Math.pow(0.35, dt);
+    const pet = clamp01(this.pet.x);
+    const purr = still
+      ? 0
+      : Math.sin(this.t * 30) * 0.007 * (1 + this.strokes * 2);
+    this.sy.to =
+      size * (1 + breathe + L * 0.1 + yawn * 0.03 - pet * 0.045 + pet * purr);
+    this.sx.to = size * (1 - breathe * 0.5 + L * 0.05 + pet * 0.03);
 
     step(this.sy, 260, 13, dt);
     step(this.sx, 260, 13, dt);
@@ -570,6 +626,7 @@ export class CloudEngine {
     step(this.sp, 120, 18, dt);
     step(this.qm, 160, 16, dt);
     step(this.zz, 90, 16, dt);
+    step(this.pet, 160, 20, dt);
     for (const k in p) step(p[k as keyof Pose], 170, 22, dt);
 
     const hap = clamp01(this.happy.x);
@@ -594,8 +651,15 @@ export class CloudEngine {
     set(this.r.body, { d });
     set(this.r.clip, { d });
     set(this.r.rim, { d });
+    // Leaning into the hand, rocking gently as it's stroked.
+    const nuzzle = still
+      ? 0
+      : pet *
+        (this.petSide * 8 + Math.sin(this.t * 2.4) * (2 + this.strokes * 3));
     const lean =
-      p.tilt.x + (st === "sleepy" && !still ? Math.sin(this.t * 0.9) * 2 : 0);
+      p.tilt.x +
+      nuzzle +
+      (st === "sleepy" && !still ? Math.sin(this.t * 0.9) * 2 : 0);
     set(this.r.root, {
       transform: `translate(0 ${f(ty)}) translate(0 ${BASE_Y}) rotate(${f(still ? p.tilt.to : this.tilt.x + lean)}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`,
     });
@@ -615,7 +679,7 @@ export class CloudEngine {
       ["el", -1],
       ["er", 1],
     ] as const) {
-      const arc = s > 0 ? Math.max(hap, wink) : hap;
+      const arc = Math.max(s > 0 ? Math.max(hap, wink) : hap, pet);
       const open = lid * (1 - arc);
       const h = Math.max(0.6, ry * big * open);
       set(this.r[key], {
@@ -631,7 +695,7 @@ export class CloudEngine {
       ["al", -1],
       ["ar", 1],
     ] as const) {
-      const arc = s > 0 ? Math.max(hap, wink) : hap;
+      const arc = Math.max(s > 0 ? Math.max(hap, wink) : hap, pet);
       const cx = s * gap + ex;
       const w = rx * 1.25;
       set(this.r[key], {
@@ -642,14 +706,14 @@ export class CloudEngine {
     [1, 2, 3, 4].forEach((i) => {
       const s = i % 2 ? -1 : 1;
       const small = i > 2;
-      const arc = s > 0 ? Math.max(hap, wink) : hap;
+      const arc = Math.max(s > 0 ? Math.max(hap, wink) : hap, pet);
       set(this.r[`g${i}`], {
         cx: f(s * gap + ex + (small ? -1.6 : 1.5) * big),
         cy: f(ey + (small ? 2.4 : -2.2) * big),
         opacity: lid * (1 - arc) > 0.55 ? 1 : 0,
       });
     });
-    const blush = f(clamp01(p.blush.x + hap * 0.3));
+    const blush = f(clamp01(p.blush.x + hap * 0.3 + pet * 0.35));
     set(this.r.bl, {
       cx: f(-gap - 9 + ex * 0.5),
       cy: f(ey + 6),
@@ -697,8 +761,8 @@ export class CloudEngine {
         ry: f(talk > 0.06 ? 0.5 + talk * 3.6 : 1.1 + oShape * 2.4),
         opacity: talk > 0.06 ? 1 : f(clamp01(oShape * 3)),
       });
-      const w = p.mw.x;
-      const dp = p.dp.x;
+      const w = p.mw.x + pet * 1.6;
+      const dp = p.dp.x + pet * 1.8;
       // Happy: the smile opens into a grin with a little tongue.
       const grin = hap > 0.4 ? Math.min(1, (hap - 0.4) * 2.5) : 0;
       set(this.r.smile, {
@@ -722,6 +786,20 @@ export class CloudEngine {
     }
 
     // Extras around the head.
+    // Hearts drift up beside Vobi while it's being stroked.
+    if (this.r.h1) {
+      const love = clamp01(this.pet.x) * clamp01(this.strokes * 1.6);
+      [1, 2].forEach((n) => {
+        const ph = still ? 0.5 : (this.t * 0.6 + n * 0.5) % 1;
+        const x = (n === 1 ? 30 : 22) + Math.sin(ph * Math.PI * 2 + n) * 2.5;
+        const y = -18 - ph * 26;
+        set(this.r[`h${n}`], {
+          transform: `translate(${f(x)} ${f(y)}) scale(${f(0.7 + ph * 0.5)})`,
+          opacity: f(love * Math.sin(ph * Math.PI)),
+        });
+      });
+    }
+
     if (this.r.s1) {
       const sp = clamp01(this.sp.x);
       (

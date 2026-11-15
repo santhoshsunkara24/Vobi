@@ -350,6 +350,18 @@
     menu.style.bottom = (desk.height - (r.top - desk.top) + 12) + "px";
   }
 
+  // ---------- hover: petting ----------
+  let lastPetX = null;
+  bubble.addEventListener("pointerenter", () => { lastPetX = null; });
+  bubble.addEventListener("pointermove", (e) => {
+    if (down) return;
+    const r = bubble.getBoundingClientRect();
+    bcloud.setPetting(true, ((e.clientX - r.left) / r.width) * 2 - 1);
+    if (lastPetX !== null && Math.abs(e.clientX - lastPetX) > 3) bcloud.stroke();
+    lastPetX = e.clientX;
+  });
+  bubble.addEventListener("pointerleave", () => bcloud.setPetting(false));
+
   // ---------- right-click: everything, by name ----------
   bubble.addEventListener("contextmenu", (e) => { e.preventDefault(); savedRange = selectedRange() || savedRange; menu.classList.toggle("on"); });
   document.addEventListener("pointerdown", (e) => { if (!menu.contains(e.target) && e.target !== bubble) menu.classList.remove("on"); });

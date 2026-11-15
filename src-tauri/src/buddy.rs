@@ -32,11 +32,12 @@ use tauri_nspanel::{
 pub const LABEL: &str = "vobi_buddy";
 /// Window size in logical points: the cloud and its legs, with room to hop.
 const SIZE: f64 = 84.0;
-/// Default spot: this far in from the right edge and up from the bottom of
-/// the screen's usable area.
+/// Default spot: this far in from the right edge of the screen.
 const MARGIN: f64 = 24.0;
 
 static VISIBLE: AtomicBool = AtomicBool::new(false);
+/// The cursor watcher (petting) is running.
+static HOVER_WATCH: AtomicBool = AtomicBool::new(false);
 /// Bumped on every move, so only the last one of a drag gets saved.
 static MOVE_GENERATION: AtomicU64 = AtomicU64::new(0);
 
@@ -79,7 +80,7 @@ pub fn set_visible(app: &AppHandle, on: bool) {
 }
 
 /// Where it starts: where it was left, if that's still on a screen;
-/// otherwise the bottom-right corner of the primary screen.
+/// otherwise beside the Dock (bottom right of the primary screen).
 fn start_position(app: &AppHandle) -> (f64, f64) {
     let saved = settings::get_settings(app).vobi_on_screen_position;
     let monitors = app.available_monitors().unwrap_or_default();
@@ -105,10 +106,22 @@ fn start_position(app: &AppHandle) -> (f64, f64) {
     match monitor {
         Some(m) => {
             let s = m.scale_factor();
+            let screen_right = (m.position().x as f64 + m.size().width as f64) / s;
+            let screen_bottom = (m.position().y as f64 + m.size().height as f64) / s;
             let wa = m.work_area();
-            let (x, y) = (wa.position.x as f64 / s, wa.position.y as f64 / s);
-            let (w, h) = (wa.size.width as f64 / s, wa.size.height as f64 / s);
-            (x + w - SIZE - MARGIN, y + h - SIZE - MARGIN)
+            let work_bottom = (wa.position.y as f64 + wa.size.height as f64) / s;
+            let x = screen_right - SIZE - MARGIN;
+            // The strip the Dock (macOS) or taskbar (Windows) takes at the
+            // bottom; none when it's hidden or on a side.
+            let strip = screen_bottom - work_bottom;
+            let y = if cfg!(target_os = "macos") && strip > 24.0 {
+                // Level with the Dock, its feet on the Dock's baseline.
+                work_bottom + (strip - SIZE) / 2.0
+            } else {
+                // Just above the taskbar or the bottom edge.
+                work_bottom - SIZE - 6.0
+            };
+            (x, y)
         }
         None => (MARGIN, MARGIN),
     }
@@ -223,12 +236,74 @@ fn show(app: &AppHandle) {
     if let Ok(panel) = app.get_webview_panel(LABEL) {
         panel.show();
         VISIBLE.store(true, Ordering::SeqCst);
+        watch_hover(app);
         return;
     }
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.show();
         VISIBLE.store(true, Ordering::SeqCst);
+        watch_hover(app);
     }
+}
+
+/// What the page needs for petting: is the pointer on Vobi, where across
+/// it, and did it just move (a stroke).
+#[derive(serde::Serialize, Clone, Copy, PartialEq)]
+struct Hover {
+    over: bool,
+    side: f64,
+    stroke: bool,
+}
+
+/// Watches the pointer while Vobi is out. A window that never takes focus
+/// doesn't reliably get hover events (macOS sends them only to the active
+/// app), so this checks the cursor itself, about 20 times a second.
+fn watch_hover(app: &AppHandle) {
+    if HOVER_WATCH.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    let app = app.clone();
+    std::thread::spawn(move || {
+        let last = Arc::new(std::sync::Mutex::new((false, 0.0_f64)));
+        while is_visible() {
+            std::thread::sleep(Duration::from_millis(50));
+            let handle = app.clone();
+            let last = last.clone();
+            let _ = app.run_on_main_thread(move || {
+                let Some(window) = handle.get_webview_window(LABEL) else {
+                    return;
+                };
+                let (Ok(cursor), Ok(pos), Ok(size)) = (
+                    handle.cursor_position(),
+                    window.outer_position(),
+                    window.outer_size(),
+                ) else {
+                    return;
+                };
+                let (w, h) = (size.width as f64, size.height as f64);
+                // The cloud fills the middle of the window: ignore its edges.
+                let inset = w * 0.12;
+                let over = cursor.x >= pos.x as f64 + inset
+                    && cursor.x <= pos.x as f64 + w - inset
+                    && cursor.y >= pos.y as f64 + inset
+                    && cursor.y <= pos.y as f64 + h - inset * 0.5;
+                let side = ((cursor.x - pos.x as f64) / w * 2.0 - 1.0).clamp(-1.0, 1.0);
+                let mut last = last.lock().unwrap_or_else(|e| e.into_inner());
+                let (was_over, last_x) = *last;
+                let stroke = over && was_over && (cursor.x - last_x).abs() > w * 0.04;
+                if over != was_over || stroke {
+                    let _ = tauri::Emitter::emit_to(
+                        &handle,
+                        LABEL,
+                        "buddy-hover",
+                        Hover { over, side, stroke },
+                    );
+                }
+                *last = (over, cursor.x);
+            });
+        }
+        HOVER_WATCH.store(false, Ordering::SeqCst);
+    });
 }
 
 fn hide(app: &AppHandle) {

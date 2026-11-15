@@ -14,6 +14,12 @@ interface VobiCloudProps {
   legs?: boolean;
   /** Being dragged: the legs dangle and kick. */
   carried?: boolean;
+  /** The pointer rests on Vobi: it closes its eyes and leans in. */
+  petting?: boolean;
+  /** Where the pointer is across it, -1 (left) to 1 (right). */
+  petSide?: number;
+  /** Bumped on each stroke of the pointer across it. */
+  petStrokes?: number;
   className?: string;
 }
 
@@ -26,6 +32,9 @@ export const VobiCloud: React.FC<VobiCloudProps> = ({
   shadow,
   legs,
   carried = false,
+  petting = false,
+  petSide = 0,
+  petStrokes = 0,
   className,
 }) => {
   const mountRef = useRef<HTMLSpanElement>(null);
@@ -53,6 +62,14 @@ export const VobiCloud: React.FC<VobiCloudProps> = ({
   useEffect(() => {
     engineRef.current?.setCarried(carried);
   }, [carried, size, mono, shadow, legs]);
+
+  useEffect(() => {
+    engineRef.current?.setPetting(petting, petSide);
+  }, [petting, petSide, size, mono, shadow, legs]);
+
+  useEffect(() => {
+    if (petStrokes) engineRef.current?.stroke();
+  }, [petStrokes]);
 
   useEffect(() => {
     engineRef.current?.setLevel(level);

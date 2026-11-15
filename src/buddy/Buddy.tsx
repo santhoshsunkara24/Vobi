@@ -38,6 +38,10 @@ const Buddy: React.FC = () => {
   const [face, setFace] = useState<CloudState>("idle");
   const [level, setLevel] = useState(0);
   const [carried, setCarried] = useState(false);
+  // Petting: the pointer resting on Vobi (watched by buddy.rs).
+  const [petting, setPetting] = useState(false);
+  const [petSide, setPetSide] = useState(0);
+  const [strokes, setStrokes] = useState(0);
   const resultTimer = useRef<ReturnType<typeof setTimeout>>();
   const settleTimer = useRef<ReturnType<typeof setTimeout>>();
   const down = useRef<{ x: number; y: number } | null>(null);
@@ -80,6 +84,14 @@ const Buddy: React.FC = () => {
         const mean = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
         setLevel(Math.min(1, Math.pow(mean, 0.6) * 1.6));
       }),
+      listen<{ over: boolean; side: number; stroke: boolean }>(
+        "buddy-hover",
+        (e) => {
+          setPetting(e.payload.over);
+          setPetSide(Math.round(e.payload.side * 4) / 4);
+          if (e.payload.stroke) setStrokes((n) => n + 1);
+        },
+      ),
       // Dragging: dangle while it moves, settle once it stops.
       getCurrentWindow().onMoved(() => {
         setCarried(true);
@@ -132,6 +144,9 @@ const Buddy: React.FC = () => {
         legs
         shadow
         carried={carried}
+        petting={petting && !carried}
+        petSide={petSide}
+        petStrokes={strokes}
       />
     </div>
   );
