@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Сочетания клавиш заблокированы Secure Input",
     "language": "Язык",
     "autoLanguage": "Авто",
-    "otherLanguages": "Другие языки"
+    "otherLanguages": "Другие языки",
+    "buddyTalk": "Говорить",
+    "buddyFix": "Исправить орфографию",
+    "buddyRefine": "Улучшить",
+    "buddyHide": "Скрыть Vobi"
   },
   "sidebar": {
     "general": "Общие",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Лучше улучшить"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} может блокировать 1 сочетание клавиш",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Держать Vobi на экране",
+        "description": "Маленький Vobi остаётся на экране. Нажмите на него, чтобы говорить или исправить выделенный текст. Правый клик — больше действий."
       }
     }
   },

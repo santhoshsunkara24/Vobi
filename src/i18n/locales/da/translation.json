@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Genveje blokeret af Secure Input",
     "language": "Sprog",
     "autoLanguage": "Automatisk",
-    "otherLanguages": "Andre sprog"
+    "otherLanguages": "Andre sprog",
+    "buddyTalk": "Tal",
+    "buddyFix": "Ret stavning",
+    "buddyRefine": "Forfin",
+    "buddyHide": "Skjul Vobi"
   },
   "sidebar": {
     "general": "Generelt",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Forfin i stedet"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} blokerer muligvis 1 genvej",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Behold Vobi på skærmen",
+        "description": "En lille Vobi bliver på skærmen. Klik på den for at tale eller rette markeret tekst. Højreklik for mere."
       }
     }
   },

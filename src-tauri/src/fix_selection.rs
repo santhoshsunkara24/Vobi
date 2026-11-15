@@ -22,17 +22,26 @@ use tauri::AppHandle;
 /// One fix at a time: a second press while one is running is ignored.
 static RUNNING: AtomicBool = AtomicBool::new(false);
 
+/// Whether the last Fix result can offer "Refine instead": the text Fix
+/// looked at is still selected, and an AI is set up for Refine.
+static REFINE_OFFERED: AtomicBool = AtomicBool::new(false);
+
+/// Read by the overlay when it shows a Fix result.
+pub fn refine_offered() -> bool {
+    REFINE_OFFERED.load(Ordering::SeqCst)
+}
+
 /// The selected text, and (on macOS) the element it lives in, so it can be
 /// replaced in place without the clipboard.
-struct Grabbed {
-    text: String,
+pub(crate) struct Grabbed {
+    pub(crate) text: String,
     #[cfg(target_os = "macos")]
     focus: Option<crate::ax_text::FocusedText>,
 }
 
 /// Reads the current selection: directly through Accessibility where the app
 /// allows it (macOS), otherwise by copying it.
-fn grab(app: &AppHandle) -> Result<Option<Grabbed>, String> {
+pub(crate) fn grab(app: &AppHandle) -> Result<Option<Grabbed>, String> {
     #[cfg(target_os = "macos")]
     if let Some((focus, text)) = crate::ax_text::focused_selection() {
         if !text.trim().is_empty() {
@@ -51,15 +60,37 @@ fn grab(app: &AppHandle) -> Result<Option<Grabbed>, String> {
 
 /// Replaces the grabbed selection with `new`, in place where possible.
 fn put(app: &AppHandle, grabbed: &Grabbed, new: &str) -> Result<(), String> {
+    put_and_select(app, grabbed, new, false).map(|_| ())
+}
+
+/// Like `put`; with `select`, also selects the new text afterwards, so it can
+/// be refined next. Returns whether the new text ended up selected.
+fn put_and_select(
+    app: &AppHandle,
+    grabbed: &Grabbed,
+    new: &str,
+    select: bool,
+) -> Result<bool, String> {
     #[cfg(target_os = "macos")]
     if let Some(focus) = &grabbed.focus {
+        let start = select
+            .then(|| crate::ax_text::selection_start(focus))
+            .flatten();
         if crate::ax_text::replace_selection(focus, &grabbed.text, new) {
-            return Ok(());
+            let len = new.encode_utf16().count() as isize;
+            return Ok(start.is_some_and(|at| crate::ax_text::select_range(focus, at, len)));
         }
         info!("Selection isn't editable directly here; using the clipboard");
     }
-    replace_selection(app, new)
+    replace_selection(app, new)?;
+    // Pasting leaves the caret after the new text: select back over it.
+    let chars = new.chars().count();
+    Ok(select && chars > 0 && crate::clipboard::select_back(app, chars).is_ok())
 }
+
+/// Longest text "Refine instead" re-selects with the keyboard (one Shift+Left
+/// per character); past this the button isn't offered.
+const MAX_RESELECT_CHARS: usize = 1500;
 
 pub fn run(app: &AppHandle) {
     if RUNNING.swap(true, Ordering::SeqCst) {
@@ -70,7 +101,11 @@ pub fn run(app: &AppHandle) {
         .name("fix-selection".into())
         .spawn(move || {
             let mut fixing_since = None;
-            let result = fix(&app, &mut fixing_since);
+            // Let go of the shortcut's keys first, so our Cmd+C isn't
+            // Cmd+Shift+Option+C.
+            wait_for_modifiers_released(Duration::from_millis(1500));
+            std::thread::sleep(Duration::from_millis(40));
+            let result = fix(&app, None, &mut fixing_since);
             // The fix itself is instant; keep "Fixing spelling…" up long
             // enough to be seen before the result replaces it.
             if let Some(since) = fixing_since {
@@ -88,13 +123,39 @@ pub fn run(app: &AppHandle) {
 /// How long the pill shows "Fixing spelling…" at least, so Vobi's face reads.
 const MIN_FIXING_SHOWN: Duration = Duration::from_millis(650);
 
-/// Sets `fixing_since` once a selection was found and the pill shows it.
-fn fix(app: &AppHandle, fixing_since: &mut Option<Instant>) -> FixResult {
-    // Let go of the shortcut's keys first, so our Cmd+C isn't Cmd+Shift+Option+C.
-    wait_for_modifiers_released(Duration::from_millis(1500));
-    std::thread::sleep(Duration::from_millis(40));
+/// Fixes a selection the caller already read (Vobi on screen does), on its
+/// own thread like `run`. Returns false if a fix or refine is already going.
+pub(crate) fn run_grabbed(app: &AppHandle, grabbed: Grabbed) -> bool {
+    if RUNNING.swap(true, Ordering::SeqCst) {
+        return false;
+    }
+    let app = app.clone();
+    let spawned = std::thread::Builder::new()
+        .name("fix-selection".into())
+        .spawn(move || {
+            let mut fixing_since = None;
+            let result = fix(&app, Some(grabbed), &mut fixing_since);
+            if let Some(since) = fixing_since {
+                std::thread::sleep(MIN_FIXING_SHOWN.saturating_sub(since.elapsed()));
+            }
+            show_fix_result(&app, result);
+            RUNNING.store(false, Ordering::SeqCst);
+        });
+    if let Err(e) = spawned {
+        warn!("Could not start fix-selection: {e}");
+        RUNNING.store(false, Ordering::SeqCst);
+    }
+    true
+}
 
-    let grabbed = match grab(app) {
+/// Sets `fixing_since` once a selection was found and the pill shows it.
+fn fix(app: &AppHandle, grabbed: Option<Grabbed>, fixing_since: &mut Option<Instant>) -> FixResult {
+    REFINE_OFFERED.store(false, Ordering::SeqCst);
+    let grabbed = match grabbed {
+        Some(g) => Ok(Some(g)),
+        None => grab(app),
+    };
+    let grabbed = match grabbed {
         Ok(Some(g)) => g,
         Ok(None) => return FixResult::NothingSelected,
         Err(e) => {
@@ -102,6 +163,7 @@ fn fix(app: &AppHandle, fixing_since: &mut Option<Instant>) -> FixResult {
             return FixResult::Failed;
         }
     };
+    let can_refine = refine_settings(app).is_some();
 
     show_fixing_overlay(app);
     *fixing_since = Some(Instant::now());
@@ -109,11 +171,17 @@ fn fix(app: &AppHandle, fixing_since: &mut Option<Instant>) -> FixResult {
     let custom_words = get_settings(app).custom_words;
     let result = spellfix::correct(&grabbed.text, &custom_words);
     if result.fixes.is_empty() {
+        // Nothing changed, so the text is still selected for Refine.
+        REFINE_OFFERED.store(can_refine, Ordering::SeqCst);
         return FixResult::Clean;
     }
     info!("Fix selection: {} correction(s)", result.fixes.len());
-    match put(app, &grabbed, &result.text) {
-        Ok(()) => FixResult::Fixed(result.fixes),
+    let reselect = can_refine && result.text.chars().count() <= MAX_RESELECT_CHARS;
+    match put_and_select(app, &grabbed, &result.text, reselect) {
+        Ok(selected) => {
+            REFINE_OFFERED.store(selected, Ordering::SeqCst);
+            FixResult::Fixed(result.fixes)
+        }
         Err(e) => {
             warn!("Fix selection: could not replace the selection: {e}");
             FixResult::Failed
@@ -298,6 +366,15 @@ pub fn refine_again(app: AppHandle) {
         }
         show_refine_preview(&app, &p.refined, false);
     });
+}
+
+/// The Fix result's "Refine instead": refine the text Fix just looked at
+/// (it was left selected), with the usual preview.
+#[tauri::command]
+#[specta::specta]
+pub fn refine_instead(app: AppHandle) {
+    REFINE_OFFERED.store(false, Ordering::SeqCst);
+    run_refine(&app);
 }
 
 /// Preview "✕": keep the original text.

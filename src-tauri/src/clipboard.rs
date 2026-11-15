@@ -191,6 +191,25 @@ pub fn copy_selection(app_handle: &AppHandle) -> Result<Option<String>, String> 
 /// Replaces the current selection with `text` via the clipboard, restoring the
 /// user's clipboard afterwards. Unlike `paste`, it never adds a trailing space
 /// or presses Enter: the text must land exactly as given.
+/// Selects the `chars` characters before the caret (Shift + Left, one per
+/// character): after a paste, that's the text just pasted.
+pub fn select_back(app_handle: &AppHandle, chars: usize) -> Result<(), String> {
+    with_enigo(app_handle, move |enigo| {
+        enigo
+            .key(Key::Shift, Direction::Press)
+            .map_err(|e| format!("Failed to press Shift: {e}"))?;
+        let mut result = Ok(());
+        for _ in 0..chars {
+            if let Err(e) = enigo.key(Key::LeftArrow, Direction::Click) {
+                result = Err(format!("Failed to press Left: {e}"));
+                break;
+            }
+        }
+        let _ = enigo.key(Key::Shift, Direction::Release);
+        result
+    })
+}
+
 pub fn replace_selection(app_handle: &AppHandle, text: &str) -> Result<(), String> {
     let _guard = PASTE_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
     let settings = get_settings(app_handle);

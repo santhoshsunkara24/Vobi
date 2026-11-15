@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Sneltoetsen geblokkeerd door Secure Input",
     "language": "Taal",
     "autoLanguage": "Automatisch",
-    "otherLanguages": "Andere talen"
+    "otherLanguages": "Andere talen",
+    "buddyTalk": "Praten",
+    "buddyFix": "Spelling verbeteren",
+    "buddyRefine": "Verfijnen",
+    "buddyHide": "Vobi verbergen"
   },
   "sidebar": {
     "general": "Algemeen",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Liever verfijnen"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} blokkeert mogelijk 1 sneltoets",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Vobi op het scherm houden",
+        "description": "Een kleine Vobi blijft op je scherm. Klik erop om te praten of om geselecteerde tekst te verbeteren. Rechtsklik voor meer."
       }
     }
   },

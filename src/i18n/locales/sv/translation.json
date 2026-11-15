@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Kortkommandon blockeras av Secure Input",
     "language": "Språk",
     "autoLanguage": "Automatiskt",
-    "otherLanguages": "Andra språk"
+    "otherLanguages": "Andra språk",
+    "buddyTalk": "Prata",
+    "buddyFix": "Rätta stavning",
+    "buddyRefine": "Förfina",
+    "buddyHide": "Dölj Vobi"
   },
   "sidebar": {
     "general": "Allmänt",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Förfina i stället"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} kanske blockerar 1 kortkommando",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Behåll Vobi på skärmen",
+        "description": "En liten Vobi stannar på skärmen. Klicka på den för att prata eller rätta markerad text. Högerklicka för mer."
       }
     }
   },

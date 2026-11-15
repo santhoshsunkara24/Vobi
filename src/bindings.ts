@@ -31,6 +31,31 @@ async refineAgain() : Promise<void> {
 async refineDismiss() : Promise<void> {
     await TAURI_INVOKE("refine_dismiss");
 },
+/**
+ * The Fix result's "Refine instead": refine the text Fix just looked at
+ * (it was left selected), with the usual preview.
+ */
+async refineInstead() : Promise<void> {
+    await TAURI_INVOKE("refine_instead");
+},
+/**
+ * A click: stop talking if it's listening; otherwise fix the selected text,
+ * or start talking when nothing is selected.
+ */
+async buddyClick() : Promise<void> {
+    await TAURI_INVOKE("buddy_click");
+},
+/**
+ * A right-click: Talk, Fix spelling, Refine, Hide.
+ */
+async buddyMenu() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("buddy_menu") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeBinding(id: string, binding: string) : Promise<Result<BindingResponse, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_binding", { id, binding }) };
@@ -401,9 +426,9 @@ async changeMuteWhileRecordingSetting(enabled: boolean) : Promise<Result<null, s
     else return { status: "error", error: e  as any };
 }
 },
-async changeShowIdleVobiSetting(enabled: boolean) : Promise<Result<null, string>> {
+async changeVobiOnScreenSetting(enabled: boolean) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("change_show_idle_vobi_setting", { enabled }) };
+    return { status: "ok", data: await TAURI_INVOKE("change_vobi_on_screen_setting", { enabled }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1232,10 +1257,14 @@ language_detection_window_secs?: number;
  */
 overlay_style?: OverlayStyle; 
 /**
- * Keep Vobi on screen as a small floating pill while not dictating.
- * Persisted only for now: the idle pill itself is a follow-up.
+ * Keep the little Vobi (the cloud with legs) on screen: click it to
+ * talk, or to fix the selected text. See `buddy.rs`.
  */
-show_idle_vobi?: boolean; 
+vobi_on_screen?: boolean; 
+/**
+ * Where it was last left, in logical screen points (top-left).
+ */
+vobi_on_screen_position?: [number, number] | null; 
 /**
  * Short spoken phrases that expand to longer text. Stored only for now:
  * expanding them in transcriptions is a follow-up.

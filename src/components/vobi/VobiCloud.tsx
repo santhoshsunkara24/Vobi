@@ -10,6 +10,10 @@ interface VobiCloudProps {
   level?: number;
   mono?: boolean;
   shadow?: boolean;
+  /** Little legs (Vobi on screen). */
+  legs?: boolean;
+  /** Being dragged: the legs dangle and kick. */
+  carried?: boolean;
   className?: string;
 }
 
@@ -20,6 +24,8 @@ export const VobiCloud: React.FC<VobiCloudProps> = ({
   level = 0,
   mono,
   shadow,
+  legs,
+  carried = false,
   className,
 }) => {
   const mountRef = useRef<HTMLSpanElement>(null);
@@ -27,17 +33,26 @@ export const VobiCloud: React.FC<VobiCloudProps> = ({
 
   useEffect(() => {
     if (!mountRef.current) return;
-    const engine = new CloudEngine(mountRef.current, { size, mono, shadow });
+    const engine = new CloudEngine(mountRef.current, {
+      size,
+      mono,
+      shadow,
+      legs,
+    });
     engineRef.current = engine;
     return () => {
       engine.destroy();
       engineRef.current = undefined;
     };
-  }, [size, mono, shadow]);
+  }, [size, mono, shadow, legs]);
 
   useEffect(() => {
     engineRef.current?.setState(state);
-  }, [state, size, mono, shadow]);
+  }, [state, size, mono, shadow, legs]);
+
+  useEffect(() => {
+    engineRef.current?.setCarried(carried);
+  }, [carried, size, mono, shadow, legs]);
 
   useEffect(() => {
     engineRef.current?.setLevel(level);

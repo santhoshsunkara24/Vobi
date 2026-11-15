@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ קיצורי המקשים חסומים על ידי Secure Input",
     "language": "שפה",
     "autoLanguage": "אוטומטי",
-    "otherLanguages": "שפות אחרות"
+    "otherLanguages": "שפות אחרות",
+    "buddyTalk": "דיבור",
+    "buddyFix": "תיקון איות",
+    "buddyRefine": "שיפור",
+    "buddyHide": "הסתרת Vobi"
   },
   "sidebar": {
     "general": "כללי",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "לשפר במקום"
   },
   "secureInput": {
     "blockedWithCulprit_one": "ייתכן ש-{{name}} חוסם קיצור דרך אחד",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "להשאיר את Vobi על המסך",
+        "description": "Vobi קטן נשאר על המסך. לחצו עליו כדי לדבר או כדי לתקן את הטקסט שבחרתם. לחיצה ימנית לאפשרויות נוספות."
       }
     }
   },

@@ -6,6 +6,7 @@ pub mod audio_toolkit;
 mod autostart;
 #[cfg(target_os = "macos")]
 mod ax_text;
+mod buddy;
 mod catalog;
 mod chinese_script;
 pub mod cli;
@@ -404,6 +405,9 @@ fn initialize_core_logic(app_handle: &AppHandle) {
 
     // Create the recording overlay window (hidden by default)
     utils::create_recording_overlay(app_handle);
+
+    // Vobi on screen, if it's turned on.
+    buddy::apply(app_handle);
 }
 
 #[tauri::command]
@@ -741,7 +745,10 @@ pub fn run(cli_args: CliArgs) {
             shortcut::suspend_all_bindings,
             shortcut::resume_all_bindings,
             shortcut::change_mute_while_recording_setting,
-            shortcut::change_show_idle_vobi_setting,
+            shortcut::change_vobi_on_screen_setting,
+            buddy::buddy_click,
+            buddy::buddy_menu,
+            fix_selection::refine_instead,
             shortcut::update_snippets,
             shortcut::change_append_trailing_space_setting,
             shortcut::change_lazy_stream_close_setting,

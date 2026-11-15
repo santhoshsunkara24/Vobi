@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Shortcuts blocked by Secure Input",
     "language": "Language",
     "autoLanguage": "Auto",
-    "otherLanguages": "Other Languages"
+    "otherLanguages": "Other Languages",
+    "buddyTalk": "Talk",
+    "buddyFix": "Fix Spelling",
+    "buddyRefine": "Refine",
+    "buddyHide": "Hide Vobi"
   },
   "sidebar": {
     "general": "General",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Refine instead"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} may be blocking 1 shortcut",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Keep Vobi on screen",
+        "description": "A little Vobi stays on your screen. Click it to talk, or to fix the text you’ve selected. Right-click for more."
       }
     }
   },

@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Secure Input でショートカットがブロック中",
     "language": "言語",
     "autoLanguage": "自動",
-    "otherLanguages": "その他の言語"
+    "otherLanguages": "その他の言語",
+    "buddyTalk": "話す",
+    "buddyFix": "スペルを修正",
+    "buddyRefine": "リファイン",
+    "buddyHide": "Vobi を隠す"
   },
   "sidebar": {
     "general": "一般",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "代わりにリファイン"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} が1個のショートカットをブロックしている可能性があります",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Vobi を画面に表示",
+        "description": "小さな Vobi が画面に常駐します。クリックで話す、または選択したテキストを修正。右クリックでその他の操作。"
       }
     }
   },

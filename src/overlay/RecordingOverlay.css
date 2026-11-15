@@ -163,6 +163,21 @@
 .vcard.m-fix .vrow {
   padding-right: 18px;
 }
+/* With "Refine instead", the button closes the row, concentric with the pill. */
+.vcard.m-fix .vrow:has(.vfix-refine) {
+  padding-right: 11px;
+}
+.vfix-refine {
+  flex: none;
+  margin-left: 6px;
+  animation: vfix-refine-in 380ms var(--v-ease) 160ms both;
+}
+@keyframes vfix-refine-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px) scale(0.92);
+  }
+}
 .vstage.top .vcard {
   transform-origin: top center;
 }

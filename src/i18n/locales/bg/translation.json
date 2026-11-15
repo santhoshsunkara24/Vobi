@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Бързите клавиши са блокирани от Secure Input",
     "language": "Език",
     "autoLanguage": "Автоматично",
-    "otherLanguages": "Други езици"
+    "otherLanguages": "Други езици",
+    "buddyTalk": "Говори",
+    "buddyFix": "Поправи правописа",
+    "buddyRefine": "Подобри",
+    "buddyHide": "Скрий Vobi"
   },
   "sidebar": {
     "general": "Общи",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "По-добре подобри"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} може да блокира 1 бърз клавиш",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Дръж Vobi на екрана",
+        "description": "Малкият Vobi остава на екрана. Щракнете върху него, за да говорите или да поправите маркирания текст. Десен бутон за още."
       }
     }
   },

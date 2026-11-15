@@ -45,6 +45,8 @@ export interface CloudOptions {
   mono?: boolean;
   /** Soft contact shadow under the cloud (large sizes only). */
   shadow?: boolean;
+  /** Little legs under the cloud (the on-screen buddy). Full colour only. */
+  legs?: boolean;
 }
 
 type Spring = { x: number; v: number; to: number };
@@ -153,7 +155,7 @@ function markup(id: string, o: CloudOptions): string {
       <clipPath id="${id}clip"><path data-r="clip"/></clipPath>
     </defs>
     ${o.shadow ? `<ellipse data-r="shadow" cx="0" cy="52" rx="34" ry="4" fill="#0B2A4A" opacity=".12"/>` : ""}
-    <g data-r="root">${body}
+    <g data-r="root">${o.legs && !o.mono ? legsMarkup(id) : ""}${body}
       ${o.mono ? "" : `<ellipse data-r="bl" rx="6" ry="3.4" fill="url(#${id}bl)"/><ellipse data-r="br" rx="6" ry="3.4" fill="url(#${id}bl)"/>`}
       <ellipse data-r="el" fill="${eye}"/><ellipse data-r="er" fill="${eye}"/>
       ${glints}
@@ -163,6 +165,13 @@ function markup(id: string, o: CloudOptions): string {
     </g>
     ${o.mono ? "" : extras(id, small)}
   </svg>`;
+}
+
+/** Two stubby legs, drawn behind the body so the hips tuck under it. */
+function legsMarkup(id: string): string {
+  const leg = (k: string) =>
+    `<path data-r="leg${k}" fill="none" stroke="url(#${id}leg)" stroke-width="6.5" stroke-linecap="round"/><ellipse data-r="foot${k}" rx="5" ry="3.2" fill="#1D5FD6"/>`;
+  return `<defs><linearGradient id="${id}leg" x1="0" y1="30" x2="0" y2="52" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F8CF2"/><stop offset="1" stop-color="#2468DC"/></linearGradient></defs>${leg("l")}${leg("r")}`;
 }
 
 /** Little marks around the head: sparkles (refining), "?" (confused), "z" (sleepy). */
@@ -334,6 +343,10 @@ export class CloudEngine {
   private readonly nod = spring(0);
   /** A little side-to-side wiggle when something worked. */
   private readonly tilt = spring(0);
+  private carried = false;
+  /** Each leg's swing (degrees) and foot lift, eased toward the pose. */
+  private readonly legSwing = [0, 0];
+  private readonly legLift = [0, 0];
   /** The pose, every number on its own spring. */
   private readonly p: Record<keyof Pose, Spring>;
   /** Extras: sparkles, "?", "z". */
@@ -394,9 +407,83 @@ export class CloudEngine {
     }
   }
 
+  /** Picked up and being dragged: the legs dangle and kick. */
+  setCarried(carried: boolean) {
+    this.carried = carried;
+  }
+
   /** Voice loudness, 0..1. Only used while listening. */
   setLevel(level: number) {
     this.target = Math.max(0, Math.min(1, level));
+  }
+
+  /** Where each leg points for what Vobi is doing. */
+  private legs(
+    st: CloudState,
+    t: number,
+    L: number,
+    ty: number,
+    dt: number,
+    still: boolean,
+  ) {
+    const hop = clamp01(-ty / 26);
+    for (const [i, s] of [
+      [0, -1],
+      [1, 1],
+    ] as const) {
+      const phase = s < 0 ? 0 : Math.PI;
+      let swing = 0;
+      let lift = 0;
+      if (this.carried) {
+        // Dangling from the pointer, kicking a little.
+        swing = Math.sin(t * 13 + phase) * 22;
+      } else if (still) {
+        swing = 0;
+      } else if (st === "listening") {
+        // Tapping one foot along with the voice.
+        if (s > 0) lift = Math.max(0, Math.sin(t * 8)) * (1.5 + L * 3);
+      } else if (
+        st === "transcribing" ||
+        st === "thinking" ||
+        st === "refining" ||
+        st === "fixing"
+      ) {
+        // Jogging on the spot while it works.
+        swing = Math.sin(t * 11 + phase) * 13;
+        lift = Math.max(0, Math.sin(t * 11 + phase)) * 2.6;
+      } else if (st === "done") {
+        // Both legs kick out on the hop.
+        swing = s * 26 * hop;
+      } else if (st === "clean") {
+        if (s > 0) swing = 16;
+      } else if (st === "confused") {
+        if (s > 0) swing = Math.sin(t * 3.2) * 11;
+      } else if (st === "error") {
+        // Knock-kneed.
+        swing = -s * 11;
+      } else if (st === "sleepy") {
+        swing = s * 3;
+      } else {
+        // Idle: a lazy little sway.
+        swing = Math.sin(t * 1.7 + phase / 2) * 5;
+      }
+      const k = Math.min(1, dt * 16);
+      this.legSwing[i] += (swing - this.legSwing[i]) * k;
+      this.legLift[i] += (lift - this.legLift[i]) * k;
+      const a = (this.legSwing[i] * Math.PI) / 180;
+      const hipX = s * 12.5;
+      const hipY = 32;
+      const len = this.carried ? 17 : 15.5;
+      const fx = hipX + Math.sin(a) * len;
+      const fy = hipY + Math.cos(a) * len - this.legLift[i];
+      const key = i ? "r" : "l";
+      set(this.r[`leg${key}`], { d: `M${f(hipX)},${hipY} L${f(fx)},${f(fy)}` });
+      set(this.r[`foot${key}`], {
+        cx: f(fx + s * 1.6),
+        cy: f(fy + 1.2),
+        transform: `rotate(${f(this.legSwing[i] * 0.6)} ${f(fx)} ${f(fy)})`,
+      });
+    }
   }
 
   destroy() {
@@ -513,6 +600,7 @@ export class CloudEngine {
       transform: `translate(0 ${f(ty)}) translate(0 ${BASE_Y}) rotate(${f(still ? p.tilt.to : this.tilt.x + lean)}) scale(${this.sx.x.toFixed(3)} ${this.sy.x.toFixed(3)}) translate(0 ${-BASE_Y})`,
     });
     set(this.r.shadow, { opacity: (0.12 * (1 + ty / 45)).toFixed(3) });
+    if (this.r.legl) this.legs(st, t, L, ty, dt, still);
 
     // Face
     const mono = !!this.o.mono;

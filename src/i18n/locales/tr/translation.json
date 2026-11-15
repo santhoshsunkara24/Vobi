@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Kısayollar Secure Input tarafından engelleniyor",
     "language": "Dil",
     "autoLanguage": "Otomatik",
-    "otherLanguages": "Diğer Diller"
+    "otherLanguages": "Diğer Diller",
+    "buddyTalk": "Konuş",
+    "buddyFix": "Yazımı düzelt",
+    "buddyRefine": "İyileştir",
+    "buddyHide": "Vobi’yi gizle"
   },
   "sidebar": {
     "general": "Genel",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Onun yerine iyileştir"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} 1 kısayolu engelliyor olabilir",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Vobi ekranda kalsın",
+        "description": "Küçük bir Vobi ekranında kalır. Konuşmak ya da seçili metni düzeltmek için tıkla. Daha fazlası için sağ tıkla."
       }
     }
   },

@@ -35,6 +35,18 @@ extern "C" {
         attribute: CFTypeRef,
         settable: *mut u8,
     ) -> AXError;
+    fn AXValueCreate(the_type: u32, value: *const c_void) -> CFTypeRef;
+    fn AXValueGetValue(value: CFTypeRef, the_type: u32, out: *mut c_void) -> u8;
+}
+
+/// `kAXValueCFRangeType`: an AXValue wrapping a CFRange.
+const AX_VALUE_CF_RANGE: u32 = 4;
+
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct CFRange {
+    location: isize,
+    length: isize,
 }
 
 #[link(name = "CoreFoundation", kind = "framework")]
@@ -135,4 +147,49 @@ pub fn replace_selection(element: &FocusedText, previous: &str, text: &str) -> b
         copy_string(element.0, "AXSelectedText"),
         Some(now) if now == previous && previous != text
     )
+}
+
+/// Where the selection starts, in UTF-16 units, if the app reports it.
+pub fn selection_start(element: &FocusedText) -> Option<isize> {
+    let a = attr("AXSelectedTextRange");
+    let mut value: CFTypeRef = std::ptr::null();
+    // SAFETY: valid element and attribute; on success we own `value`.
+    let err = unsafe {
+        AXUIElementCopyAttributeValue(element.0, Retained::as_ptr(&a) as CFTypeRef, &mut value)
+    };
+    if err != AX_SUCCESS || value.is_null() {
+        return None;
+    }
+    let mut range = CFRange::default();
+    // SAFETY: `value` is an AXValue we own; `range` is a matching CFRange.
+    let ok = unsafe {
+        AXValueGetValue(
+            value,
+            AX_VALUE_CF_RANGE,
+            &mut range as *mut CFRange as *mut c_void,
+        )
+    };
+    // SAFETY: balance the Copy above.
+    unsafe { CFRelease(value) };
+    (ok != 0).then_some(range.location)
+}
+
+/// Selects `length` UTF-16 units from `location`. Returns whether the app
+/// took it (used to select the text Fix just wrote, for "Refine instead").
+pub fn select_range(element: &FocusedText, location: isize, length: isize) -> bool {
+    let a = attr("AXSelectedTextRange");
+    let range = CFRange { location, length };
+    // SAFETY: AXValueCreate copies the CFRange; we release the result.
+    let value =
+        unsafe { AXValueCreate(AX_VALUE_CF_RANGE, &range as *const CFRange as *const c_void) };
+    if value.is_null() {
+        return false;
+    }
+    // SAFETY: valid element, attribute and AXValue.
+    let err = unsafe {
+        AXUIElementSetAttributeValue(element.0, Retained::as_ptr(&a) as CFTypeRef, value)
+    };
+    // SAFETY: balance AXValueCreate.
+    unsafe { CFRelease(value) };
+    err == AX_SUCCESS
 }

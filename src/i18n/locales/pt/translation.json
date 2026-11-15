@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Atalhos bloqueados pelo Secure Input",
     "language": "Idioma",
     "autoLanguage": "Automático",
-    "otherLanguages": "Outros idiomas"
+    "otherLanguages": "Outros idiomas",
+    "buddyTalk": "Falar",
+    "buddyFix": "Corrigir ortografia",
+    "buddyRefine": "Refinar",
+    "buddyHide": "Ocultar Vobi"
   },
   "sidebar": {
     "general": "Geral",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Refinar em vez disso"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} pode estar bloqueando 1 atalho",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Manter o Vobi na tela",
+        "description": "Um pequeno Vobi fica na sua tela. Clique nele para falar ou para corrigir o texto selecionado. Clique com o botão direito para mais."
       }
     }
   },

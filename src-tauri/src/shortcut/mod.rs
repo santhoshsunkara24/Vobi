@@ -1382,10 +1382,11 @@ pub fn set_post_process_selected_prompt(app: AppHandle, id: String) -> Result<()
 
 #[tauri::command]
 #[specta::specta]
-pub fn change_show_idle_vobi_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+pub fn change_vobi_on_screen_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
-    settings.show_idle_vobi = enabled;
+    settings.vobi_on_screen = enabled;
     settings::write_settings(&app, settings);
+    crate::buddy::set_visible(&app, enabled);
     Ok(())
 }
 

@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ 快捷键被 Secure Input 阻止",
     "language": "语言",
     "autoLanguage": "自动",
-    "otherLanguages": "其他语言"
+    "otherLanguages": "其他语言",
+    "buddyTalk": "说话",
+    "buddyFix": "修正拼写",
+    "buddyRefine": "润色",
+    "buddyHide": "隐藏 Vobi"
   },
   "sidebar": {
     "general": "通用",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "改为润色"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} 可能正在阻止 1 个快捷键",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "让 Vobi 留在屏幕上",
+        "description": "一个小 Vobi 会留在屏幕上。点击它即可说话，或修正选中的文字。右键查看更多。"
       }
     }
   },

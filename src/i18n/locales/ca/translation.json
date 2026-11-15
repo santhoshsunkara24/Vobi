@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Dreceres blocades per l'entrada segura",
     "language": "Llengua",
     "autoLanguage": "Automàtica",
-    "otherLanguages": "Altres llengües"
+    "otherLanguages": "Altres llengües",
+    "buddyTalk": "Parla",
+    "buddyFix": "Corregeix l’ortografia",
+    "buddyRefine": "Refina",
+    "buddyHide": "Amaga el Vobi"
   },
   "sidebar": {
     "general": "General",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Millor refinar"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} pot estar blocant 1 drecera",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Mantén el Vobi a la pantalla",
+        "description": "Un Vobi petit es queda a la pantalla. Fes-hi clic per parlar o per corregir el text seleccionat. Clic dret per a més opcions."
       }
     }
   },

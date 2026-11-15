@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Zkratky blokuje Secure Input",
     "language": "Jazyk",
     "autoLanguage": "Automaticky",
-    "otherLanguages": "Další jazyky"
+    "otherLanguages": "Další jazyky",
+    "buddyTalk": "Mluvit",
+    "buddyFix": "Opravit pravopis",
+    "buddyRefine": "Vylepšit",
+    "buddyHide": "Skrýt Vobi"
   },
   "sidebar": {
     "general": "Obecné",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Raději vylepšit"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} může blokovat 1 zkratku",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Nechat Vobi na obrazovce",
+        "description": "Malý Vobi zůstane na obrazovce. Klikni na něj a mluv, nebo oprav označený text. Pravým tlačítkem zobrazíš další možnosti."
       }
     }
   },

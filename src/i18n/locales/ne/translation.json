@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Secure Input ले सर्टकटहरू रोकेको छ",
     "language": "भाषा",
     "autoLanguage": "स्वतः",
-    "otherLanguages": "अन्य भाषाहरू"
+    "otherLanguages": "अन्य भाषाहरू",
+    "buddyTalk": "बोल्नुहोस्",
+    "buddyFix": "हिज्जे सच्याउनुहोस्",
+    "buddyRefine": "निखार्नुहोस्",
+    "buddyHide": "Vobi लुकाउनुहोस्"
   },
   "sidebar": {
     "general": "सामान्य",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "बरु निखार्नुहोस्"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} ले 1 सर्टकट रोकिरहेको हुन सक्छ",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Vobi लाई स्क्रिनमा राख्नुहोस्",
+        "description": "सानो Vobi तपाईंको स्क्रिनमा रहन्छ। बोल्न वा छानिएको टेक्स्ट सच्याउन यसमा क्लिक गर्नुहोस्। थप विकल्पका लागि राइट-क्लिक गर्नुहोस्।"
       }
     }
   },

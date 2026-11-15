@@ -573,10 +573,13 @@ pub struct AppSettings {
     /// `overlay_position` (position `none` → style `None`).
     #[serde(default = "default_overlay_style")]
     pub overlay_style: OverlayStyle,
-    /// Keep Vobi on screen as a small floating pill while not dictating.
-    /// Persisted only for now: the idle pill itself is a follow-up.
-    #[serde(default = "default_show_idle_vobi")]
-    pub show_idle_vobi: bool,
+    /// Keep the little Vobi (the cloud with legs) on screen: click it to
+    /// talk, or to fix the selected text. See `buddy.rs`.
+    #[serde(default)]
+    pub vobi_on_screen: bool,
+    /// Where it was last left, in logical screen points (top-left).
+    #[serde(default)]
+    pub vobi_on_screen_position: Option<(f64, f64)>,
     /// Short spoken phrases that expand to longer text. Stored only for now:
     /// expanding them in transcriptions is a follow-up.
     #[serde(default)]
@@ -589,10 +592,6 @@ pub struct Snippet {
     pub id: String,
     pub trigger: String,
     pub text: String,
-}
-
-fn default_show_idle_vobi() -> bool {
-    true
 }
 
 fn default_model() -> String {
@@ -1151,7 +1150,8 @@ pub fn get_default_settings() -> AppSettings {
         language_detection: LanguageDetectionMode::default(),
         language_detection_window_secs: default_language_detection_window_secs(),
         overlay_style: default_overlay_style(),
-        show_idle_vobi: default_show_idle_vobi(),
+        vobi_on_screen: false,
+        vobi_on_screen_position: None,
         snippets: Vec::new(),
     }
 }

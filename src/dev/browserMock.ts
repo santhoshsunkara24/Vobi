@@ -128,7 +128,8 @@ const settings = {
   chinese_script: "as_transcribed",
   vad_enabled: true,
   long_form_chunking: true,
-  show_idle_vobi: true,
+  vobi_on_screen: false,
+  vobi_on_screen_position: null,
   snippets: empty
     ? []
     : [
@@ -214,8 +215,8 @@ const handlers: Record<string, (args: Record<string, unknown>) => unknown> = {
     settings.snippets = a.snippets as AppSettings["snippets"];
     return null;
   },
-  change_show_idle_vobi_setting: (a) => {
-    settings.show_idle_vobi = a.enabled as boolean;
+  change_vobi_on_screen_setting: (a) => {
+    settings.vobi_on_screen = a.enabled as boolean;
     return null;
   },
   change_filler_word_removal_enabled_setting: (a) => {

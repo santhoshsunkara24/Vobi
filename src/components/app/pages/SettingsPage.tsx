@@ -218,9 +218,9 @@ const GeneralTab: React.FC<{ onNavigate: (page: Page) => void }> = ({
 
       <SettingsGroup title={t("vobi.settings.groups.vobi")}>
         <ToggleSwitch
-          checked={getSetting("show_idle_vobi") ?? true}
-          onChange={(on) => updateSetting("show_idle_vobi", on)}
-          isUpdating={isUpdating("show_idle_vobi")}
+          checked={getSetting("vobi_on_screen") ?? false}
+          onChange={(on) => updateSetting("vobi_on_screen", on)}
+          isUpdating={isUpdating("vobi_on_screen")}
           label={t("vobi.settings.idle.label")}
           description={t("vobi.settings.idle.description")}
           grouped

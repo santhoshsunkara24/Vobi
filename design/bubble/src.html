@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vobi Bubble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --font: "Instrument Sans", -apple-system, system-ui, sans-serif;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --glass: rgba(30, 32, 38, 0.42);
+    --text: #f5f5f7;
+    --text-2: rgba(235, 235, 245, 0.62);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { font-family: var(--font); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; background: #f4f7fb; color: #1c1c1e; }
+
+  /* ---- a stand-in desktop ---- */
+  .desk {
+    position: relative; flex: 1; overflow: hidden;
+    background:
+      radial-gradient(60% 70% at 12% 18%, #8fd3ff 0%, transparent 60%),
+      radial-gradient(50% 60% at 88% 26%, #ffb38a 0%, transparent 60%),
+      radial-gradient(60% 60% at 50% 105%, #6c7cff 0%, transparent 65%),
+      #dfe8f5;
+  }
+  .note {
+    position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+    width: min(560px, calc(100% - 32px));
+    background: rgba(255,255,255,.94); border-radius: 14px; padding: 18px 24px 22px;
+    box-shadow: 0 10px 40px -12px rgba(20,30,60,.3);
+    font-size: 15px; line-height: 1.6;
+  }
+  .note h2 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: #8a8f98; }
+  .note p { margin: 0; outline: none; }
+  .note p::selection, .note p *::selection { background: #b8dcff; }
+  .note .new { animation: clear 700ms var(--ease) both; }
+  @keyframes clear { from { opacity: 0; filter: blur(5px); } }
+  .note .typed { color: #1c1c1e; }
+  .note .caret { display: inline-block; width: 1.5px; height: 1.1em; background: #1c1c1e; vertical-align: -0.18em; margin-left: 1px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---- Vobi, standing on your screen ---- */
+  .bubble {
+    position: absolute; right: 22px; bottom: 16px;
+    width: 76px; height: 76px;
+    display: grid; place-items: center;
+    cursor: pointer; user-select: none; touch-action: none;
+    transition: transform 260ms var(--ease);
+    animation: arrive 620ms var(--ease) both;
+    /* a soft lift off whatever's behind */
+    filter: drop-shadow(0 6px 10px rgba(16, 40, 90, .18));
+  }
+  @keyframes arrive { from { opacity: 0; transform: translateY(14px) scale(.7); } }
+  .bubble:hover { transform: translateY(-2px) scale(1.05); }
+  .bubble:active { transform: scale(.95); }
+  .bubble.dragging { transform: scale(1.08) rotate(-4deg); cursor: grabbing; transition: none; }
+  .bubble .cloud { width: 76px; height: 76px; pointer-events: none; }
+
+  /* hover hint, to the bubble's left */
+  .hint {
+    position: absolute; right: 102px; bottom: 46px;
+    padding: 6px 11px; border-radius: 999px;
+    background: rgba(28,30,36,.82); color: var(--text);
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+    opacity: 0; transform: translateX(6px); pointer-events: none;
+    transition: opacity 160ms ease, transform 260ms var(--ease);
+  }
+  .hint kbd { font: 600 11px var(--font); color: var(--text-2); margin-left: 6px; }
+  .bubble:hover + .hint { opacity: 1; transform: none; transition-delay: 450ms; }
+  .bubble.busy + .hint { opacity: 0 !important; }
+
+  /* ---- the pill (the same one the app shows at the bottom of the screen) ---- */
+  .pill {
+    position: absolute; left: 50%; bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+    height: 52px; padding: 0 8px 0 6px; border-radius: 999px;
+    background: rgba(28,30,36,.5); color: var(--text);
+    backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 0 0 1px rgba(255,255,255,.14), 0 16px 40px -12px rgba(0,0,0,.4);
+    text-shadow: 0 1px 3px rgba(0,0,0,.3);
+    font-size: 14px; white-space: nowrap;
+    opacity: 0; transform: translate(-50%, 10px) scale(.94); pointer-events: none;
+    transition: opacity 220ms ease, transform 420ms var(--ease);
+  }
+  .pill.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .pill .slot { width: 40px; height: 40px; flex: none; }
+  .pill b { font-weight: 600; }
+  .pill .sub { color: var(--text-2); font-size: 13px; font-weight: 500; margin-left: 6px; }
+  .pill .label { padding-right: 8px; }
+  .shimmer {
+    background: linear-gradient(90deg, var(--text-2) 0%, #9fd3ff 50%, var(--text-2) 100%); background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; font-weight: 500;
+    animation: shimmer 1.6s linear infinite;
+  }
+  @keyframes shimmer { from { background-position: 120% 0; } to { background-position: -80% 0; } }
+  /* "Refine instead": appears beside the Fix result */
+  .switch {
+    margin-left: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 13px; border: 0; border-radius: 999px;
+    background: #fff; color: #1c1c1e; text-shadow: none;
+    font: 600 13px var(--font); cursor: pointer;
+    transition: transform 120ms var(--ease), background 120ms ease;
+    animation: pop 380ms var(--ease) 120ms both;
+  }
+  .switch:hover { background: #ececef; }
+  .switch:active { transform: scale(.96); }
+  .switch svg { width: 15px; height: 15px; }
+  @keyframes pop { from { opacity: 0; transform: translateX(-6px) scale(.9); } }
+
+  /* ---- the Refine card ---- */
+  .card {
+    position: absolute; left: 50%; bottom: 22px; width: 420px; max-width: calc(100% - 32px);
+    padding: 6px 12px 12px 6px; border-radius: 29px;
+    background: rgba(28,30,36,.5); color: var(--text);
+    backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 0 0 1px rgba(255,255,255,.14), 0 16px 40px -12px rgba(0,0,0,.4);
+    text-shadow: 0 1px 3px rgba(0,0,0,.3);
+    opacity: 0; transform: translate(-50%, 10px) scale(.94); filter: blur(3px); pointer-events: none;
+    transition: opacity 220ms ease, transform 460ms var(--ease), filter 260ms ease;
+  }
+  .card.on { opacity: 1; transform: translate(-50%, 0); filter: none; pointer-events: auto; }
+  .card .head { display: flex; align-items: center; gap: 10px; height: 50px; font-size: 14px; }
+  .card .head .slot { width: 40px; height: 40px; }
+  .card .txt { margin: 0 4px 0 12px; font-size: 14.5px; line-height: 1.5; min-height: 44px; }
+  .card .w { animation: word 520ms var(--ease) both; }
+  @keyframes word { from { opacity: 0; filter: blur(7px); transform: translateY(4px); } }
+  .card .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 0; border-radius: 999px; font: 600 13.5px var(--font); cursor: pointer; transition: transform 120ms var(--ease); }
+  .btn:active { transform: scale(.96); }
+  .btn svg { width: 16px; height: 16px; }
+  .soft { background: rgba(255,255,255,.12); color: var(--text); }
+  .primary { background: #fff; color: #1c1c1e; text-shadow: none; }
+
+  /* ---- right-click menu ---- */
+  .menu {
+    position: absolute; right: 28px; bottom: 92px; width: 210px; padding: 5px;
+    border-radius: 12px; background: rgba(250,250,252,.92);
+    backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 16px 40px -10px rgba(10,20,50,.35);
+    font-size: 13px; opacity: 0; transform: translateY(6px) scale(.97); transform-origin: bottom right; pointer-events: none;
+    transition: opacity 140ms ease, transform 220ms var(--ease);
+  }
+  .menu.on { opacity: 1; transform: none; pointer-events: auto; }
+  .menu button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px; height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; font: 500 13px var(--font); color: #1c1c1e; cursor: default; }
+  .menu button:hover { background: #2f7cf6; color: #fff; }
+  .menu button:hover kbd { color: rgba(255,255,255,.8); }
+  .menu kbd { font: 500 12px var(--font); color: #8a8f98; }
+  .menu hr { border: 0; height: 1px; background: rgba(0,0,0,.08); margin: 4px 6px; }
+
+  /* ---- demo controls ---- */
+  .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 12px 16px; background: #fff; border-top: 1px solid #e6e9ef; font-size: 13px; color: #5b616b; }
+  .bar b { color: #1c1c1e; }
+</style>
+</head>
+<body>
+  <div class="desk" id="desk">
+    <div class="note">
+      <h2>Notes</h2>
+      <p id="text" contenteditable="true" spellcheck="false">Hi team, can we meet tomorow near the ofice? I'll recieve the keys at noon. so basically the launch moves to next week cause design isnt done.</p>
+    </div>
+
+    <div class="bubble" id="bubble" aria-label="Vobi" title=""><span class="cloud" id="bcloud"></span></div>
+    <div class="hint" id="hint">Click to talk<kbd>Select text to fix</kbd></div>
+
+    <div class="pill" id="pill">
+      <span class="slot" id="pcloud"></span>
+      <span class="label" id="plabel"></span>
+    </div>
+
+    <div class="card" id="card">
+      <div class="head"><span class="slot" id="ccloud"></span><b>Refined</b></div>
+      <div class="txt" id="ctext"></div>
+      <div class="acts">
+        <button class="btn soft" id="again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 6.5C11.2 10.6 13.4 12.8 17.5 13.5C13.4 14.2 11.2 16.4 10.5 20.5C9.8 16.4 7.6 14.2 3.5 13.5C7.6 12.8 9.8 10.6 10.5 6.5Z"/><path d="M17.75 3.25C18 4.9 19.1 6 20.75 6.25C19.1 6.5 18 7.6 17.75 9.25C17.5 7.6 16.4 6.5 14.75 6.25C16.4 6 17.5 4.9 17.75 3.25Z"/></svg>Refine again</button>
+        <button class="btn primary" id="paste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 4.25C5.55 4.25 4.5 5.3 4.5 8.25L4.5 16.9C4.5 20.2 5.8 21.5 9.1 21.5L14.9 21.5C18.2 21.5 19.5 20.2 19.5 16.9L19.5 8.25C19.5 5.3 18.45 4.25 15.5 4.25"/><path d="M9.75 2.5L14.25 2.5C14.802 2.5 15.5 3.198 15.5 3.75L15.5 5.25C15.5 5.802 14.802 6.5 14.25 6.5L9.75 6.5C9.198 6.5 8.5 5.802 8.5 5.25L8.5 3.75C8.5 3.198 9.198 2.5 9.75 2.5Z"/><path d="M12 9.5V17.25"/><path d="M9.25 14.5L12 17.25L14.75 14.5"/></svg>Paste</button>
+      </div>
+    </div>
+
+    <div class="menu" id="menu" role="menu">
+      <button data-act="talk">Talk <kbd>⌥ Space</kbd></button>
+      <button data-act="fix">Fix spelling <kbd>⌥ ⇧ F</kbd></button>
+      <button data-act="refine">Refine <kbd>⌥ ⇧ R</kbd></button>
+      <hr />
+      <button data-act="hide">Hide Vobi</button>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span><b>Try it:</b> click Vobi with nothing selected to talk (click again to stop). Select some text in the note, then click Vobi to fix spelling, and use <b>Refine instead</b>. Drag it anywhere; right-click for more.</span>
+  </div>
+
+<script>/*ENGINE*/</script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const bubble = $("bubble"), pill = $("pill"), plabel = $("plabel"), card = $("card"), menu = $("menu"), text = $("text");
+  const bcloud = new CloudEngine($("bcloud"), { size: 76, legs: true, shadow: true });
+  const pcloud = new CloudEngine($("pcloud"), { size: 40 });
+  const ccloud = new CloudEngine($("ccloud"), { size: 40 });
+  let state = "idle", savedRange = null, timers = [];
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+  const SPARK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 6.5C11.2 10.6 13.4 12.8 17.5 13.5C13.4 14.2 11.2 16.4 10.5 20.5C9.8 16.4 7.6 14.2 3.5 13.5C7.6 12.8 9.8 10.6 10.5 6.5Z"/><path d="M17.75 3.25C18 4.9 19.1 6 20.75 6.25C19.1 6.5 18 7.6 17.75 9.25C17.5 7.6 16.4 6.5 14.75 6.25C16.4 6 17.5 4.9 17.75 3.25Z"/></svg>';
+
+  function setBubble(face, cls = "") {
+    bcloud.setState(face);
+    bubble.className = "bubble " + cls + (cls ? " busy" : "");
+  }
+  function showPill(face, html) { pcloud.setState(face); plabel.innerHTML = html; pill.classList.add("on"); }
+  function hidePill() { pill.classList.remove("on"); }
+  function reset(after = 0) {
+    later(after, () => { hidePill(); card.classList.remove("on"); setBubble("idle"); state = "idle"; });
+  }
+
+  // ---------- the click: talk, or fix the selection ----------
+  function selectedRange() {
+    const sel = getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) return null;
+    const r = sel.getRangeAt(0);
+    return text.contains(r.commonAncestorContainer) && sel.toString().trim() ? r.cloneRange() : null;
+  }
+
+  function onClick() {
+    if (state === "listening") return stopTalking();
+    if (state !== "idle" && state !== "fixed") return;
+    clearTimers();
+    const r = selectedRange();
+    if (r) fix(r); else startTalking();
+  }
+
+  // Talk: the same as the talk shortcut, toggled by clicks.
+  let lvlTimer = 0;
+  function startTalking() {
+    state = "listening"; hidePill(); card.classList.remove("on");
+    setBubble("listening", "listening");
+    lvlTimer = setInterval(() => {
+      const v = Math.max(0, Math.sin(Date.now() / 160) * .5 + Math.random() * .6);
+      bubble.style.setProperty("--lvl", v.toFixed(2)); bcloud.setLevel(v);
+    }, 90);
+  }
+  function stopTalking() {
+    clearInterval(lvlTimer); bubble.style.removeProperty("--lvl"); bcloud.setLevel(0);
+    state = "working"; setBubble("transcribing", "working");
+    showPill("transcribing", '<span class="shimmer">Transcribing…</span>');
+    later(1100, () => {
+      const s = document.createElement("span"); s.className = "new"; s.textContent = " Also, lunch is on me on Friday.";
+      text.append(s);
+      setBubble("done"); showPill("done", '<b>Pasted</b><span class="sub">7 words</span>');
+      reset(1800);
+    });
+  }
+
+  // Fix: corrects the selection in place, then offers Refine instead.
+  const TYPOS = { tomorow: "tomorrow", ofice: "office", recieve: "receive", isnt: "isn't", cause: "because" };
+  function fix(r) {
+    state = "working"; savedRange = r;
+    setBubble("fixing", "working");
+    showPill("fixing", '<span class="shimmer">Fixing spelling…</span>');
+    later(750, () => {
+      const before = r.toString();
+      let n = 0, first = "";
+      const after = before.replace(/\b(tomorow|ofice|recieve)\b/g, (m) => { n++; if (!first) first = m + " → " + TYPOS[m]; return TYPOS[m]; });
+      if (n) replaceRange(r, after);
+      setBubble(n ? "done" : "clean");
+      showPill(n ? "done" : "clean",
+        (n ? `<b>Fixed ${n}</b><span class="sub">${first}</span>` : '<b>All good</b><span class="sub">No spelling mistakes</span>') +
+        `<button class="switch" id="switch">${SPARK}Refine instead</button>`);
+      state = "fixed";
+      $("switch").onclick = (e) => { e.stopPropagation(); refine(); };
+      reset(5000);
+    });
+  }
+
+  function replaceRange(r, str) {
+    const span = document.createElement("span"); span.className = "new"; span.textContent = str;
+    r.deleteContents(); r.insertNode(span);
+    const nr = document.createRange(); nr.selectNodeContents(span); savedRange = nr;
+    getSelection().removeAllRanges(); getSelection().addRange(nr);
+  }
+
+  // Refine: from the Fix result, or the right-click menu.
+  const REFINED = "Hi team, can we meet tomorrow near the office? I'll pick up the keys at noon. The launch is moving to next week, since design isn't finished yet.";
+  function refine() {
+    clearTimers();
+    const r = savedRange || selectedRange();
+    if (!r) { showPill("confused", '<b>Select some text first</b>'); setBubble("confused"); return reset(1800); }
+    savedRange = r; state = "working";
+    setBubble("refining", "working");
+    showPill("refining", '<span class="shimmer">Refining…</span>');
+    later(1400, () => {
+      hidePill(); setBubble("idle", "working");
+      const words = REFINED.split(" ");
+      $("ctext").innerHTML = words.map((w, i) => `<span class="w" style="animation-delay:${i * 22}ms">${w} </span>`).join("");
+      ccloud.setState("idle"); card.classList.add("on"); state = "preview";
+    });
+  }
+  $("paste").onclick = () => {
+    replaceRange(savedRange, REFINED); card.classList.remove("on");
+    setBubble("done"); showPill("done", `<b>Refined</b><span class="sub">${REFINED.split(" ").length} words</span>`);
+    reset(1800);
+  };
+  $("again").onclick = () => {
+    $("ctext").style.filter = "blur(5px)"; $("ctext").style.opacity = ".4"; ccloud.setState("refining");
+    later(1100, () => { $("ctext").style.filter = ""; $("ctext").style.opacity = ""; ccloud.setState("idle");
+      $("ctext").innerHTML = "Hi team, let's meet tomorrow near the office; I'll pick up the keys at noon. Heads-up: the launch moves to next week while design wraps up."
+        .split(" ").map((w, i) => `<span class="w" style="animation-delay:${i * 22}ms">${w} </span>`).join(""); });
+  };
+
+  // ---------- drag anywhere, click to act ----------
+  // Pressing on the bubble mustn't steal the note's selection.
+  bubble.addEventListener("mousedown", (e) => e.preventDefault());
+  let down = null;
+  bubble.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    const rect = bubble.getBoundingClientRect(), desk = $("desk").getBoundingClientRect();
+    down = { x: e.clientX, y: e.clientY, ox: e.clientX - rect.left, oy: e.clientY - rect.top, desk, moved: false };
+    bubble.setPointerCapture(e.pointerId);
+  });
+  bubble.addEventListener("pointermove", (e) => {
+    if (!down) return;
+    if (!down.moved && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 4) return;
+    if (!down.moved) bcloud.setCarried(true);
+    down.moved = true; bubble.classList.add("dragging");
+    const x = Math.min(Math.max(8, e.clientX - down.desk.left - down.ox), down.desk.width - 60);
+    const y = Math.min(Math.max(8, e.clientY - down.desk.top - down.oy), down.desk.height - 60);
+    bubble.style.left = x + "px"; bubble.style.top = y + "px"; bubble.style.right = "auto"; bubble.style.bottom = "auto";
+  });
+  bubble.addEventListener("pointerup", () => {
+    if (!down) return;
+    const moved = down.moved; down = null; bubble.classList.remove("dragging"); bcloud.setCarried(false);
+    if (moved) snapToEdge(); else onClick();
+  });
+  // Let go and it settles against the nearest side.
+  function snapToEdge() {
+    const desk = $("desk").getBoundingClientRect(), r = bubble.getBoundingClientRect();
+    const left = r.left - desk.left, toLeft = left + 26 < desk.width / 2;
+    bubble.style.transition = "left 420ms var(--ease), transform 260ms var(--ease)";
+    bubble.style.left = (toLeft ? 16 : desk.width - 92) + "px";
+    setTimeout(() => (bubble.style.transition = ""), 450);
+    const hint = $("hint");
+    hint.style.right = toLeft ? "auto" : (desk.width - (desk.width - 72) + 12) + "px";
+    hint.style.left = toLeft ? "84px" : "auto";
+    hint.style.bottom = (desk.height - (r.top - desk.top) - 38) + "px";
+    menu.style.right = toLeft ? "auto" : "20px"; menu.style.left = toLeft ? "20px" : "auto";
+    menu.style.bottom = (desk.height - (r.top - desk.top) + 12) + "px";
+  }
+
+  // ---------- right-click: everything, by name ----------
+  bubble.addEventListener("contextmenu", (e) => { e.preventDefault(); savedRange = selectedRange() || savedRange; menu.classList.toggle("on"); });
+  document.addEventListener("pointerdown", (e) => { if (!menu.contains(e.target) && e.target !== bubble) menu.classList.remove("on"); });
+  menu.addEventListener("mousedown", (e) => e.preventDefault());
+  menu.onclick = (e) => {
+    const act = e.target.closest("button")?.dataset.act; if (!act) return;
+    menu.classList.remove("on"); clearTimers();
+    if (act === "talk") startTalking();
+    if (act === "fix") { const r = selectedRange(); r ? fix(r) : (showPill("confused", "<b>Select some text first</b>"), setBubble("confused"), reset(1800)); }
+    if (act === "refine") refine();
+    if (act === "hide") { bubble.style.display = "none"; showPill("idle", '<b>Vobi hidden</b><span class="sub">Turn it on again in Settings</span>'); later(2200, () => { hidePill(); bubble.style.display = ""; }); }
+  };
+</script>
+</body>
+</html>

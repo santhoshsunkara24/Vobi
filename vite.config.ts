@@ -17,12 +17,13 @@ export default defineConfig(async () => ({
     },
   },
 
-  // Multiple entry points: the main app and the overlay
+  // Multiple entry points: the main app, the overlay and Vobi on screen
   build: {
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
         overlay: resolve(__dirname, "src/overlay/index.html"),
+        buddy: resolve(__dirname, "src/buddy/index.html"),
       },
     },
   },

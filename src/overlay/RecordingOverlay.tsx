@@ -53,6 +53,8 @@ type FixResult = {
   kind: "fixed" | "clean" | "empty" | "failed" | "refined" | "nokey";
   fixes: { from: string; to: string }[];
   words: number;
+  /** Offer "Refine instead": the text is still selected for Refine. */
+  refine?: boolean;
 };
 
 // The Refine preview: the rewritten text, waiting for Paste / Refine again.
@@ -558,6 +560,19 @@ const RecordingOverlay: React.FC = () => {
           </b>
         )}
       </span>
+      {fix.refine && (
+        <button
+          type="button"
+          className="vbtn vbtn-primary vfix-refine"
+          onClick={(e) => {
+            e.stopPropagation();
+            commands.refineInstead();
+          }}
+        >
+          <Sparkles size={16} strokeWidth={1.7} aria-hidden="true" />
+          {t("overlay.refineInstead")}
+        </button>
+      )}
     </div>
   );
 

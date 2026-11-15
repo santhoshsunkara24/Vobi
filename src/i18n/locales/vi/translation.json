@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Phím tắt bị Secure Input chặn",
     "language": "Ngôn ngữ",
     "autoLanguage": "Tự động",
-    "otherLanguages": "Ngôn ngữ khác"
+    "otherLanguages": "Ngôn ngữ khác",
+    "buddyTalk": "Nói",
+    "buddyFix": "Sửa chính tả",
+    "buddyRefine": "Trau chuốt",
+    "buddyHide": "Ẩn Vobi"
   },
   "sidebar": {
     "general": "Chung",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Trau chuốt thay vào đó"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} có thể đang chặn 1 phím tắt",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Giữ Vobi trên màn hình",
+        "description": "Một Vobi nhỏ luôn ở trên màn hình. Nhấp vào để nói hoặc sửa văn bản đã chọn. Nhấp chuột phải để xem thêm."
       }
     }
   },

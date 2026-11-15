@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Pintasan diblokir oleh Secure Input",
     "language": "Bahasa",
     "autoLanguage": "Otomatis",
-    "otherLanguages": "Bahasa Lain"
+    "otherLanguages": "Bahasa Lain",
+    "buddyTalk": "Bicara",
+    "buddyFix": "Perbaiki ejaan",
+    "buddyRefine": "Perhalus",
+    "buddyHide": "Sembunyikan Vobi"
   },
   "sidebar": {
     "general": "Umum",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Perhalus saja"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} mungkin memblokir 1 pintasan",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Tampilkan Vobi di layar",
+        "description": "Vobi kecil tetap ada di layarmu. Klik untuk bicara atau memperbaiki teks yang dipilih. Klik kanan untuk opsi lain."
       }
     }
   },

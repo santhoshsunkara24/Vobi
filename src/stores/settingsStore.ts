@@ -169,8 +169,8 @@ const settingUpdaters: {
     commands.setPostProcessSelectedPrompt(value as string),
   mute_while_recording: (value) =>
     commands.changeMuteWhileRecordingSetting(value as boolean),
-  show_idle_vobi: (value) =>
-    commands.changeShowIdleVobiSetting(value as boolean),
+  vobi_on_screen: (value) =>
+    commands.changeVobiOnScreenSetting(value as boolean),
   snippets: (value) => commands.updateSnippets(value as Snippet[]),
   append_trailing_space: (value) =>
     commands.changeAppendTrailingSpaceSetting(value as boolean),

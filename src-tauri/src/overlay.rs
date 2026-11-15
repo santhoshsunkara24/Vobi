@@ -91,6 +91,10 @@ fn overlay_dimensions(state: &str) -> (f64, f64) {
     if state == "preview" {
         return (OVERLAY_PREVIEW_WIDTH, OVERLAY_PREVIEW_HEIGHT);
     }
+    // A Fix result can carry its fixes and a "Refine instead" button.
+    if state == "fix" {
+        return (OVERLAY_PREVIEW_WIDTH, OVERLAY_HEIGHT);
+    }
     if is_live_state(state) {
         (OVERLAY_STREAM_WIDTH, OVERLAY_STREAM_HEIGHT)
     } else {
@@ -824,6 +828,8 @@ struct FixPayload {
     kind: &'static str,
     fixes: Vec<crate::spellfix::SpellFix>,
     words: usize,
+    /// Offer "Refine instead": the text is still selected and an AI is set up.
+    refine: bool,
 }
 
 #[derive(serde::Serialize, Clone)]
@@ -872,12 +878,24 @@ pub fn show_fix_result(app_handle: &AppHandle, result: FixResult) {
         }
         FixResult::NoEngine => ("nokey", vec![]),
     };
+    let refine = (kind == "fixed" || kind == "clean") && crate::fix_selection::refine_offered();
+    // Long enough to read it, and longer still to reach "Refine instead".
     let hold = Duration::from_millis(
-        2400 + 350 * fixes.len().min(4) as u64 + if kind == "nokey" { 1600 } else { 0 },
+        2400 + 350 * fixes.len().min(4) as u64
+            + if kind == "nokey" { 1600 } else { 0 }
+            + if refine { 2600 } else { 0 },
     );
     show_overlay_state(app_handle, "fix");
     if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
-        let _ = overlay_window.emit("overlay-fix", FixPayload { kind, fixes, words });
+        let _ = overlay_window.emit(
+            "overlay-fix",
+            FixPayload {
+                kind,
+                fixes,
+                words,
+                refine,
+            },
+        );
     }
     let handle = app_handle.clone();
     std::thread::spawn(move || {
@@ -994,6 +1012,10 @@ pub fn emit_levels(app_handle: &AppHandle, levels: &[f32]) {
     // `emit_to` with the overlay's window label produces a single
     // eval_script call per callback, cutting the per-callback WebKit
     // dispatch work in half.
+    // Vobi on screen taps its foot along, when it's out.
+    if crate::buddy::is_visible() {
+        let _ = app_handle.emit_to(crate::buddy::LABEL, "mic-level", levels);
+    }
     let _ = app_handle.emit_to("recording_overlay", "mic-level", levels);
 }
 

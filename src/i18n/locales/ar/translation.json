@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ الاختصارات محجوبة بواسطة Secure Input",
     "language": "اللغة",
     "autoLanguage": "تلقائي",
-    "otherLanguages": "لغات أخرى"
+    "otherLanguages": "لغات أخرى",
+    "buddyTalk": "تحدّث",
+    "buddyFix": "تصحيح الإملاء",
+    "buddyRefine": "تحسين",
+    "buddyHide": "إخفاء Vobi"
   },
   "sidebar": {
     "general": "عام",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "حسّن بدلًا من ذلك"
   },
   "secureInput": {
     "blockedWithCulprit_one": "قد يحظر {{name}} اختصارًا واحدًا",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "إبقاء Vobi على الشاشة",
+        "description": "يبقى Vobi صغير على شاشتك. انقر عليه للتحدث أو لتصحيح النص المحدد. انقر بزر الماوس الأيمن للمزيد."
       }
     }
   },

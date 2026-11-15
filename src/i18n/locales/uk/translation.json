@@ -11,7 +11,11 @@
     "secureInputWarning": "⚠ Комбінації клавіш заблоковано Secure Input",
     "language": "Мова",
     "autoLanguage": "Авто",
-    "otherLanguages": "Інші мови"
+    "otherLanguages": "Інші мови",
+    "buddyTalk": "Говорити",
+    "buddyFix": "Виправити правопис",
+    "buddyRefine": "Покращити",
+    "buddyHide": "Сховати Vobi"
   },
   "sidebar": {
     "general": "Загальні",
@@ -1030,7 +1034,8 @@
     "needAiKey": "Add a free AI key in Settings to use Refine",
     "paste": "Paste",
     "refineAgain": "Refine again",
-    "keepOriginal": "Keep original"
+    "keepOriginal": "Keep original",
+    "refineInstead": "Краще покращити"
   },
   "secureInput": {
     "blockedWithCulprit_one": "{{name}} може блокувати 1 комбінацію клавіш",
@@ -1156,8 +1161,8 @@
         "open": "Edit"
       },
       "idle": {
-        "label": "Show Vobi when idle",
-        "description": "Keep the little cloud on screen between dictations"
+        "label": "Тримати Vobi на екрані",
+        "description": "Маленький Vobi лишається на екрані. Натисніть на нього, щоб говорити або виправити виділений текст. Правий клік — більше дій."
       }
     }
   },
