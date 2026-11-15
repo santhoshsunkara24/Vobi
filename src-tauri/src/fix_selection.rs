@@ -201,8 +201,33 @@ struct Pending {
 /// Clicking the preview card can make macOS bring Vobi (and its window) to
 /// the front. These keep the app the person was writing in frontmost.
 #[cfg(target_os = "macos")]
-mod front_app {
+pub(crate) mod front_app {
     use objc2_app_kit::{NSApplicationActivationOptions, NSRunningApplication, NSWorkspace};
+    use std::time::{Duration, Instant};
+
+    pub fn is_vobi(pid: Option<i32>) -> bool {
+        pid == Some(std::process::id() as i32)
+    }
+
+    /// Brings `pid` back to the front when Vobi has it (a click on Vobi on
+    /// screen can), and waits until it's there, so keys and reads reach it.
+    #[allow(deprecated)]
+    pub fn give_back(pid: Option<i32>) {
+        let Some(pid) = pid else { return };
+        if !is_vobi(current()) || is_vobi(Some(pid)) {
+            return;
+        }
+        let Some(app) = NSRunningApplication::runningApplicationWithProcessIdentifier(pid) else {
+            return;
+        };
+        app.activateWithOptions(NSApplicationActivationOptions::empty());
+        let since = Instant::now();
+        while current() != Some(pid) && since.elapsed() < Duration::from_millis(600) {
+            std::thread::sleep(Duration::from_millis(15));
+        }
+        // Let its window become key again before we talk to it.
+        std::thread::sleep(Duration::from_millis(60));
+    }
 
     pub fn current() -> Option<i32> {
         NSWorkspace::sharedWorkspace()
@@ -224,10 +249,14 @@ mod front_app {
 }
 
 #[cfg(not(target_os = "macos"))]
-mod front_app {
+pub(crate) mod front_app {
     pub fn current() -> Option<i32> {
         None
     }
+    pub fn is_vobi(_pid: Option<i32>) -> bool {
+        false
+    }
+    pub fn give_back(_pid: Option<i32>) {}
     pub fn restore(_pid: Option<i32>) {}
 }
 

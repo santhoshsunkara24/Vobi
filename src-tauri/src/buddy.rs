@@ -17,7 +17,7 @@ use crate::managers::audio::AudioRecordingManager;
 use crate::settings;
 use crate::signal_handle::send_transcription_input;
 use log::{debug, warn};
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
@@ -40,6 +40,22 @@ static VISIBLE: AtomicBool = AtomicBool::new(false);
 static HOVER_WATCH: AtomicBool = AtomicBool::new(false);
 /// Bumped on every move, so only the last one of a drag gets saved.
 static MOVE_GENERATION: AtomicU64 = AtomicU64::new(0);
+/// The app the user was last in (never Vobi): a click on Vobi can bring Vobi
+/// to the front, and the selection and dictation belong to that app.
+static LAST_FRONT: AtomicI32 = AtomicI32::new(0);
+
+fn remember_front() {
+    let pid = fix_selection::front_app::current();
+    if let Some(pid) = pid.filter(|_| !fix_selection::front_app::is_vobi(pid)) {
+        LAST_FRONT.store(pid, Ordering::SeqCst);
+    }
+}
+
+/// Puts the user's app back in front if the click on Vobi took it.
+fn give_back_front() {
+    let pid = LAST_FRONT.load(Ordering::SeqCst);
+    fix_selection::front_app::give_back((pid != 0).then_some(pid));
+}
 
 #[cfg(target_os = "macos")]
 tauri_panel! {
@@ -270,6 +286,7 @@ fn watch_hover(app: &AppHandle) {
             let handle = app.clone();
             let last = last.clone();
             let _ = app.run_on_main_thread(move || {
+                remember_front();
                 let Some(window) = handle.get_webview_window(LABEL) else {
                     return;
                 };
@@ -337,15 +354,18 @@ pub fn buddy_click(app: AppHandle) {
         talk(&app);
         return;
     }
-    std::thread::spawn(move || match fix_selection::grab(&app) {
-        Ok(Some(grabbed)) if !grabbed.text.trim().is_empty() => {
-            debug!("Vobi on screen: fixing the selection");
-            fix_selection::run_grabbed(&app, grabbed);
-        }
-        Ok(_) => talk(&app),
-        Err(e) => {
-            warn!("Vobi on screen: could not read the selection: {e}");
-            talk(&app);
+    std::thread::spawn(move || {
+        give_back_front();
+        match fix_selection::grab(&app) {
+            Ok(Some(grabbed)) if !grabbed.text.trim().is_empty() => {
+                debug!("Vobi on screen: fixing the selection");
+                fix_selection::run_grabbed(&app, grabbed);
+            }
+            Ok(_) => talk(&app),
+            Err(e) => {
+                warn!("Vobi on screen: could not read the selection: {e}");
+                talk(&app);
+            }
         }
     });
 }
@@ -375,10 +395,20 @@ pub fn buddy_menu(app: AppHandle) -> Result<(), String> {
 }
 
 fn menu_action(app: &AppHandle, id: &str) {
+    if matches!(id, "buddy_talk" | "buddy_fix" | "buddy_refine") {
+        let app = app.clone();
+        let id = id.to_string();
+        std::thread::spawn(move || {
+            give_back_front();
+            match id.as_str() {
+                "buddy_talk" => talk(&app),
+                "buddy_fix" => fix_selection::run(&app),
+                _ => fix_selection::run_refine(&app),
+            }
+        });
+        return;
+    }
     match id {
-        "buddy_talk" => talk(app),
-        "buddy_fix" => fix_selection::run(app),
-        "buddy_refine" => fix_selection::run_refine(app),
         "buddy_hide" => {
             let mut s = settings::get_settings(app);
             s.vobi_on_screen = false;
