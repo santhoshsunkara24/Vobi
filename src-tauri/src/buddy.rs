@@ -430,19 +430,16 @@ fn menu_action(app: &AppHandle, id: &str) {
         });
         return;
     }
-    match id {
-        "buddy_hide" => {
-            let mut s = settings::get_settings(app);
-            s.vobi_on_screen = false;
-            settings::write_settings(app, s);
-            set_visible(app, false);
-            // Keep the settings window's switch in step.
-            let _ = tauri::Emitter::emit(
-                app,
-                "settings-changed",
-                serde_json::json!({ "setting": "vobi_on_screen" }),
-            );
-        }
-        _ => {}
+    if id == "buddy_hide" {
+        let mut s = settings::get_settings(app);
+        s.vobi_on_screen = false;
+        settings::write_settings(app, s);
+        set_visible(app, false);
+        // Keep the settings window's switch in step.
+        let _ = tauri::Emitter::emit(
+            app,
+            "settings-changed",
+            serde_json::json!({ "setting": "vobi_on_screen" }),
+        );
     }
 }

@@ -130,6 +130,18 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
+      # Windows: run the Rust tests on a real Windows machine first, so a
+      # failing test means no installer. Release profile, so the build below
+      # reuses what this compiles; the frontend is built first because the
+      # app embeds it at compile time.
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          bun run build
+          cd src-tauri
+          cargo test --release --lib
+
       - name: Build Vobi
         uses: tauri-apps/tauri-action@v0
         env:
