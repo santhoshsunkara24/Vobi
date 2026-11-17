@@ -285,7 +285,7 @@ pub fn run_refine(app: &AppHandle) {
 
 /// Returns a result to show in the pill, or `None` when the preview is up.
 fn refine(app: &AppHandle) -> Option<FixResult> {
-    let Some(settings) = refine_settings(app) else {
+    let Some(mut settings) = refine_settings(app) else {
         return Some(FixResult::NoEngine);
     };
     wait_for_modifiers_released(Duration::from_millis(1500));
@@ -302,7 +302,7 @@ fn refine(app: &AppHandle) -> Option<FixResult> {
 
     let front = front_app::current();
     show_refining_overlay(app);
-    let Some(refined) = ask_ai(&settings, &grabbed.text) else {
+    let Some(refined) = ask_ai(Some(app), &mut settings, &grabbed.text) else {
         return Some(FixResult::Failed);
     };
     if refined.trim() == grabbed.text.trim() {
@@ -318,10 +318,126 @@ fn refine(app: &AppHandle) -> Option<FixResult> {
     None
 }
 
-fn ask_ai(settings: &AppSettings, text: &str) -> Option<String> {
-    match tauri::async_runtime::block_on(post_process_transcription(settings, text)) {
-        PostProcessOutcome::Done(t) if !t.trim().is_empty() => Some(t.trim().to_string()),
-        _ => None,
+/// Asks the AI for a rewrite. If that fails on Groq because the model is
+/// gone, switches to one Groq still offers this key and tries once more.
+fn ask_ai(app: Option<&AppHandle>, settings: &mut AppSettings, text: &str) -> Option<String> {
+    let once =
+        |s: &AppSettings| match tauri::async_runtime::block_on(post_process_transcription(s, text))
+        {
+            PostProcessOutcome::Done(t) if !t.trim().is_empty() => Some(t.trim().to_string()),
+            _ => None,
+        };
+    if let Some(t) = once(settings) {
+        return Some(t);
+    }
+    if heal_groq_model(app, settings) {
+        return once(settings);
+    }
+    None
+}
+
+/// Groq text models Refine can use, best first. Groq retires models, and not
+/// every key is offered every one, so Refine picks from this list.
+pub(crate) const GROQ_REFINE_MODELS: &[&str] = &[
+    "openai/gpt-oss-20b",
+    "llama-3.3-70b-versatile",
+    "openai/gpt-oss-120b",
+    "qwen/qwen3.8-27b",
+    "llama-3.1-8b-instant",
+];
+
+/// The model to switch to when `current` isn't among the `offered` ones, or
+/// `None` when `current` is offered (so the failure was something else) or
+/// nothing usable is.
+fn pick_groq_model(current: &str, offered: &[String]) -> Option<String> {
+    if offered.iter().any(|m| m == current) {
+        return None;
+    }
+    GROQ_REFINE_MODELS
+        .iter()
+        .find(|m| offered.iter().any(|o| o == *m))
+        .map(|m| m.to_string())
+}
+
+/// After a failed Groq request: asks Groq which models this key can use and,
+/// if the current one isn't among them, switches to the best one that is
+/// (and saves it). A network error or an offered model changes nothing.
+fn heal_groq_model(app: Option<&AppHandle>, settings: &mut AppSettings) -> bool {
+    if settings.post_process_provider_id != "groq" {
+        return false;
+    }
+    let Some(provider) = settings
+        .post_process_providers
+        .iter()
+        .find(|p| p.id == "groq")
+        .cloned()
+    else {
+        return false;
+    };
+    let key = settings
+        .post_process_api_keys
+        .get("groq")
+        .cloned()
+        .unwrap_or_default();
+    let current = settings
+        .post_process_models
+        .get("groq")
+        .cloned()
+        .unwrap_or_default();
+    let offered =
+        match tauri::async_runtime::block_on(crate::llm_client::fetch_models(&provider, key)) {
+            Ok(models) => models,
+            Err(e) => {
+                warn!("Refine: could not list Groq's models: {e}");
+                return false;
+            }
+        };
+    let Some(next) = pick_groq_model(&current, &offered) else {
+        return false;
+    };
+    info!("Refine: Groq doesn't offer {current} to this key; switching to {next}");
+    settings
+        .post_process_models
+        .insert("groq".into(), next.clone());
+    if let Some(app) = app {
+        let mut saved = get_settings(app);
+        saved.post_process_models.insert("groq".into(), next);
+        crate::settings::write_settings(app, saved);
+    }
+    true
+}
+
+#[cfg(test)]
+mod groq_model_tests {
+    use super::pick_groq_model;
+
+    fn offered(ids: &[&str]) -> Vec<String> {
+        ids.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn keeps_a_model_that_is_still_offered() {
+        let list = offered(&["llama-3.3-70b-versatile", "openai/gpt-oss-20b"]);
+        assert_eq!(pick_groq_model("llama-3.3-70b-versatile", &list), None);
+    }
+
+    #[test]
+    fn replaces_a_retired_model_with_the_best_offered() {
+        let list = offered(&[
+            "whisper-large-v3",
+            "qwen/qwen3.8-27b",
+            "openai/gpt-oss-120b",
+        ]);
+        assert_eq!(
+            pick_groq_model("llama-3.3-70b-versatile", &list).as_deref(),
+            Some("openai/gpt-oss-120b")
+        );
+    }
+
+    #[test]
+    fn never_picks_a_speech_or_guard_model() {
+        let list = offered(&["whisper-large-v3", "meta-llama/llama-prompt-guard-2-86m"]);
+        assert_eq!(pick_groq_model("llama-3.3-70b-versatile", &list), None);
     }
 }
 
@@ -385,7 +501,7 @@ pub fn refine_again(app: AppHandle) {
         ));
     }
     std::thread::spawn(move || {
-        let refined = ask_ai(&settings, &original);
+        let refined = ask_ai(Some(&app), &mut settings, &original);
         let mut guard = PENDING.lock().unwrap_or_else(|e| e.into_inner());
         let Some(p) = guard.as_mut() else {
             return; // closed meanwhile

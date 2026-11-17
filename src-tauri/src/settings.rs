@@ -11,8 +11,10 @@ use tauri_plugin_store::StoreExt;
 pub const APPLE_INTELLIGENCE_PROVIDER_ID: &str = "apple_intelligence";
 /// The built-in "Refine" prompt, used by Refine Selection and selectable for dictation.
 pub const VOBI_REFINE_PROMPT_ID: &str = "vobi_refine";
-/// Free, fast default for the Groq provider.
-pub const GROQ_DEFAULT_MODEL: &str = "llama-3.3-70b-versatile";
+/// Default model for the Groq provider: free, fast, and one of Groq's
+/// production models. Groq retires models and doesn't offer every one to
+/// every key, so Refine falls back through `fix_selection::GROQ_REFINE_MODELS`.
+pub const GROQ_DEFAULT_MODEL: &str = "openai/gpt-oss-20b";
 pub const APPLE_INTELLIGENCE_DEFAULT_MODEL_ID: &str = "Apple Intelligence";
 
 #[derive(Serialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
