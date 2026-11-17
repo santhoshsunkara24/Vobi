@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Mantén el Vobi a la pantalla",
         "description": "Un Vobi petit es queda a la pantalla. Fes-hi clic per parlar o per corregir el text seleccionat. Clic dret per a més opcions."
+      },
+      "refineKey": {
+        "title": "Refina",
+        "description": "Enganxa una clau gratuïta de l'API de Groq per activar Refina.",
+        "descriptionMac": "Refina fa servir Apple Intelligence quan pot. En altres Mac, enganxa una clau gratuïta de l'API de Groq.",
+        "placeholder": "Clau de l'API de Groq",
+        "getKey": "Obtén una clau gratuïta"
       }
     }
   },

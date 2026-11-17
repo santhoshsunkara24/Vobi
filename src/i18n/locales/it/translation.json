@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Tieni Vobi sullo schermo",
         "description": "Un piccolo Vobi resta sullo schermo. Fai clic per parlare o per correggere il testo selezionato. Clic destro per altre opzioni."
+      },
+      "refineKey": {
+        "title": "Rifinisci",
+        "description": "Incolla una chiave API Groq gratuita per attivare Rifinisci.",
+        "descriptionMac": "Rifinisci usa Apple Intelligence quando può. Sugli altri Mac, incolla una chiave API Groq gratuita.",
+        "placeholder": "Chiave API Groq",
+        "getKey": "Ottieni una chiave gratis"
       }
     }
   },

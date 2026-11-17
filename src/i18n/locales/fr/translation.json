@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Garder Vobi à l’écran",
         "description": "Un petit Vobi reste à l’écran. Cliquez dessus pour parler, ou pour corriger le texte sélectionné. Clic droit pour plus d’options."
+      },
+      "refineKey": {
+        "title": "Reformuler",
+        "description": "Collez une clé API Groq gratuite pour activer Reformuler.",
+        "descriptionMac": "Reformuler utilise Apple Intelligence quand c'est possible. Sur les autres Mac, collez une clé API Groq gratuite.",
+        "placeholder": "Clé API Groq",
+        "getKey": "Obtenir une clé gratuite"
       }
     }
   },

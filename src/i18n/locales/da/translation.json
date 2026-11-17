@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Behold Vobi på skærmen",
         "description": "En lille Vobi bliver på skærmen. Klik på den for at tale eller rette markeret tekst. Højreklik for mere."
+      },
+      "refineKey": {
+        "title": "Forfin",
+        "description": "Indsæt en gratis Groq API-nøgle for at slå Forfin til.",
+        "descriptionMac": "Forfin bruger Apple Intelligence, hvor det kan. På andre Mac'er skal du indsætte en gratis Groq API-nøgle.",
+        "placeholder": "Groq API-nøgle",
+        "getKey": "Få en gratis nøgle"
       }
     }
   },

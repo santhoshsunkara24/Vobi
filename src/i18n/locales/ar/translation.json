@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "إبقاء Vobi على الشاشة",
         "description": "يبقى Vobi صغير على شاشتك. انقر عليه للتحدث أو لتصحيح النص المحدد. انقر بزر الماوس الأيمن للمزيد."
+      },
+      "refineKey": {
+        "title": "تحسين",
+        "description": "الصق مفتاح Groq API مجانيًا لتفعيل تحسين.",
+        "descriptionMac": "تستخدم ميزة تحسين Apple Intelligence حيثما أمكن. على أجهزة Mac الأخرى، الصق مفتاح Groq API مجانيًا.",
+        "placeholder": "مفتاح Groq API",
+        "getKey": "احصل على مفتاح مجاني"
       }
     }
   },

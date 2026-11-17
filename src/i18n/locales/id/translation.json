@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Tampilkan Vobi di layar",
         "description": "Vobi kecil tetap ada di layarmu. Klik untuk bicara atau memperbaiki teks yang dipilih. Klik kanan untuk opsi lain."
+      },
+      "refineKey": {
+        "title": "Perhalus",
+        "description": "Tempel kunci API Groq gratis untuk menyalakan Perhalus.",
+        "descriptionMac": "Perhalus memakai Apple Intelligence jika bisa. Di Mac lain, tempel kunci API Groq gratis.",
+        "placeholder": "Kunci API Groq",
+        "getKey": "Dapatkan kunci gratis"
       }
     }
   },

@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Vobi를 화면에 두기",
         "description": "작은 Vobi가 화면에 머뭅니다. 클릭하면 말하거나 선택한 텍스트를 고칩니다. 오른쪽 클릭으로 더 보기."
+      },
+      "refineKey": {
+        "title": "다듬기",
+        "description": "무료 Groq API 키를 붙여 넣으면 다듬기가 켜집니다.",
+        "descriptionMac": "다듬기는 가능하면 Apple Intelligence를 사용합니다. 다른 Mac에서는 무료 Groq API 키를 붙여 넣으세요.",
+        "placeholder": "Groq API 키",
+        "getKey": "무료 키 받기"
       }
     }
   },

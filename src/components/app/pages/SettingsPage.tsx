@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { currentOsType } from "@/hooks/useOsType";
+import { RefineKey } from "@/components/settings/RefineKey";
 import { useSettings } from "@/hooks/useSettings";
 import { isChinese } from "@/lib/utils/languageSuggestions";
 import { SettingsGroup } from "@/components/ui/SettingsGroup";
@@ -197,6 +198,7 @@ const GeneralTab: React.FC<{ onNavigate: (page: Page) => void }> = ({
         <FillerWordRemoval grouped />
         <AppendTrailingSpace grouped />
         <AutoSubmit grouped />
+        <RefineKey grouped />
         <SettingContainer
           title={t("vobi.settings.dictionary.title")}
           description={

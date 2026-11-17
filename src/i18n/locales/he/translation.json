@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "להשאיר את Vobi על המסך",
         "description": "Vobi קטן נשאר על המסך. לחצו עליו כדי לדבר או כדי לתקן את הטקסט שבחרתם. לחיצה ימנית לאפשרויות נוספות."
+      },
+      "refineKey": {
+        "title": "שיפור",
+        "description": "הדביקו מפתח Groq API חינמי כדי להפעיל שיפור.",
+        "descriptionMac": "שיפור משתמש ב-Apple Intelligence כשאפשר. במחשבי Mac אחרים, הדביקו מפתח Groq API חינמי.",
+        "placeholder": "מפתח Groq API",
+        "getKey": "קבלו מפתח חינמי"
       }
     }
   },

@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "让 Vobi 留在屏幕上",
         "description": "一个小 Vobi 会留在屏幕上。点击它即可说话，或修正选中的文字。右键查看更多。"
+      },
+      "refineKey": {
+        "title": "润色",
+        "description": "粘贴免费的 Groq API 密钥即可开启润色。",
+        "descriptionMac": "润色会尽量使用 Apple Intelligence。在其他 Mac 上，请粘贴免费的 Groq API 密钥。",
+        "placeholder": "Groq API 密钥",
+        "getKey": "获取免费密钥"
       }
     }
   },

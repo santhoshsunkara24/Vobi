@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Nechat Vobi na obrazovce",
         "description": "Malý Vobi zůstane na obrazovce. Klikni na něj a mluv, nebo oprav označený text. Pravým tlačítkem zobrazíš další možnosti."
+      },
+      "refineKey": {
+        "title": "Vylepšit",
+        "description": "Vložte bezplatný klíč Groq API a zapněte Vylepšit.",
+        "descriptionMac": "Vylepšit používá Apple Intelligence, kde to jde. Na ostatních Macích vložte bezplatný klíč Groq API.",
+        "placeholder": "Klíč Groq API",
+        "getKey": "Získat klíč zdarma"
       }
     }
   },

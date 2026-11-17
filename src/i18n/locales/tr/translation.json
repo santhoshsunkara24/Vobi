@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Vobi ekranda kalsın",
         "description": "Küçük bir Vobi ekranında kalır. Konuşmak ya da seçili metni düzeltmek için tıkla. Daha fazlası için sağ tıkla."
+      },
+      "refineKey": {
+        "title": "İyileştir",
+        "description": "İyileştir'i açmak için ücretsiz bir Groq API anahtarı yapıştırın.",
+        "descriptionMac": "İyileştir mümkün olduğunda Apple Intelligence kullanır. Diğer Mac'lerde ücretsiz bir Groq API anahtarı yapıştırın.",
+        "placeholder": "Groq API anahtarı",
+        "getKey": "Ücretsiz anahtar al"
       }
     }
   },

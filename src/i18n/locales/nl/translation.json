@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Vobi op het scherm houden",
         "description": "Een kleine Vobi blijft op je scherm. Klik erop om te praten of om geselecteerde tekst te verbeteren. Rechtsklik voor meer."
+      },
+      "refineKey": {
+        "title": "Verfijnen",
+        "description": "Plak een gratis Groq API-sleutel om Verfijnen aan te zetten.",
+        "descriptionMac": "Verfijnen gebruikt Apple Intelligence waar het kan. Plak op andere Macs een gratis Groq API-sleutel.",
+        "placeholder": "Groq API-sleutel",
+        "getKey": "Gratis sleutel halen"
       }
     }
   },

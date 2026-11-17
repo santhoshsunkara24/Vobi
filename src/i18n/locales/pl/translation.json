@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Zostaw Vobi na ekranie",
         "description": "Mały Vobi zostaje na ekranie. Kliknij go, aby mówić lub poprawić zaznaczony tekst. Kliknij prawym przyciskiem, aby zobaczyć więcej."
+      },
+      "refineKey": {
+        "title": "Dopracuj",
+        "description": "Wklej darmowy klucz Groq API, aby włączyć Dopracuj.",
+        "descriptionMac": "Dopracuj korzysta z Apple Intelligence, gdy to możliwe. Na innych Macach wklej darmowy klucz Groq API.",
+        "placeholder": "Klucz Groq API",
+        "getKey": "Zdobądź darmowy klucz"
       }
     }
   },

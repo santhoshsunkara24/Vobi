@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Manter o Vobi na tela",
         "description": "Um pequeno Vobi fica na sua tela. Clique nele para falar ou para corrigir o texto selecionado. Clique com o botão direito para mais."
+      },
+      "refineKey": {
+        "title": "Refinar",
+        "description": "Cole uma chave gratuita da API do Groq para ativar o Refinar.",
+        "descriptionMac": "O Refinar usa o Apple Intelligence quando pode. Em outros Macs, cole uma chave gratuita da API do Groq.",
+        "placeholder": "Chave da API do Groq",
+        "getKey": "Obter uma chave grátis"
       }
     }
   },

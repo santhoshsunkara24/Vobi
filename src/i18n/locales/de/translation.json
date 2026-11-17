@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Vobi auf dem Bildschirm lassen",
         "description": "Ein kleiner Vobi bleibt auf deinem Bildschirm. Klicke ihn an, um zu sprechen oder markierten Text zu korrigieren. Rechtsklick für mehr."
+      },
+      "refineKey": {
+        "title": "Verfeinern",
+        "description": "Füge einen kostenlosen Groq-API-Schlüssel ein, um Verfeinern einzuschalten.",
+        "descriptionMac": "Verfeinern nutzt Apple Intelligence, wo möglich. Auf anderen Macs füge einen kostenlosen Groq-API-Schlüssel ein.",
+        "placeholder": "Groq-API-Schlüssel",
+        "getKey": "Kostenlosen Schlüssel holen"
       }
     }
   },

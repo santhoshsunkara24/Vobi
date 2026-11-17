@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Giữ Vobi trên màn hình",
         "description": "Một Vobi nhỏ luôn ở trên màn hình. Nhấp vào để nói hoặc sửa văn bản đã chọn. Nhấp chuột phải để xem thêm."
+      },
+      "refineKey": {
+        "title": "Trau chuốt",
+        "description": "Dán khóa API Groq miễn phí để bật Trau chuốt.",
+        "descriptionMac": "Trau chuốt dùng Apple Intelligence khi có thể. Trên các máy Mac khác, hãy dán khóa API Groq miễn phí.",
+        "placeholder": "Khóa API Groq",
+        "getKey": "Lấy khóa miễn phí"
       }
     }
   },

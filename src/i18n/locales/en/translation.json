@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Keep Vobi on screen",
         "description": "A little Vobi stays on your screen. Click it to talk, or to fix the text you’ve selected. Right-click for more."
+      },
+      "refineKey": {
+        "title": "Refine",
+        "description": "Paste a free Groq API key to turn on Refine.",
+        "descriptionMac": "Refine uses Apple Intelligence where it can. On other Macs, paste a free Groq API key.",
+        "placeholder": "Groq API key",
+        "getKey": "Get a free key"
       }
     }
   },

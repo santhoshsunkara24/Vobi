@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Vobi を画面に表示",
         "description": "小さな Vobi が画面に常駐します。クリックで話す、または選択したテキストを修正。右クリックでその他の操作。"
+      },
+      "refineKey": {
+        "title": "リファイン",
+        "description": "無料の Groq API キーを貼り付けると、リファインが使えます。",
+        "descriptionMac": "リファインは可能な場合 Apple Intelligence を使います。その他の Mac では無料の Groq API キーを貼り付けてください。",
+        "placeholder": "Groq API キー",
+        "getKey": "無料のキーを取得"
       }
     }
   },

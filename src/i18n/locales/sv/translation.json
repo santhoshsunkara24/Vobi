@@ -1163,6 +1163,13 @@
       "idle": {
         "label": "Behåll Vobi på skärmen",
         "description": "En liten Vobi stannar på skärmen. Klicka på den för att prata eller rätta markerad text. Högerklicka för mer."
+      },
+      "refineKey": {
+        "title": "Förfina",
+        "description": "Klistra in en gratis Groq API-nyckel för att slå på Förfina.",
+        "descriptionMac": "Förfina använder Apple Intelligence där det går. På andra Mac-datorer klistrar du in en gratis Groq API-nyckel.",
+        "placeholder": "Groq API-nyckel",
+        "getKey": "Skaffa en gratis nyckel"
       }
     }
   },
