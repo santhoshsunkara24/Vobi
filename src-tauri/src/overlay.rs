@@ -1088,7 +1088,8 @@ mod tests {
                 OVERLAY_HEIGHT,
                 OverlayPosition::Bottom,
             ),
-            (3641, 2025, 399, 75)
+            // Vobi's 332x84 pill at 1.5x, centered, 28px (x1.5) off the bottom.
+            (3591, 1992, 498, 126)
         );
         assert_eq!(
             windows_overlay_bounds(
@@ -1100,7 +1101,7 @@ mod tests {
                 OVERLAY_HEIGHT,
                 OverlayPosition::Top,
             ),
-            (3641, 6, 399, 75)
+            (3591, 0, 498, 126)
         );
     }
 
@@ -1117,7 +1118,9 @@ mod tests {
                 OVERLAY_STREAM_HEIGHT,
                 OverlayPosition::Bottom,
             ),
-            (-1530, 1040, 500, 150)
+            // The 424x168 live card at 1.25x on a monitor left of and above
+            // the main one.
+            (-1545, 995, 530, 210)
         );
     }
 
@@ -1136,10 +1139,10 @@ mod tests {
             OVERLAY_STREAM_HEIGHT,
             OverlayPosition::Bottom,
         );
-        // 400x120 logical at 1.25 DPI x 1.1 text, still centered horizontally.
-        assert_eq!((x, y, width, height), (-1555, 1025, 550, 165));
-        // Bottom edge unchanged from the 1.0 case above (1040 + 150).
-        assert_eq!(y + height, 1190);
+        // 424x168 logical at 1.25 DPI x 1.1 text, still centered horizontally.
+        assert_eq!((x, y, width, height), (-1572, 974, 583, 231));
+        // Bottom edge unchanged from the 1.0 case above (995 + 210).
+        assert_eq!(y + height, 1205);
 
         let (_, top_y, _, _) = windows_overlay_bounds(
             monitor_position,
@@ -1151,6 +1154,6 @@ mod tests {
             OverlayPosition::Top,
         );
         // Top offset rides the DPI scale alone, so the top edge doesn't move.
-        assert_eq!(top_y, -195);
+        assert_eq!(top_y, -200);
     }
 }
