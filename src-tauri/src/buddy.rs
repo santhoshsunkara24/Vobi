@@ -40,6 +40,9 @@ static VISIBLE: AtomicBool = AtomicBool::new(false);
 static HOVER_WATCH: AtomicBool = AtomicBool::new(false);
 /// Bumped on every move, so only the last one of a drag gets saved.
 static MOVE_GENERATION: AtomicU64 = AtomicU64::new(0);
+/// Set while the window is being built off the main thread (not macOS).
+#[cfg(not(target_os = "macos"))]
+static CREATING: AtomicBool = AtomicBool::new(false);
 /// The app the user was last in (never Vobi): a click on Vobi can bring Vobi
 /// to the front, and the selection and dictation belong to that app.
 static LAST_FRONT: AtomicI32 = AtomicI32::new(0);
@@ -82,6 +85,25 @@ pub fn apply(app: &AppHandle) {
 
 /// Shows or hides Vobi on screen, creating its window the first time.
 pub fn set_visible(app: &AppHandle, on: bool) {
+    // Windows / Linux: building a webview window from the event loop (or a
+    // synchronous command) deadlocks the app, so the first one is built on
+    // its own thread. macOS builds its panel on the main thread below.
+    #[cfg(not(target_os = "macos"))]
+    if on && app.get_webview_window(LABEL).is_none() {
+        if CREATING.swap(true, Ordering::SeqCst) {
+            return;
+        }
+        let handle = app.clone();
+        std::thread::spawn(move || {
+            create(&handle);
+            CREATING.store(false, Ordering::SeqCst);
+            // Turned off again while it was being built: leave it hidden.
+            if settings::get_settings(&handle).vobi_on_screen {
+                show(&handle);
+            }
+        });
+        return;
+    }
     let handle = app.clone();
     let _ = app.run_on_main_thread(move || {
         if on {
